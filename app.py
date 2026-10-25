@@ -1,0 +1,217 @@
+from flask import Flask, render_template, request, send_file
+import pandas as pd
+import os
+
+from seating_engine import generate_seating
+from room_loader import load_rooms
+from excel_generator import create_excel
+from pdf_generator import create_pdf
+
+
+app = Flask(__name__)
+
+ROOM_FILE = "data/roomCapacity_FST.xlsx"
+
+OUTPUT_FOLDER = "outputs"
+
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+
+@app.route("/")
+def home():
+
+    return render_template("index.html")
+
+
+@app.route("/generate", methods=["POST"])
+def generate():
+
+    uploaded_file = request.files.get("student_file")
+
+    if not uploaded_file:
+        return render_template(
+            "index.html",
+            error="Please upload the seating input Excel file."
+        )
+
+    try:
+
+        # =====================================================
+        # READ EXCEL
+        # =====================================================
+
+        excel = pd.ExcelFile(uploaded_file)
+
+        required_sheets = ["EXAMS", "STUDENTS"]
+
+        for sheet in required_sheets:
+
+            if sheet not in excel.sheet_names:
+
+                return render_template(
+                    "index.html",
+                    error=f"Missing sheet: {sheet}"
+                )
+
+        exams_df = pd.read_excel(
+            uploaded_file,
+            sheet_name="EXAMS"
+        )
+
+        students_df = pd.read_excel(
+            uploaded_file,
+            sheet_name="STUDENTS"
+        )
+
+        # =====================================================
+        # READ EXAMS
+        # =====================================================
+
+        exams = {}
+
+        for _, row in exams_df.iterrows():
+
+            exam_id = str(
+                row["Exam ID"]
+            ).strip()
+
+            exams[exam_id] = {
+
+                "Course Code": str(
+                    row["Course Code"]
+                ).strip(),
+
+                "Course Name": str(
+                    row["Course Name"]
+                ).strip()
+            }
+
+        # =====================================================
+        # READ STUDENTS
+        # =====================================================
+
+        students = []
+
+        for _, row in students_df.iterrows():
+
+            exam_id = str(
+                row["Exam ID"]
+            ).strip()
+
+            enrolment = str(
+                row["Enrolment No"]
+            ).strip()
+
+            name = str(
+                row["Student Name"]
+            ).strip()
+
+            students.append({
+
+                "Exam ID": exam_id,
+
+                "Enrolment No": enrolment,
+
+                "Student Name": name
+            })
+
+        # =====================================================
+        # LOAD ROOMS
+        # =====================================================
+
+        rooms = load_rooms(
+            ROOM_FILE
+        )
+
+        # =====================================================
+        # GENERATE SEATING
+        # =====================================================
+
+        allocation = generate_seating(
+            students,
+            exams,
+            rooms
+        )
+
+        # =====================================================
+        # CREATE EXCEL
+        # =====================================================
+
+        excel_file = os.path.join(
+            OUTPUT_FOLDER,
+            "seating_allotment.xlsx"
+        )
+
+        create_excel(
+            allocation,
+            excel_file
+        )
+
+        # =====================================================
+        # CREATE PDF
+        # =====================================================
+
+        pdf_file = os.path.join(
+            OUTPUT_FOLDER,
+            "seating_allotment.pdf"
+        )
+
+        create_pdf(
+            allocation,
+            pdf_file
+        )
+
+        # =====================================================
+        # STATISTICS
+        # =====================================================
+
+        total_students = len(students)
+
+        rooms_used = len(
+            set(
+                row["Room"]
+                for row in allocation
+            )
+        )
+
+        return render_template(
+            "index.html",
+
+            success=True,
+
+            total_students=total_students,
+
+            rooms_used=rooms_used
+        )
+
+    except Exception as e:
+
+        return render_template(
+            "index.html",
+            error=str(e)
+        )
+
+
+@app.route("/download/excel")
+def download_excel():
+
+    return send_file(
+        "outputs/seating_allotment.xlsx",
+        as_attachment=True
+    )
+
+
+@app.route("/download/pdf")
+def download_pdf():
+
+    return send_file(
+        "outputs/seating_allotment.pdf",
+        as_attachment=True
+    )
+
+
+if __name__ == "__main__":
+
+    app.run(
+        debug=True
+    )

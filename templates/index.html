@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Exam Seating Allocator</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>Exam Seating Allocator</h1>
+
+    <p>
+        Upload the Excel file containing today's
+        examinations and students.
+    </p>
+
+
+    <form
+        action="/generate"
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        <label>
+            Seating Input Excel
+        </label>
+
+        <input
+            type="file"
+            name="student_file"
+            accept=".xlsx"
+            required
+        >
+
+
+        <button type="submit">
+            Generate Seating
+        </button>
+
+    </form>
+
+
+    {% if error %}
+
+    <div class="error">
+
+        ❌ {{ error }}
+
+    </div>
+
+    {% endif %}
+
+
+    {% if success %}
+
+    <div class="success">
+
+        <h2>
+            Seating Generated!
+        </h2>
+
+        <p>
+            Students:
+            <strong>{{ total_students }}</strong>
+        </p>
+
+        <p>
+            Rooms Used:
+            <strong>{{ rooms_used }}</strong>
+        </p>
+
+
+        <a href="/download/excel">
+             Download Excel
+        </a>
+
+
+        <a href="/download/pdf">
+             Download PDF
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>
