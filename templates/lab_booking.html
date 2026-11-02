@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab Booking — Smart Resource Allocation</title>
+  <meta name="description" content="Book computer labs for student projects and faculty sessions. Smart allocation finds the best available slot automatically.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav-bar">
+  <a href="/" class="nav-brand">🎓 Exam Allocator</a>
+  <a href="/lab/dashboard">📊 Lab Analytics</a>
+  <a href="/lab/booking" class="active">📅 Lab Booking</a>
+  <span class="spacer"></span>
+  <button id="dark-toggle">🌙 Dark</button>
+</nav>
+
+<main class="lab-page">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Lab Booking</div>
+      <div class="page-subtitle">Book slots, manage availability, and use smart allocation</div>
+    </div>
+  </div>
+
+  <!-- Lab + Week Controls -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="inline-row" style="align-items:flex-end;gap:16px;flex-wrap:wrap">
+      <div class="form-group" style="min-width:220px">
+        <label for="lab-select">Select Lab</label>
+        <select id="lab-select">
+          <option value="">-- Select Lab --</option>
+          {% for lab in labs %}
+            <option value="{{ lab.id }}">{{ lab.id }} — {{ lab.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="week-nav">
+        <button id="prev-week" title="Previous week">◀</button>
+        <span id="week-display">Week of ...</span>
+        <button id="next-week" title="Next week">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="booking-layout">
+
+    <!-- Left: Grid + Booking Form + Bookings List -->
+    <div>
+
+      <!-- Week Grid -->
+      <div class="card" style="margin-bottom:20px;overflow-x:auto">
+        <div class="section-title">Week Grid</div>
+        <div class="grid-legend" style="margin-bottom:10px">
+          <div class="legend-item"><span class="legend-dot ld-empty"></span> Empty (bookable)</div>
+          <div class="legend-item"><span class="legend-dot ld-in_use"></span> In Use</div>
+          <div class="legend-item"><span class="legend-dot ld-maintenance"></span> Maintenance</div>
+          <div class="legend-item"><span class="legend-dot ld-booked"></span> Booked</div>
+          <div class="legend-item"><span class="legend-dot ld-lunch"></span> Lunch</div>
+          <div class="legend-item"><span class="legend-dot ld-exam"></span> Exam</div>
+        </div>
+        <div id="week-grid">
+          <div class="no-data-msg">Select a lab to view the week grid.</div>
+        </div>
+        <div style="margin-top:10px;font-size:0.82rem;color:var(--text-muted)">
+          💡 Click empty or booked cells to select them. Multi-select for in-charge overrides.
+        </div>
+      </div>
+
+      <!-- Selected slots display -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="section-title">Selected Slots</div>
+        <div id="selected-slots-display">No slots selected</div>
+      </div>
+
+      <!-- Booking Form -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="section-title">📌 Book Slot(s)</div>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">
+          Only <strong>empty</strong> slots can be booked. All selected slots must be on the same day.
+        </p>
+        <form id="booking-form">
+          <div class="inline-row">
+            <div class="form-group">
+              <label for="book-name">Your Name <span style="color:red">*</span></label>
+              <input type="text" id="book-name" name="name" required maxlength="100" placeholder="Full name">
+            </div>
+            <div class="form-group">
+              <label for="book-role">Role</label>
+              <select id="book-role" name="role">
+                <option value="student">Student</option>
+                <option value="faculty">Faculty</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="book-purpose">Purpose <span style="color:red">*</span></label>
+            <input type="text" id="book-purpose" name="purpose" required maxlength="200" placeholder="Project work, practical session, etc.">
+          </div>
+          <div class="form-group">
+            <label for="book-size">Group Size <span style="color:red">*</span></label>
+            <input type="number" id="book-size" name="group_size" required min="1" max="200" value="1">
+          </div>
+          <div id="book-msg" class="msg"></div>
+          <button type="submit" class="btn-primary">Book Selected Slots</button>
+        </form>
+      </div>
+
+      <!-- Bookings List -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="section-title">📋 Bookings This Week</div>
+        <div id="bookings-list">
+          <div class="no-data-msg">Select a lab to view bookings.</div>
+        </div>
+        <hr class="divider">
+        <div style="font-size:0.85rem">
+          <strong>Cancel a Booking:</strong>
+          <div class="inline-row" style="margin-top:8px">
+            <div class="form-group">
+              <label for="cancel-booking-id">Booking ID</label>
+              <input type="number" id="cancel-booking-id" placeholder="ID from table above" min="1">
+            </div>
+            <div class="form-group">
+              <label for="cancel-name">Your Name (for self-cancel)</label>
+              <input type="text" id="cancel-name" placeholder="Must match booked name">
+            </div>
+            <div class="form-group" style="justify-content:flex-end">
+              <button id="cancel-booking-btn" class="btn-primary btn-danger">Cancel Booking</button>
+            </div>
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">
+            In-charge can cancel any booking using the PIN panel on the right.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right panel: In-charge + Smart Allocation -->
+    <div>
+
+      <!-- In-Charge Panel -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="section-title">🔑 In-Charge Panel</div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px">
+          Select cells in the grid, then set their state. Requires the in-charge PIN.
+          Setting a slot to <em>in_use</em> or <em>maintenance</em> cancels existing bookings on it.
+        </p>
+        <div class="form-group">
+          <label for="incharge-pin">PIN</label>
+          <input type="password" id="incharge-pin" placeholder="In-charge PIN">
+        </div>
+        <div class="form-group">
+          <label for="incharge-state">Set State To</label>
+          <select id="incharge-state">
+            <option value="empty">Empty (mark as available)</option>
+            <option value="in_use">In Use (blocked)</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="reset">Reset to Timetable Default</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="incharge-note">Note (optional)</label>
+          <input type="text" id="incharge-note" placeholder="Reason for override">
+        </div>
+        <button id="apply-state-btn" class="btn-primary">Apply to Selected Slots</button>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px">
+          💡 If all timetabled labs are full, mark slots Empty here to make them bookable.
+        </p>
+      </div>
+
+      <!-- Smart Allocation: Suggest -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="section-title">🤖 Smart Allocation — Suggest</div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px">
+          Finds the best available (lab, day, slot) combination for your group using a
+          rule-based scoring formula: <em>fit × 0.4 + balance × 0.3 + preference × 0.3</em>.
+        </p>
+        <form id="suggest-form">
+          <div class="inline-row">
+            <div class="form-group">
+              <label for="sg-size">Group Size</label>
+              <input type="number" id="sg-size" min="1" value="20">
+            </div>
+            <div class="form-group">
+              <label for="sg-consecutive">Consecutive Periods</label>
+              <input type="number" id="sg-consecutive" min="1" max="4" value="2">
+            </div>
+          </div>
+          <div class="inline-row">
+            <div class="form-group">
+              <label for="sg-day">Preferred Day (optional)</label>
+              <select id="sg-day">
+                <option value="">Any day</option>
+                <option>Mon</option><option>Tue</option><option>Wed</option>
+                <option>Thu</option><option>Fri</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sg-slot">Preferred Start Slot (optional)</label>
+              <select id="sg-slot">
+                <option value="">Any slot</option>
+                <option value="1">S1</option><option value="2">S2</option>
+                <option value="3">S3</option><option value="4">S4</option>
+                <option value="6">S6</option><option value="7">S7</option>
+                <option value="8">S8</option><option value="9">S9</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400">
+              <input type="checkbox" id="sg-unverified" style="margin:0">
+              Include unverified labs (no timetable data)
+            </label>
+          </div>
+          <button type="submit" class="btn-primary">Find Best Options</button>
+        </form>
+        <div id="suggest-results" style="margin-top:14px"></div>
+      </div>
+
+      <!-- Smart Allocation: Batch -->
+      <div class="card">
+        <div class="section-title">📦 Batch Allocation</div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px">
+          Enter one request per line:
+          <code>name, role, group_size, consecutive_periods, purpose [, preferred_day] [, preferred_slot]</code><br>
+          Lines starting with <code>#</code> are ignored. Faculty are allocated first.
+        </p>
+        <div class="form-group">
+          <label for="batch-textarea">Batch Requests</label>
+          <textarea id="batch-textarea" rows="6" style="font-family:monospace;font-size:0.82rem"
+            placeholder="# Example:
+Alice, faculty, 30, 2, Lab practical, Mon, 1
+Bob, student, 20, 1, Project work
+Carol, student, 15, 2, Assignment"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400">
+            <input type="checkbox" id="batch-unverified" style="margin:0">
+            Include unverified labs
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="batch-preview-btn" class="btn-primary">🔍 Preview (Dry Run)</button>
+          <button id="batch-commit-btn" class="btn-primary" style="background:#2e7d32">
+            ✅ Commit (requires PIN)
+          </button>
+        </div>
+        <div class="form-group" style="margin-top:10px">
+          <label for="batch-pin">In-Charge PIN (for commit)</label>
+          <input type="password" id="batch-pin" placeholder="PIN required to commit">
+        </div>
+        <div id="batch-results" style="margin-top:14px"></div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script src="{{ url_for('static', filename='lab.js') }}"></script>
+</body>
+</html>

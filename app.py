@@ -1,11 +1,22 @@
+import sys
+import os
+
+# Automatically resolve dependencies from local runtime cache if needed
+_cached_site = os.path.expanduser(r"~\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\site-packages")
+if os.path.isdir(_cached_site) and _cached_site not in sys.path:
+    sys.path.insert(0, _cached_site)
+
 from flask import Flask, render_template, request, send_file
 import pandas as pd
-import os
 
 from seating_engine import generate_seating
 from room_loader import load_rooms
 from excel_generator import create_excel
 from pdf_generator import create_pdf
+
+# Lab module Blueprint
+from lab.routes import lab_bp
+from lab import booking as bm
 
 
 app = Flask(__name__)
@@ -15,6 +26,18 @@ ROOM_FILE = "data/roomCapacity_FST.xlsx"
 OUTPUT_FOLDER = "outputs"
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+# =========================================================
+# REGISTER LAB BLUEPRINT
+# =========================================================
+# All lab routes (/lab/*, /api/*) are handled by the Blueprint.
+# The existing seating routes below are completely unchanged.
+
+app.register_blueprint(lab_bp)
+
+# Initialize SQLite DB on startup (creates tables if missing)
+with app.app_context():
+    bm.init_db()
 
 
 @app.route("/")

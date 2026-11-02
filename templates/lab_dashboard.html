@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab Utilization Dashboard — Smart Resource Allocation</title>
+  <meta name="description" content="Analytics dashboard for lab utilization prediction — shows occupancy heatmaps, utilization metrics, rule-based forecasts, and free-slot finder.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav-bar">
+  <a href="/" class="nav-brand">🎓 Exam Allocator</a>
+  <a href="/lab/dashboard" class="active">📊 Lab Analytics</a>
+  <a href="/lab/booking">📅 Lab Booking</a>
+  <span class="spacer"></span>
+  <button id="dark-toggle">🌙 Dark</button>
+</nav>
+
+<main class="lab-page">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Lab Utilization Dashboard</div>
+      <div class="page-subtitle">
+        Smart Resource Allocation Analytics &mdash; Infrastructure Optimization
+      </div>
+    </div>
+    <a href="/download/lab-report" class="btn-primary" style="text-decoration:none;padding:10px 18px;border-radius:8px">
+      ⬇ Download PDF Report
+    </a>
+  </div>
+
+  <!-- Lab Cards -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="section-title">Lab Overview</div>
+    <div id="lab-cards">
+      <!-- Rendered by JS -->
+      {% for lab in labs %}
+        {% set info = analytics.get(lab.id, {}) %}
+        <div class="lab-card" data-lab="{{ lab.id }}">
+          <div class="card-header">
+            <span class="lab-id">{{ lab.id }}</span>
+            {% if info.has_data %}
+              {% set st = info.status %}
+              <span class="status-badge
+                {% if st == 'Healthy' %}status-healthy
+                {% elif st == 'Underused' %}status-underused
+                {% elif st == 'Overloaded' %}status-overloaded
+                {% else %}status-nodata{% endif %}">{{ st }}</span>
+            {% else %}
+              <span class="status-badge status-nodata">No data</span>
+            {% endif %}
+          </div>
+          <div class="card-name">{{ lab.name }}</div>
+          <div class="card-body">
+            {% if info.has_data %}
+              <div class="metric">
+                <span class="metric-label">Utilization</span>
+                <span class="metric-value">{{ info.utilization_pct }}%</span>
+              </div>
+              <div class="util-bar"><div class="util-fill" style="width:{{ info.utilization_pct }}%"></div></div>
+              <div class="metric">
+                <span class="metric-label">Booked / Free</span>
+                <span class="metric-value">{{ info.booked_count }} / {{ info.free_count }}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Avg Seat Fill</span>
+                <span class="metric-value">{{ info.avg_fill_pct }}%</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Over-Capacity</span>
+                <span class="metric-value {% if info.over_cap_count > 0 %}over-cap{% endif %}">
+                  {{ info.over_cap_count }} sessions
+                </span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Capacity</span>
+                <span class="metric-value">{{ lab.capacity }} seats</span>
+              </div>
+            {% else %}
+              <div class="no-data-msg">No timetable data.</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Heatmap Section -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="section-title">Weekly Heatmap</div>
+
+    <div class="heatmap-controls">
+      <label for="heatmap-lab-select">Lab:</label>
+      <select id="heatmap-lab-select">
+        {% for lab in labs %}
+          {% if analytics.get(lab.id, {}).get('has_data') %}
+            <option value="{{ lab.id }}">{{ lab.id }} — {{ lab.name }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <span style="font-size:0.8rem;color:var(--text-muted)">Click a card above to switch lab</span>
+    </div>
+
+    <!-- Legend -->
+    <div class="grid-legend" style="margin-bottom:12px">
+      <div class="legend-item"><span class="legend-dot ld-booked"></span> Booked (timetable)</div>
+      <div class="legend-item"><span class="legend-dot ld-empty"></span> Free</div>
+      <div class="legend-item"><span class="legend-dot ld-lunch"></span> Lunch</div>
+    </div>
+
+    <div id="heatmap-container">
+      <!-- Rendered by JS after card click -->
+      <div class="no-data-msg">Select a lab card above to view heatmap.</div>
+    </div>
+  </div>
+
+  <!-- Find a Free Lab -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="section-title">🔍 Find a Free Lab</div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px">
+      Find labs with no timetable session scheduled (empty) for a given day and slot.
+    </p>
+    <form id="free-finder-form">
+      <div class="inline-row">
+        <div class="form-group">
+          <label for="ff-day">Day</label>
+          <select id="ff-day" name="day">
+            <option value="Mon">Monday</option>
+            <option value="Tue">Tuesday</option>
+            <option value="Wed">Wednesday</option>
+            <option value="Thu">Thursday</option>
+            <option value="Fri">Friday</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ff-slot">Slot</label>
+          <select id="ff-slot" name="slot">
+            <option value="1">S1</option>
+            <option value="2">S2</option>
+            <option value="3">S3</option>
+            <option value="4">S4</option>
+            <option value="6" selected>S6</option>
+            <option value="7">S7</option>
+            <option value="8">S8</option>
+            <option value="9">S9</option>
+          </select>
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <button type="submit" class="btn-primary">Find Free Labs</button>
+        </div>
+      </div>
+    </form>
+    <div id="free-finder-result" style="margin-top:10px;font-size:0.9rem"></div>
+  </div>
+
+  <!-- All Labs Summary Table -->
+  <div class="card">
+    <div class="section-title">All Labs Summary</div>
+    <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+      <thead>
+        <tr style="background:var(--surface2)">
+          <th style="padding:8px;border:1px solid var(--border);text-align:left">Lab</th>
+          <th style="padding:8px;border:1px solid var(--border)">Name</th>
+          <th style="padding:8px;border:1px solid var(--border)">Capacity</th>
+          <th style="padding:8px;border:1px solid var(--border)">Booked</th>
+          <th style="padding:8px;border:1px solid var(--border)">Free</th>
+          <th style="padding:8px;border:1px solid var(--border)">Utilization</th>
+          <th style="padding:8px;border:1px solid var(--border)">Avg Fill</th>
+          <th style="padding:8px;border:1px solid var(--border)">Over-Cap</th>
+          <th style="padding:8px;border:1px solid var(--border)">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lab in labs %}
+          {% set info = analytics.get(lab.id, {}) %}
+          <tr>
+            <td style="padding:8px;border:1px solid var(--border);font-weight:700">{{ lab.id }}</td>
+            <td style="padding:8px;border:1px solid var(--border)">{{ lab.name }}</td>
+            <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ lab.capacity }}</td>
+            {% if info.has_data %}
+              <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.booked_count }}</td>
+              <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.free_count }}</td>
+              <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.utilization_pct }}%</td>
+              <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.avg_fill_pct }}%</td>
+              <td style="padding:8px;border:1px solid var(--border);text-align:center
+                {% if info.over_cap_count > 0 %};color:var(--col-in-use);font-weight:700{% endif %}">
+                {{ info.over_cap_count }}
+              </td>
+              <td style="padding:8px;border:1px solid var(--border);text-align:center">
+                <span class="status-badge
+                  {% if info.status == 'Healthy' %}status-healthy
+                  {% elif info.status == 'Underused' %}status-underused
+                  {% elif info.status == 'Overloaded' %}status-overloaded
+                  {% else %}status-nodata{% endif %}">{{ info.status }}</span>
+              </td>
+            {% else %}
+              <td colspan="6" style="padding:8px;border:1px solid var(--border);text-align:center;color:var(--text-muted)">
+                <em>No data</em>
+              </td>
+              <td style="padding:8px;border:1px solid var(--border);text-align:center">
+                <span class="status-badge status-nodata">No data</span>
+              </td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<script src="{{ url_for('static', filename='lab.js') }}"></script>
+<script>
+  // Wire up card clicks to heatmap renderer (supplement JS auto-init)
+  document.addEventListener("DOMContentLoaded", () => {
+    // JS initDashboard() handles everything via /api/analytics
+    // Cards rendered server-side above also get click binding in JS
+    document.querySelectorAll(".lab-card").forEach(card => {
+      card.addEventListener("click", async () => {
+        document.querySelectorAll(".lab-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        const labId = card.dataset.lab;
+        if (labId) {
+          const data = await fetch("/api/analytics").then(r => r.json());
+          renderHeatmap(data, labId);
+          const sel = document.getElementById("heatmap-lab-select");
+          if (sel) sel.value = labId;
+        }
+      });
+    });
+    // Click first card
+    const first = document.querySelector(".lab-card");
+    if (first) setTimeout(() => first.click(), 100);
+  });
+</script>
+</body>
+</html>

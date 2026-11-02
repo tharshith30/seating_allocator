@@ -1,3 +1,10 @@
+import sys
+import os
+
+_cached_site = os.path.expanduser(r"~\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\site-packages")
+if os.path.isdir(_cached_site) and _cached_site not in sys.path:
+    sys.path.insert(0, _cached_site)
+
 import pandas as pd
 import re
 

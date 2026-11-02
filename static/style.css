@@ -1,104 +1,396 @@
+/* ================================================================
+   style.css — Exam Seating Allocator + Lab Utilization Module
+   Shared stylesheet. Lab styles append after existing rules.
+   ================================================================ */
+
+/* ── Light/Dark mode tokens ─────────────────────────────────────── */
+:root {
+  --bg:          #eef6ff;
+  --surface:     #ffffff;
+  --surface2:    #f5f8fe;
+  --text:        #1a1a2e;
+  --text-muted:  #555577;
+  --accent:      #1769aa;
+  --accent-dark: #0d47a1;
+  --border:      #d0d8e8;
+  --radius:      12px;
+  --shadow:      0 4px 20px rgba(0,0,0,0.10);
+
+  /* Slot state colors */
+  --col-empty:       #4caf50;
+  --col-in-use:      #e53935;
+  --col-maintenance: #ff8f00;
+  --col-booked:      #1565c0;
+  --col-lunch:       #9e9e9e;
+  --col-exam:        #6a1b9a;
+}
+
+[data-theme="dark"] {
+  --bg:         #0f1117;
+  --surface:    #1c1f2e;
+  --surface2:   #252840;
+  --text:       #e8eaf6;
+  --text-muted: #9fa8da;
+  --accent:     #5c9bde;
+  --accent-dark:#3f7ac8;
+  --border:     #2e3250;
+  --shadow:     0 4px 20px rgba(0,0,0,0.40);
+
+  --col-empty:       #2e7d32;
+  --col-in-use:      #b71c1c;
+  --col-maintenance: #e65100;
+  --col-booked:      #0d47a1;
+  --col-lunch:       #546e7a;
+  --col-exam:        #4a148c;
+}
+
+/* ── Base reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-
-    font-family: Arial, sans-serif;
-
-    background: #eef6ff;
-
-    margin: 0;
-
+  font-family: 'Inter', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+  margin: 0;
 }
 
+/* ── Navigation bar ─────────────────────────────────────────────── */
+.nav-bar {
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 56px;
+  gap: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.nav-bar .nav-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  color: white;
+  text-decoration: none;
+}
+.nav-bar a {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 0.92rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.nav-bar a:hover, .nav-bar a.active { background: rgba(255,255,255,0.15); color: white; }
+.nav-bar .spacer { flex: 1; }
 
+/* Dark mode toggle button */
+#dark-toggle {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 5px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+#dark-toggle:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Existing seating allocator styles ──────────────────────────── */
 .container {
-
-    width: 600px;
-
-    margin: 100px auto;
-
-    background: white;
-
-    padding: 40px;
-
-    border-radius: 15px;
-
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-
-    text-align: center;
-
+  width: 600px;
+  margin: 60px auto;
+  background: var(--surface);
+  padding: 40px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
 }
-
-
-h1 {
-
-    color: #1769aa;
-
-}
-
-
-input {
-
-    margin: 25px;
-
-    padding: 10px;
-
-}
-
-
+h1 { color: var(--accent); margin-bottom: 16px; font-size: 1.6rem; }
+input { margin: 25px; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
 button {
-
-    display: block;
-
-    margin: 20px auto;
-
-    padding: 12px 30px;
-
-    background: #1769aa;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
+  display: block; margin: 20px auto;
+  padding: 12px 30px;
+  background: var(--accent); color: white;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-size: 0.95rem; font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
 }
-
-
-button:hover {
-
-    background: #0d47a1;
-
-}
-
+button:hover { background: var(--accent-dark); }
+button:active { transform: scale(0.98); }
 
 .success {
-
-    margin-top: 30px;
-
-    padding: 20px;
-
-    background: #e8f5e9;
-
-    border-radius: 10px;
-
+  margin-top: 30px; padding: 20px;
+  background: #e8f5e9; border-radius: 10px;
 }
-
-
+[data-theme="dark"] .success { background: #1b3a1f; }
 .success a {
-
-    display: inline-block;
-
-    margin: 10px;
-
-    padding: 10px 20px;
-
-    background: #1769aa;
-
-    color: white;
-
-    text-decoration: none;
-
-    border-radius: 6px;
-
+  display: inline-block; margin: 10px; padding: 10px 20px;
+  background: var(--accent); color: white; text-decoration: none; border-radius: 6px;
 }
+
+.error { margin-top: 16px; padding: 12px; background: #ffebee; color: #b71c1c; border-radius: 8px; }
+[data-theme="dark"] .error { background: #3a1a1a; color: #ef9a9a; }
+
+/* ── Lab module page layout ─────────────────────────────────────── */
+.lab-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.page-header {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 28px; flex-wrap: wrap;
+}
+.page-title { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+.page-subtitle { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ── Utility ─────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+.section-title {
+  font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;
+  color: var(--accent); border-bottom: 2px solid var(--border);
+  padding-bottom: 8px;
+}
+.msg { padding: 10px 16px; border-radius: 8px; margin: 10px 0; display: none; }
+.msg-success { background: #e8f5e9; color: #1b5e20; }
+.msg-error   { background: #ffebee; color: #b71c1c; }
+[data-theme="dark"] .msg-success { background: #1b3a1f; color: #a5d6a7; }
+[data-theme="dark"] .msg-error   { background: #3a1a1a; color: #ef9a9a; }
+
+/* ── Lab cards grid ──────────────────────────────────────────────── */
+#lab-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.lab-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.lab-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+.lab-card.active { border-color: var(--accent); background: var(--surface2); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.lab-id { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.card-name { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; }
+.card-body { display: flex; flex-direction: column; gap: 6px; }
+.metric { display: flex; justify-content: space-between; font-size: 0.82rem; }
+.metric-label { color: var(--text-muted); }
+.metric-value { font-weight: 600; }
+.over-cap { color: var(--col-in-use); }
+
+/* Utilization bar */
+.util-bar { height: 6px; background: var(--border); border-radius: 3px; margin: 2px 0 6px; }
+.util-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.5s; }
+
+/* Status badges */
+.status-badge {
+  font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.status-healthy   { background: #e8f5e9; color: #1b5e20; }
+.status-underused { background: #fff9c4; color: #827717; }
+.status-overloaded{ background: #ffebee; color: #b71c1c; }
+.status-nodata    { background: #f5f5f5; color: #616161; }
+[data-theme="dark"] .status-healthy   { background: #1b3a1f; color: #a5d6a7; }
+[data-theme="dark"] .status-underused { background: #3a3000; color: #fff176; }
+[data-theme="dark"] .status-overloaded{ background: #3a1a1a; color: #ef9a9a; }
+[data-theme="dark"] .status-nodata    { background: #2a2a2a; color: #9e9e9e; }
+
+.no-data-msg { color: var(--text-muted); font-style: italic; padding: 12px 0; }
+
+/* ── Heatmap ─────────────────────────────────────────────────────── */
+.heatmap-controls {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.heatmap-controls select {
+  padding: 6px 12px; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface); color: var(--text);
+  font-size: 0.9rem;
+}
+
+.heatmap-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.heatmap-table th, .heatmap-table td {
+  border: 1px solid var(--border);
+  text-align: center; font-size: 0.8rem;
+  padding: 8px 4px; min-width: 52px;
+}
+.heatmap-table thead { background: var(--surface2); font-weight: 600; }
+.day-label { font-weight: 600; color: var(--text-muted); background: var(--surface2); }
+
+.hm-booked  { background: #ffcdd2; color: #b71c1c; font-weight: 700; cursor: pointer; }
+.hm-empty   { background: #c8e6c9; color: #1b5e20; }
+.hm-lunch   { background: #e0e0e0; color: #616161; }
+[data-theme="dark"] .hm-booked { background: #4a1a1a; color: #ef9a9a; }
+[data-theme="dark"] .hm-empty  { background: #1a3a1f; color: #a5d6a7; }
+[data-theme="dark"] .hm-lunch  { background: #2a2a2a; color: #9e9e9e; }
+
+/* Hover tooltip already handled by title attr */
+.hm-booked:hover, .hm-empty:hover { opacity: 0.85; }
+
+/* Free slot tags */
+.free-slots-list { margin-top: 12px; font-size: 0.85rem; }
+.free-slot-tag {
+  display: inline-block; background: var(--col-empty); color: white;
+  border-radius: 10px; padding: 2px 8px; margin: 2px; font-size: 0.78rem;
+}
+
+/* Forecast */
+.forecast-section { margin-top: 20px; }
+.forecast-section h4 { margin-bottom: 10px; }
+.forecast-table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+.forecast-table th, .forecast-table td {
+  border: 1px solid var(--border); padding: 6px 8px; text-align: center;
+}
+.forecast-table thead { background: var(--surface2); font-weight: 600; }
+.fc-normal td { background: #e8f5e9; } [data-theme="dark"] .fc-normal td { background: #1a2e1f; }
+.fc-exam td   { background: #fff9c4; } [data-theme="dark"] .fc-exam td   { background: #2a2800; }
+.fc-holiday td{ background: #f5f5f5; } [data-theme="dark"] .fc-holiday td{ background: #1f1f1f; }
+
+/* ── Free finder form ────────────────────────────────────────────── */
+#free-finder-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+#free-finder-form label { font-size: 0.85rem; color: var(--text-muted); }
+#free-finder-form select, #free-finder-form input {
+  padding: 7px 10px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); margin: 0;
+}
+#free-finder-form button { margin: 0; padding: 8px 18px; }
+
+/* ── Booking page layout ─────────────────────────────────────────── */
+.booking-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 900px) { .booking-layout { grid-template-columns: 1fr; } }
+
+.week-nav {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.week-nav button {
+  display: inline-block; margin: 0; padding: 6px 14px; font-size: 1rem;
+}
+#week-display { font-size: 0.92rem; color: var(--text-muted); flex: 1; text-align: center; }
+
+/* ── Week grid ───────────────────────────────────────────────────── */
+.week-table { border-collapse: collapse; width: 100%; }
+.week-table th, .week-table td {
+  border: 1px solid var(--border);
+  text-align: center; padding: 8px 4px;
+  font-size: 0.8rem; min-width: 58px;
+}
+.week-table thead { background: var(--surface2); font-weight: 600; }
+.wk-clickable { cursor: pointer; transition: opacity 0.15s; }
+.wk-clickable:hover { opacity: 0.8; }
+.wk-selected { outline: 3px solid var(--accent); outline-offset: -3px; }
+
+/* Slot state colors */
+.wk-empty       { background: #c8e6c9; color: #1b5e20; }
+.wk-in_use      { background: #ffcdd2; color: #b71c1c; }
+.wk-maintenance { background: #ffe0b2; color: #e65100; }
+.wk-booked      { background: #bbdefb; color: #0d47a1; cursor: pointer; }
+.wk-lunch       { background: #e0e0e0; color: #757575; }
+.wk-exam        { background: #e1bee7; color: #6a1b9a; }
+[data-theme="dark"] .wk-empty       { background: #1a3a1f; color: #a5d6a7; }
+[data-theme="dark"] .wk-in_use      { background: #4a1a1a; color: #ef9a9a; }
+[data-theme="dark"] .wk-maintenance { background: #3a1e00; color: #ffcc80; }
+[data-theme="dark"] .wk-booked      { background: #0d2a4a; color: #90caf9; }
+[data-theme="dark"] .wk-lunch       { background: #2a2a2a; color: #9e9e9e; }
+[data-theme="dark"] .wk-exam        { background: #2e1a3a; color: #ce93d8; }
+
+/* Legend */
+.grid-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; font-size: 0.78rem; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot {
+  width: 14px; height: 14px; border-radius: 3px; display: inline-block;
+}
+.ld-empty       { background: #c8e6c9; }
+.ld-in_use      { background: #ffcdd2; }
+.ld-maintenance { background: #ffe0b2; }
+.ld-booked      { background: #bbdefb; }
+.ld-lunch       { background: #e0e0e0; }
+.ld-exam        { background: #e1bee7; }
+
+/* ── Booking + in-charge forms ───────────────────────────────────── */
+.form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 8px 12px; border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface); color: var(--text);
+  font-size: 0.9rem; margin: 0;
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(23,105,170,0.15);
+}
+.btn-primary {
+  background: var(--accent); color: white;
+  border: none; border-radius: 8px; padding: 10px 20px;
+  cursor: pointer; font-weight: 600; font-size: 0.9rem;
+  display: inline-block; margin: 4px 4px 0 0; transition: background 0.2s;
+}
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-sm { padding: 5px 12px; font-size: 0.8rem; border-radius: 6px; }
+.btn-danger { background: #e53935; }
+.btn-danger:hover { background: #b71c1c; }
+
+#selected-slots-display {
+  font-size: 0.82rem; color: var(--text-muted);
+  padding: 6px; background: var(--surface2);
+  border-radius: 6px; margin-bottom: 10px;
+  min-height: 28px;
+}
+
+/* ── Bookings list ───────────────────────────────────────────────── */
+.bookings-table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+.bookings-table th, .bookings-table td {
+  border: 1px solid var(--border); padding: 6px 8px;
+}
+.bookings-table thead { background: var(--surface2); font-weight: 600; }
+
+/* ── Smart allocation ────────────────────────────────────────────── */
+.suggestions { display: flex; flex-direction: column; gap: 10px; }
+.suggestion-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px;
+  transition: border-color 0.2s;
+}
+.suggestion-card:hover { border-color: var(--accent); }
+.sug-rank { font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.sug-detail { font-size: 0.88rem; margin-bottom: 6px; }
+.sug-reasons { font-size: 0.78rem; color: var(--text-muted); margin: 4px 0 8px 14px; }
+.sug-reasons li { margin-bottom: 2px; }
+
+.batch-summary { font-size: 0.92rem; font-weight: 600; margin-bottom: 10px; }
+.batch-list { font-size: 0.83rem; padding-left: 16px; }
+.batch-list li { margin-bottom: 4px; }
+.batch-unalloc li { color: #e53935; }
+[data-theme="dark"] .batch-unalloc li { color: #ef9a9a; }
+
+/* Tab-style section toggles */
+.panel-section { margin-bottom: 20px; }
+
+/* Divider */
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* Inline form row */
+.inline-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.inline-row .form-group { flex: 1; min-width: 120px; }

@@ -1,0 +1,46 @@
+﻿{
+  "labs": [
+    {
+      "id": "L1",
+      "name": "Computer Lab L1 (LIVIA)",
+      "location": "G-11",
+      "capacity": 70,
+      "timetable": true
+    },
+    {
+      "id": "L2",
+      "name": "Computer Lab L2 (LART)",
+      "location": "R-118",
+      "capacity": 70,
+      "timetable": true
+    },
+    {
+      "id": "L3",
+      "name": "Computer Lab L3 (VLSI)",
+      "location": "G-25",
+      "capacity": 70,
+      "timetable": true
+    },
+    {
+      "id": "L4",
+      "name": "Computer Lab L4 (LLOCK)",
+      "location": "Block-L",
+      "capacity": 70,
+      "timetable": true
+    },
+    {
+      "id": "L5",
+      "name": "Computer Lab L5",
+      "location": "Block-L",
+      "capacity": 40,
+      "timetable": false
+    },
+    {
+      "id": "HARDWARE_LAB",
+      "name": "Hardware Lab",
+      "location": "R-104",
+      "capacity": 30,
+      "timetable": false
+    }
+  ]
+}

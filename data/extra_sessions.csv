@@ -1,0 +1,13 @@
+﻿# Extra sessions not in the timetable.
+# Format: lab,day,slot,year,section,course,strength
+# slot can be a single number (1-9) or a range like 1-2 (means slots 1 and 2, i.e. a 2-period lab).
+# S5 is lunch - do not use it here.
+# Lines starting with # are ignored.
+# Unknown lab IDs will produce a clear error at startup.
+#
+# Example first-year entries (add real data here when available):
+# L1,Mon,1-2,First_Year,A,PPS-LAB,35
+# L2,Tue,1-2,First_Year,B,PPS-LAB,35
+# L3,Wed,3-4,First_Year,C,PPS-LAB,35
+# L4,Thu,3-4,First_Year,D,PPS-LAB,35
+
