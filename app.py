@@ -6,7 +6,7 @@ _cached_site = os.path.expanduser(r"~\.cache\codex-runtimes\codex-primary-runtim
 if os.path.isdir(_cached_site) and _cached_site not in sys.path:
     sys.path.insert(0, _cached_site)
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify, redirect
 import pandas as pd
 
 from seating_engine import generate_seating
@@ -15,7 +15,7 @@ from excel_generator import create_excel
 from pdf_generator import create_pdf
 
 # Lab module Blueprint
-from lab.routes import lab_bp
+from lab.routes import lab_bp, _get_analytics, _get_labs_cfg, _current_monday
 from lab import booking as bm
 
 
@@ -42,19 +42,37 @@ with app.app_context():
 
 @app.route("/")
 def home():
-
-    return render_template("index.html")
+    tab = request.args.get("tab", "seating")
+    return render_template(
+        "index.html",
+        labs=_get_labs_cfg(),
+        analytics=_get_analytics(),
+        current_week=_current_monday(),
+        active_tab=tab
+    )
 
 
 @app.route("/generate", methods=["POST"])
 def generate():
 
     uploaded_file = request.files.get("student_file")
+    is_ajax = (
+        request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        or request.args.get("ajax") == "1"
+        or "application/json" in request.headers.get("Accept", "")
+    )
 
     if not uploaded_file:
+        error_msg = "Please upload the seating input Excel file."
+        if is_ajax:
+            return jsonify({"success": False, "error": error_msg}), 400
         return render_template(
             "index.html",
-            error="Please upload the seating input Excel file."
+            labs=_get_labs_cfg(),
+            analytics=_get_analytics(),
+            current_week=_current_monday(),
+            error=error_msg,
+            active_tab="seating"
         )
 
     try:
@@ -197,21 +215,38 @@ def generate():
             )
         )
 
+        if is_ajax:
+            return jsonify({
+                "success": True,
+                "total_students": total_students,
+                "rooms_used": rooms_used,
+                "excel_url": "/download/excel",
+                "pdf_url": "/download/pdf"
+            })
+
         return render_template(
             "index.html",
-
+            labs=_get_labs_cfg(),
+            analytics=_get_analytics(),
+            current_week=_current_monday(),
             success=True,
-
             total_students=total_students,
-
-            rooms_used=rooms_used
+            rooms_used=rooms_used,
+            active_tab="seating"
         )
 
     except Exception as e:
 
+        if is_ajax:
+            return jsonify({"success": False, "error": str(e)}), 400
+
         return render_template(
             "index.html",
-            error=str(e)
+            labs=_get_labs_cfg(),
+            analytics=_get_analytics(),
+            current_week=_current_monday(),
+            error=str(e),
+            active_tab="seating"
         )
 
 

@@ -20,7 +20,7 @@ from functools import lru_cache
 
 from flask import (
     Blueprint, render_template, request, jsonify,
-    send_file, current_app, g
+    send_file, current_app, g, redirect
 )
 
 from lab import parser as tt_parser
@@ -118,21 +118,13 @@ def _require_pin() -> str | None:
 @lab_bp.route("/lab/dashboard")
 def lab_dashboard():
     _load_data()
-    return render_template(
-        "lab_dashboard.html",
-        analytics=_get_analytics(),
-        labs=_get_labs_cfg(),
-    )
+    return redirect("/?tab=analytics#analytics")
 
 
 @lab_bp.route("/lab/booking")
 def lab_booking():
     _load_data()
-    return render_template(
-        "lab_booking.html",
-        labs=_get_labs_cfg(),
-        current_week=_current_monday(),
-    )
+    return redirect("/?tab=booking#booking")
 
 
 # ─── API: Labs list ──────────────────────────────────────────────────────────

@@ -1,101 +1,721 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-
-    <title>Exam Seating Allocator</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ResourceHub — Exam Seating & Lab Utilization Portal</title>
+  <meta name="description" content="Unified campus resource management portal for automated exam seating allocation and smart computer lab utilization analytics and booking.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
-
 <body>
 
-<div class="container">
+<!-- Unified Top Navigation Bar -->
+<nav class="nav-bar">
+  <a href="/" class="nav-brand">
+    <span>🎓</span>
+    <span>ResourceHub</span>
+  </a>
 
-    <h1>Exam Seating Allocator</h1>
+  <!-- Dashboard Tab Switcher -->
+  <div class="nav-tabs">
+    <button type="button" class="nav-tab-btn {% if active_tab == 'seating' or not active_tab %}active{% endif %}" data-tab="seating">
+      <span>🪑</span> Exam Seating
+    </button>
+    <button type="button" class="nav-tab-btn {% if active_tab == 'analytics' %}active{% endif %}" data-tab="analytics">
+      <span>📊</span> Lab Analytics
+    </button>
+    <button type="button" class="nav-tab-btn {% if active_tab == 'booking' %}active{% endif %}" data-tab="booking">
+      <span>📅</span> Lab Booking
+    </button>
+  </div>
 
-    <p>
-        Upload the Excel file containing today's
-        examinations and students.
-    </p>
+  <span class="spacer"></span>
+  <button type="button" id="dark-toggle">🌙 Dark</button>
+</nav>
 
+<main class="lab-page">
 
-    <form
-        action="/generate"
-        method="POST"
-        enctype="multipart/form-data"
-    >
+  <!-- Overview KPI Quick Stats Banner -->
+  <div class="stats-banner">
+    <div class="stat-pill">
+      <div class="stat-icon">🏛️</div>
+      <div class="stat-info">
+        <span class="stat-label">Exam Halls</span>
+        <span class="stat-value">34 Rooms</span>
+      </div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon">💻</div>
+      <div class="stat-info">
+        <span class="stat-label">Computer Labs</span>
+        <span class="stat-value">{{ labs|length }} Total Labs</span>
+      </div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon">📋</div>
+      <div class="stat-info">
+        <span class="stat-label">Timetable Sessions</span>
+        <span class="stat-value">62 Scheduled</span>
+      </div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-info">
+        <span class="stat-label">System Status</span>
+        <span class="stat-value" style="color:#2e7d32">● Online &amp; Ready</span>
+      </div>
+    </div>
+  </div>
 
-        <label>
-            Seating Input Excel
-        </label>
-
-        <input
-            type="file"
-            name="student_file"
-            accept=".xlsx"
-            required
-        >
-
-
-        <button type="submit">
-            Generate Seating
-        </button>
-
-    </form>
-
-
-    {% if error %}
-
-    <div class="error">
-
-        ❌ {{ error }}
-
+  <!-- ========================================================================= -->
+  <!-- TAB 1: EXAM SEATING ALLOCATOR                                             -->
+  <!-- ========================================================================= -->
+  <section id="tab-seating" class="tab-pane {% if active_tab == 'seating' or not active_tab %}active{% endif %}">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Exam Seating Allocator</div>
+        <div class="page-subtitle">
+          Intelligent automated seat distribution — interleaved allocation to prevent adjacent same-subject seating
+        </div>
+      </div>
     </div>
 
-    {% endif %}
+    <div class="seating-layout">
+      <!-- Left Column: Upload Form & Results -->
+      <div>
+        <div class="card">
+          <div class="section-title">Upload Examination &amp; Student Data</div>
+          <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:12px">
+            Upload the daily Excel file with <code>EXAMS</code> and <code>STUDENTS</code> sheets to generate conflict-free seating allotments.
+          </p>
 
+          <form id="seating-form" action="/generate" method="POST" enctype="multipart/form-data">
+            <!-- Drag & Drop Upload Zone -->
+            <div id="dropzone" class="dropzone">
+              <div class="dropzone-icon">📁</div>
+              <div class="dropzone-title">Click to browse or drag &amp; drop file here</div>
+              <div class="dropzone-subtitle">Supported format: Microsoft Excel (.xlsx)</div>
+              <input type="file" id="student_file" name="student_file" accept=".xlsx" style="display:none" required>
+              <div id="file-selected-badge" class="file-selected-badge" style="display:none">
+                <span id="file-name-text">filename.xlsx</span>
+              </div>
+            </div>
 
-    {% if success %}
+            <button type="submit" id="generate-btn" style="width:100%;margin:16px 0 0">
+              🚀 Generate Seating Allocation
+            </button>
+          </form>
 
-    <div class="success">
+          <!-- Loading indicator -->
+          <div id="seating-loading" style="display:none;text-align:center;padding:20px 0">
+            <div style="font-size:1.1rem;font-weight:600;color:var(--accent);margin-bottom:8px">
+              ⏳ Generating Seating Layout...
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-muted)">
+              Optimizing room capacities and distributing students. Please wait.
+            </div>
+          </div>
+        </div>
 
-        <h2>
-            Seating Generated!
-        </h2>
+        <!-- Server-side or AJAX Error Message -->
+        <div id="seating-error-box" class="error" style="{% if error %}display:block{% else %}display:none{% endif %}">
+          ❌ <span id="seating-error-text">{{ error }}</span>
+        </div>
 
-        <p>
-            Students:
-            <strong>{{ total_students }}</strong>
-        </p>
+        <!-- Server-side or AJAX Results Display -->
+        <div id="seating-results-box" class="results-card" style="{% if success %}display:block{% else %}display:none{% endif %}">
+          <div class="results-header">
+            <span style="font-size:1.6rem">✅</span>
+            <span class="results-header-title">Seating Successfully Generated!</span>
+          </div>
 
-        <p>
-            Rooms Used:
-            <strong>{{ rooms_used }}</strong>
-        </p>
+          <div class="results-stats-row">
+            <div class="result-stat-box">
+              <div id="result-students-val" class="result-stat-num">{{ total_students if total_students else 0 }}</div>
+              <div class="result-stat-lbl">Students Allocated</div>
+            </div>
+            <div class="result-stat-box">
+              <div id="result-rooms-val" class="result-stat-num">{{ rooms_used if rooms_used else 0 }}</div>
+              <div class="result-stat-lbl">Examination Halls Used</div>
+            </div>
+          </div>
 
+          <div class="download-actions">
+            <a id="btn-excel-link" href="/download/excel" class="btn-dl-excel">
+              <span>📊</span> Download Excel Allotment
+            </a>
+            <a id="btn-pdf-link" href="/download/pdf" class="btn-dl-pdf">
+              <span>📄</span> Download Printable PDF
+            </a>
+          </div>
+        </div>
+      </div>
 
-        <a href="/download/excel">
-             Download Excel
-        </a>
+      <!-- Right Column: Exam Rules & Room Info -->
+      <div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="section-title">🏛️ Available Examination Capacity</div>
+          <div style="font-size:0.88rem;color:var(--text-muted);line-height:1.5;margin-bottom:14px">
+            The allocator automatically maps exam sessions against the registered FST hall capacities.
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:16px">
+            <div style="flex:1;background:var(--surface2);padding:12px;border-radius:8px;text-align:center;border:1px solid var(--border)">
+              <div style="font-size:1.3rem;font-weight:700;color:var(--accent)">34</div>
+              <div style="font-size:0.75rem;color:var(--text-muted)">Exam Halls</div>
+            </div>
+            <div style="flex:1;background:var(--surface2);padding:12px;border-radius:8px;text-align:center;border:1px solid var(--border)">
+              <div style="font-size:1.3rem;font-weight:700;color:var(--accent)">1,300+</div>
+              <div style="font-size:0.75rem;color:var(--text-muted)">Total Seats</div>
+            </div>
+          </div>
+          <ul class="feature-list">
+            <li class="feature-item">
+              <span class="feature-icon">🛡️</span>
+              <div>
+                <strong>Anti-Malpractice Interleaving</strong><br>
+                Students appearing for the same exam are never assigned adjacent seats in any direction.
+              </div>
+            </li>
+            <li class="feature-item">
+              <span class="feature-icon">📈</span>
+              <div>
+                <strong>Capacity-First Fill</strong><br>
+                High-capacity halls are filled strategically before spilling into smaller auxiliary rooms.
+              </div>
+            </li>
+            <li class="feature-item">
+              <span class="feature-icon">🖨️</span>
+              <div>
+                <strong>Instant Exporting</strong><br>
+                Generates master Excel rosters for administrators and formatted PDF notices ready for door posting.
+              </div>
+            </li>
+          </ul>
+        </div>
 
+        <div class="card">
+          <div class="section-title">ℹ️ Required Excel Structure</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px">
+            Your uploaded file should contain two sheets:
+          </p>
+          <div style="font-size:0.82rem;background:var(--surface2);padding:10px 14px;border-radius:6px;border:1px solid var(--border);font-family:monospace">
+            <strong>Sheet 1: EXAMS</strong><br>
+            Columns: Exam ID, Course Code, Course Name, Slot<br><br>
+            <strong>Sheet 2: STUDENTS</strong><br>
+            Columns: Roll Number, Student Name, Exam ID
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <a href="/download/pdf">
-             Download PDF
-        </a>
-
+  <!-- ========================================================================= -->
+  <!-- TAB 2: LAB UTILIZATION & ANALYTICS                                        -->
+  <!-- ========================================================================= -->
+  <section id="tab-analytics" class="tab-pane {% if active_tab == 'analytics' %}active{% endif %}">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Lab Utilization Dashboard</div>
+        <div class="page-subtitle">
+          Smart Resource Allocation Analytics &mdash; Infrastructure Optimization &amp; Heatmaps
+        </div>
+      </div>
+      <a href="/download/lab-report" class="btn-primary" style="text-decoration:none;padding:10px 18px;border-radius:8px">
+        ⬇ Download PDF Report
+      </a>
     </div>
 
-    {% endif %}
+    <!-- Lab Overview Cards -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="section-title">Lab Overview</div>
+      <div id="lab-cards">
+        {% for lab in labs %}
+          {% set info = analytics.get(lab.id, {}) %}
+          <div class="lab-card" data-lab="{{ lab.id }}">
+            <div class="card-header">
+              <span class="lab-id">{{ lab.id }}</span>
+              {% if info.has_data %}
+                {% set st = info.status %}
+                <span class="status-badge
+                  {% if st == 'Healthy' %}status-healthy
+                  {% elif st == 'Underused' %}status-underused
+                  {% elif st == 'Overloaded' %}status-overloaded
+                  {% else %}status-nodata{% endif %}">{{ st }}</span>
+              {% else %}
+                <span class="status-badge status-nodata">No data</span>
+              {% endif %}
+            </div>
+            <div class="card-name">{{ lab.name }}</div>
+            <div class="card-body">
+              {% if info.has_data %}
+                <div class="metric">
+                  <span class="metric-label">Utilization</span>
+                  <span class="metric-value">{{ info.utilization_pct }}%</span>
+                </div>
+                <div class="util-bar"><div class="util-fill" style="width:{{ info.utilization_pct }}%"></div></div>
+                <div class="metric">
+                  <span class="metric-label">Booked / Free</span>
+                  <span class="metric-value">{{ info.booked_count }} / {{ info.free_count }}</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Avg Seat Fill</span>
+                  <span class="metric-value">{{ info.avg_fill_pct }}%</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Over-Capacity</span>
+                  <span class="metric-value {% if info.over_cap_count > 0 %}over-cap{% endif %}">
+                    {{ info.over_cap_count }} sessions
+                  </span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Capacity</span>
+                  <span class="metric-value">{{ lab.capacity }} seats</span>
+                </div>
+              {% else %}
+                <div class="no-data-msg">No timetable data.</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
 
-</div>
+    <!-- Weekly Heatmap Section -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="section-title">Weekly Heatmap</div>
+      <div class="heatmap-controls">
+        <label for="heatmap-lab-select">Lab:</label>
+        <select id="heatmap-lab-select">
+          {% for lab in labs %}
+            {% if analytics.get(lab.id, {}).get('has_data') %}
+              <option value="{{ lab.id }}">{{ lab.id }} — {{ lab.name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <span style="font-size:0.8rem;color:var(--text-muted)">Click a card above or choose from dropdown to inspect slots</span>
+      </div>
 
+      <!-- Legend -->
+      <div class="grid-legend" style="margin-bottom:12px">
+        <div class="legend-item"><span class="legend-dot ld-booked"></span> Booked (timetable)</div>
+        <div class="legend-item"><span class="legend-dot ld-empty"></span> Free</div>
+        <div class="legend-item"><span class="legend-dot ld-lunch"></span> Lunch</div>
+      </div>
+
+      <div id="heatmap-container">
+        <div class="no-data-msg">Select a lab card above to view heatmap.</div>
+      </div>
+    </div>
+
+    <!-- Find a Free Lab -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="section-title">🔍 Find a Free Lab</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px">
+        Find labs with no timetable session scheduled (empty) for a given day and slot.
+      </p>
+      <form id="free-finder-form">
+        <div class="inline-row">
+          <div class="form-group">
+            <label for="ff-day">Day</label>
+            <select id="ff-day" name="day">
+              <option value="Mon">Monday</option>
+              <option value="Tue">Tuesday</option>
+              <option value="Wed">Wednesday</option>
+              <option value="Thu">Thursday</option>
+              <option value="Fri">Friday</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ff-slot">Slot</label>
+            <select id="ff-slot" name="slot">
+              <option value="1">S1</option>
+              <option value="2">S2</option>
+              <option value="3">S3</option>
+              <option value="4">S4</option>
+              <option value="6" selected>S6</option>
+              <option value="7">S7</option>
+              <option value="8">S8</option>
+              <option value="9">S9</option>
+            </select>
+          </div>
+          <div class="form-group" style="justify-content:flex-end">
+            <button type="submit" class="btn-primary" style="margin:0">Find Free Labs</button>
+          </div>
+        </div>
+      </form>
+      <div id="free-finder-result" style="margin-top:10px;font-size:0.9rem"></div>
+    </div>
+
+    <!-- All Labs Summary Table -->
+    <div class="card">
+      <div class="section-title">All Labs Summary</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+          <thead>
+            <tr style="background:var(--surface2)">
+              <th style="padding:8px;border:1px solid var(--border);text-align:left">Lab</th>
+              <th style="padding:8px;border:1px solid var(--border)">Name</th>
+              <th style="padding:8px;border:1px solid var(--border)">Capacity</th>
+              <th style="padding:8px;border:1px solid var(--border)">Booked</th>
+              <th style="padding:8px;border:1px solid var(--border)">Free</th>
+              <th style="padding:8px;border:1px solid var(--border)">Utilization</th>
+              <th style="padding:8px;border:1px solid var(--border)">Avg Fill</th>
+              <th style="padding:8px;border:1px solid var(--border)">Over-Cap</th>
+              <th style="padding:8px;border:1px solid var(--border)">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lab in labs %}
+              {% set info = analytics.get(lab.id, {}) %}
+              <tr>
+                <td style="padding:8px;border:1px solid var(--border);font-weight:700">{{ lab.id }}</td>
+                <td style="padding:8px;border:1px solid var(--border)">{{ lab.name }}</td>
+                <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ lab.capacity }}</td>
+                {% if info.has_data %}
+                  <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.booked_count }}</td>
+                  <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.free_count }}</td>
+                  <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.utilization_pct }}%</td>
+                  <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.avg_fill_pct }}%</td>
+                  <td style="padding:8px;border:1px solid var(--border);text-align:center {% if info.over_cap_count > 0 %};color:var(--col-in-use);font-weight:700{% endif %}">
+                    {{ info.over_cap_count }}
+                  </td>
+                  <td style="padding:8px;border:1px solid var(--border);text-align:center">
+                    <span class="status-badge
+                      {% if info.status == 'Healthy' %}status-healthy
+                      {% elif info.status == 'Underused' %}status-underused
+                      {% elif info.status == 'Overloaded' %}status-overloaded
+                      {% else %}status-nodata{% endif %}">{{ info.status }}</span>
+                  </td>
+                {% else %}
+                  <td colspan="5" style="padding:8px;border:1px solid var(--border);text-align:center;color:var(--text-muted)">
+                    <em>No data</em>
+                  </td>
+                  <td style="padding:8px;border:1px solid var(--border);text-align:center">
+                    <span class="status-badge status-nodata">No data</span>
+                  </td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 3: LAB SLOT BOOKING                                                   -->
+  <!-- ========================================================================= -->
+  <section id="tab-booking" class="tab-pane {% if active_tab == 'booking' %}active{% endif %}">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Lab Slot Booking</div>
+        <div class="page-subtitle">Schedule project sessions, manage availability, and use smart auto-allocation</div>
+      </div>
+    </div>
+
+    <!-- Lab + Week Controls -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="inline-row" style="align-items:flex-end;gap:16px;flex-wrap:wrap">
+        <div class="form-group" style="min-width:220px">
+          <label for="lab-select">Select Lab</label>
+          <select id="lab-select">
+            <option value="">-- Select Lab --</option>
+            {% for lab in labs %}
+              <option value="{{ lab.id }}">{{ lab.id }} — {{ lab.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="week-nav">
+          <button id="prev-week" title="Previous week">◀</button>
+          <span id="week-display">Week of ...</span>
+          <button id="next-week" title="Next week">▶</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-layout">
+      <!-- Left Column: Grid + Form + Bookings List -->
+      <div>
+        <!-- Week Grid -->
+        <div class="card" style="margin-bottom:20px;overflow-x:auto">
+          <div class="section-title">Week Grid</div>
+          <div class="grid-legend" style="margin-bottom:10px">
+            <div class="legend-item"><span class="legend-dot ld-empty"></span> Empty (bookable)</div>
+            <div class="legend-item"><span class="legend-dot ld-in_use"></span> In Use</div>
+            <div class="legend-item"><span class="legend-dot ld-maintenance"></span> Maintenance</div>
+            <div class="legend-item"><span class="legend-dot ld-booked"></span> Booked</div>
+            <div class="legend-item"><span class="legend-dot ld-lunch"></span> Lunch</div>
+            <div class="legend-item"><span class="legend-dot ld-exam"></span> Exam</div>
+          </div>
+          <div id="week-grid">
+            <div class="no-data-msg">Select a lab above to view the week grid.</div>
+          </div>
+          <div style="margin-top:10px;font-size:0.82rem;color:var(--text-muted)">
+            💡 Click empty or booked cells to select them. Multi-select for batch actions.
+          </div>
+        </div>
+
+        <!-- Selected slots display -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="section-title">Selected Slots</div>
+          <div id="selected-slots-display">No slots selected</div>
+        </div>
+
+        <!-- Booking Form -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="section-title">📌 Book Slot(s)</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">
+            Only <strong>empty</strong> slots can be booked. All selected slots must be on the same day.
+          </p>
+          <form id="booking-form">
+            <div class="inline-row">
+              <div class="form-group">
+                <label for="book-name">Your Name <span style="color:red">*</span></label>
+                <input type="text" id="book-name" name="name" required maxlength="100" placeholder="Full name">
+              </div>
+              <div class="form-group">
+                <label for="book-role">Role</label>
+                <select id="book-role" name="role">
+                  <option value="student">Student</option>
+                  <option value="faculty">Faculty</option>
+                </select>
+              </div>
+            </div>
+            <div class="inline-row" style="margin-top:10px">
+              <div class="form-group">
+                <label for="book-reason">Reason / Project <span style="color:red">*</span></label>
+                <input type="text" id="book-reason" name="reason" required maxlength="200" placeholder="e.g. CS401 Capstone project">
+              </div>
+              <div class="form-group" style="max-width:140px">
+                <label for="book-pin">Operator PIN</label>
+                <input type="password" id="book-pin" name="pin" maxlength="10" placeholder="Optional">
+              </div>
+            </div>
+            <div id="booking-msg" class="msg"></div>
+            <button type="submit" class="btn-primary" style="margin-top:14px">Confirm Booking</button>
+          </form>
+        </div>
+
+        <!-- Selected booking details & cancel -->
+        <div id="selected-booking-card" class="card" style="margin-bottom:20px;display:none">
+          <div class="section-title">Booking Details</div>
+          <div id="selected-booking-info"></div>
+          <div class="inline-row" style="margin-top:12px">
+            <div class="form-group" style="max-width:140px">
+              <label for="cancel-pin">In-charge PIN</label>
+              <input type="password" id="cancel-pin" placeholder="Required for others">
+            </div>
+            <button id="cancel-booking-btn" class="btn-danger" style="margin:0">Cancel Booking</button>
+          </div>
+          <div id="cancel-msg" class="msg"></div>
+        </div>
+
+        <!-- Active Bookings List -->
+        <div class="card">
+          <div class="section-title">Active Bookings for this Week</div>
+          <div id="active-bookings"><div class="no-data-msg">No active bookings for this week.</div></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Smart Auto-Allocator & In-charge Overrides -->
+      <div>
+        <!-- Smart Suggestion -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="section-title">✨ Smart Auto-Allocator</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">
+            Find the best lab slot based on group size, lab health, and timetable load.
+          </p>
+          <form id="suggest-form">
+            <div class="form-group" style="margin-bottom:10px">
+              <label for="sug-group-size">Group Size (students)</label>
+              <input type="number" id="sug-group-size" name="group_size" min="1" max="100" value="30" required>
+            </div>
+            <div class="form-group" style="margin-bottom:10px">
+              <label>Preferred Days</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.82rem;margin-top:4px">
+                <label><input type="checkbox" name="pref_day" value="Mon" checked> Mon</label>
+                <label><input type="checkbox" name="pref_day" value="Tue" checked> Tue</label>
+                <label><input type="checkbox" name="pref_day" value="Wed" checked> Wed</label>
+                <label><input type="checkbox" name="pref_day" value="Thu" checked> Thu</label>
+                <label><input type="checkbox" name="pref_day" value="Fri" checked> Fri</label>
+              </div>
+            </div>
+            <button type="submit" class="btn-secondary" style="width:100%;margin:0">Get Suggestions</button>
+          </form>
+          <div id="suggest-results" style="margin-top:14px"></div>
+        </div>
+
+        <!-- In-charge Slot State Override -->
+        <div class="card">
+          <div class="section-title">🔒 In-Charge Overrides</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">
+            Select slots on the grid, then apply maintenance or custom state. Requires PIN.
+          </p>
+          <div class="form-group" style="margin-bottom:10px">
+            <label for="override-state">New State</label>
+            <select id="override-state">
+              <option value="maintenance">Maintenance</option>
+              <option value="in_use">In Use (manual block)</option>
+              <option value="empty">Free / Unblock</option>
+              <option value="exam">Exam Block</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <label for="incharge-pin">In-charge PIN <span style="color:red">*</span></label>
+            <input type="password" id="incharge-pin" placeholder="Enter PIN">
+          </div>
+          <div id="incharge-msg" class="msg"></div>
+          <button id="apply-state-btn" class="btn-secondary" style="width:100%;margin:0">Apply State</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{ url_for('static', filename='lab.js') }}"></script>
+<script>
+  // ─── TAB SWITCHING LOGIC ──────────────────────────────────────────────────
+  function switchTab(tabName) {
+    document.querySelectorAll(".nav-tab-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.tab === tabName);
+    });
+    document.querySelectorAll(".tab-pane").forEach(pane => {
+      pane.classList.toggle("active", pane.id === `tab-${tabName}`);
+    });
+    if (history.replaceState) {
+      history.replaceState(null, null, `#${tabName}`);
+    }
+  }
+
+  document.querySelectorAll(".nav-tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  });
+
+  // Check URL hash or query params on load
+  window.addEventListener("DOMContentLoaded", () => {
+    const hash = window.location.hash.replace("#", "");
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get("tab") || hash;
+    if (tabParam && ["seating", "analytics", "booking"].includes(tabParam)) {
+      switchTab(tabParam);
+    }
+
+    // Initialize Lab Analytics & Lab Booking from lab.js
+    if (typeof initDashboard === "function") {
+      initDashboard();
+    }
+    if (typeof initBooking === "function") {
+      initBooking();
+    }
+
+    // Lab card selection to update heatmap
+    document.querySelectorAll(".lab-card").forEach(card => {
+      card.addEventListener("click", async () => {
+        document.querySelectorAll(".lab-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        const labId = card.dataset.lab;
+        if (labId && typeof renderHeatmap === "function") {
+          const data = await fetch("/api/analytics").then(r => r.json());
+          renderHeatmap(data, labId);
+          const sel = document.getElementById("heatmap-lab-select");
+          if (sel) sel.value = labId;
+        }
+      });
+    });
+
+    // ─── DRAG & DROP FILE UPLOAD ───────────────────────────────────────────
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("student_file");
+    const fileBadge = document.getElementById("file-selected-badge");
+    const fileNameText = document.getElementById("file-name-text");
+
+    if (dropzone && fileInput) {
+      dropzone.addEventListener("click", () => fileInput.click());
+
+      dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
+      });
+
+      dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+      });
+
+      dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          fileInput.files = e.dataTransfer.files;
+          updateFileDisplay(e.dataTransfer.files[0].name);
+        }
+      });
+
+      fileInput.addEventListener("change", () => {
+        if (fileInput.files && fileInput.files.length > 0) {
+          updateFileDisplay(fileInput.files[0].name);
+        }
+      });
+
+      function updateFileDisplay(name) {
+        fileNameText.textContent = "📄 " + name;
+        fileBadge.style.display = "inline-flex";
+      }
+    }
+
+    // ─── AJAX SEATING GENERATION ───────────────────────────────────────────
+    const seatingForm = document.getElementById("seating-form");
+    const loadingBox = document.getElementById("seating-loading");
+    const errorBox = document.getElementById("seating-error-box");
+    const errorText = document.getElementById("seating-error-text");
+    const resultsBox = document.getElementById("seating-results-box");
+    const studentsVal = document.getElementById("result-students-val");
+    const roomsVal = document.getElementById("result-rooms-val");
+
+    if (seatingForm) {
+      seatingForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!fileInput.files || !fileInput.files.length) {
+          alert("Please select an Excel file first.");
+          return;
+        }
+
+        loadingBox.style.display = "block";
+        errorBox.style.display = "none";
+        resultsBox.style.display = "none";
+
+        const formData = new FormData(seatingForm);
+
+        try {
+          const resp = await fetch("/generate", {
+            method: "POST",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            body: formData
+          });
+
+          const data = await resp.json();
+          loadingBox.style.display = "none";
+
+          if (resp.ok && data.success) {
+            studentsVal.textContent = data.total_students;
+            roomsVal.textContent = data.rooms_used;
+            resultsBox.style.display = "block";
+          } else {
+            errorText.textContent = data.error || "Failed to generate seating.";
+            errorBox.style.display = "block";
+          }
+        } catch (err) {
+          loadingBox.style.display = "none";
+          // Fallback to standard form submission if AJAX fails
+          seatingForm.submit();
+        }
+      });
+    }
+  });
+</script>
 </body>
-
 </html>
