@@ -5,6 +5,8 @@ __pycache__/
 
 # SQLite databases
 *.db
+*.db-shm
+*.db-wal
 *.sqlite3
 
 # Environment & IDE

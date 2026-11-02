@@ -1,4 +1,4 @@
-﻿{
+{
   "labs": [
     {
       "id": "L1",
@@ -40,6 +40,13 @@
       "name": "Hardware Lab",
       "location": "R-104",
       "capacity": 30,
+      "timetable": false
+    },
+    {
+      "id": "L6",
+      "name": "AI & Machine Learning Lab",
+      "location": "Block-C 301",
+      "capacity": 60,
       "timetable": false
     }
   ]

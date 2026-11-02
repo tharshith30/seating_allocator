@@ -134,6 +134,78 @@ def api_labs():
     return jsonify(_get_labs_cfg())
 
 
+@lab_bp.route("/api/labs", methods=["POST"])
+@lab_bp.route("/api/labs/add", methods=["POST"])
+def api_add_lab():
+    """
+    POST /api/labs/add
+    Body: { id, name, location, capacity, pin }
+    Registers a new lab in labs.json and updates in-memory config.
+    """
+    data = request.get_json(silent=True) or request.form.to_dict()
+    if not data:
+        return jsonify({"error": "JSON body or form data required"}), 400
+
+    pin = request.headers.get("X-Pin") or data.get("pin", "")
+    if pin != bm._get_pin():
+        return jsonify({"error": "Invalid In-charge PIN"}), 403
+
+    lab_id = str(data.get("id", "")).strip().upper()
+    lab_name = str(data.get("name", "")).strip()
+    location = str(data.get("location", "")).strip() or "Main Campus"
+
+    try:
+        capacity = int(data.get("capacity", 0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Capacity must be a positive integer"}), 400
+
+    if not lab_id:
+        return jsonify({"error": "Lab ID is required (e.g. L6)"}), 400
+    if not lab_name:
+        return jsonify({"error": "Lab Name is required"}), 400
+    if capacity <= 0:
+        return jsonify({"error": "Capacity must be greater than 0"}), 400
+
+    _load_data()
+    global _labs_cfg_cache, _analytics_cache
+
+    # Ensure no duplicate ID
+    if any(l["id"].upper() == lab_id for l in _labs_cfg_cache):
+        return jsonify({"error": f"Lab with ID '{lab_id}' already exists"}), 409
+
+    new_lab = {
+        "id": lab_id,
+        "name": lab_name,
+        "location": location,
+        "capacity": capacity,
+        "timetable": False
+    }
+
+    # Append to labs.json
+    labs_json_path = _data("labs.json")
+    try:
+        with open(labs_json_path, "r", encoding="utf-8-sig") as f:
+            full_data = json.load(f)
+        full_data["labs"].append(new_lab)
+        with open(labs_json_path, "w", encoding="utf-8") as f:
+            json.dump(full_data, f, indent=2)
+    except Exception as e:
+        logger.error("Failed to write to labs.json: %s", e)
+        return jsonify({"error": f"Failed to save lab: {str(e)}"}), 500
+
+    # Update in-memory caches
+    _labs_cfg_cache.append(new_lab)
+    _analytics_cache = lab_analytics.compute_analytics(_sessions_cache or [], _labs_cfg_cache)
+
+    logger.info("New lab added: %s (%s, cap=%d)", lab_id, lab_name, capacity)
+
+    return jsonify({
+        "success": True,
+        "message": f"Lab {lab_id} ({lab_name}) registered successfully!",
+        "lab": new_lab
+    }), 201
+
+
 # ─── API: Week grid ──────────────────────────────────────────────────────────
 
 @lab_bp.route("/api/week")

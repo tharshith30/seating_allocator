@@ -548,7 +548,7 @@
         </div>
 
         <!-- In-charge Slot State Override -->
-        <div class="card">
+        <div class="card" style="margin-bottom:20px">
           <div class="section-title">🔒 In-Charge Overrides</div>
           <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">
             Select slots on the grid, then apply maintenance or custom state. Requires PIN.
@@ -568,6 +568,42 @@
           </div>
           <div id="incharge-msg" class="msg"></div>
           <button id="apply-state-btn" class="btn-secondary" style="width:100%;margin:0">Apply State</button>
+        </div>
+
+        <!-- Add New Lab Card -->
+        <div class="card">
+          <div class="section-title">➕ Add New Lab</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">
+            Register a new laboratory facility into the system. It will immediately be available for scheduling and slot booking.
+          </p>
+          <form id="add-lab-form">
+            <div class="inline-row" style="margin-bottom:10px">
+              <div class="form-group">
+                <label for="new-lab-id">Lab ID <span style="color:red">*</span></label>
+                <input type="text" id="new-lab-id" name="id" required placeholder="e.g. L6" maxlength="20" style="text-transform:uppercase">
+              </div>
+              <div class="form-group">
+                <label for="new-lab-capacity">Capacity <span style="color:red">*</span></label>
+                <input type="number" id="new-lab-capacity" name="capacity" required min="1" max="500" value="60">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:10px">
+              <label for="new-lab-name">Lab Name <span style="color:red">*</span></label>
+              <input type="text" id="new-lab-name" name="name" required placeholder="e.g. AI &amp; Machine Learning Lab" maxlength="100">
+            </div>
+            <div class="inline-row" style="margin-bottom:10px">
+              <div class="form-group">
+                <label for="new-lab-location">Location</label>
+                <input type="text" id="new-lab-location" name="location" placeholder="e.g. Block-C 301" maxlength="50">
+              </div>
+              <div class="form-group" style="max-width:140px">
+                <label for="new-lab-pin">In-charge PIN <span style="color:red">*</span></label>
+                <input type="password" id="new-lab-pin" name="pin" placeholder="PIN" required value="1234">
+              </div>
+            </div>
+            <div id="add-lab-msg" class="msg"></div>
+            <button type="submit" class="btn-primary" style="width:100%;margin:0">Create Lab</button>
+          </form>
         </div>
       </div>
     </div>

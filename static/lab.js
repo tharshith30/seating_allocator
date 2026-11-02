@@ -305,6 +305,55 @@ async function initBooking() {
       autoFillBookingForm(s);
     }
   });
+
+  // Add lab form
+  initAddLab();
+}
+
+function initAddLab() {
+  const form = $("add-lab-form");
+  if (!form) return;
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const id = $("new-lab-id").value.trim().toUpperCase();
+    const name = $("new-lab-name").value.trim();
+    const location = $("new-lab-location").value.trim();
+    const capacity = parseInt($("new-lab-capacity").value, 10);
+    const pin = $("new-lab-pin").value.trim() || "1234";
+    const msgEl = $("add-lab-msg");
+
+    try {
+      const res = await apiPost("/api/labs/add", { id, name, location, capacity, pin }, pin);
+      if (res.success) {
+        showMsg(msgEl, res.message, false);
+        form.reset();
+        const pinInput = $("new-lab-pin");
+        if (pinInput) pinInput.value = "1234";
+
+        // Refresh allLabs and dropdown in booking
+        allLabs = await apiGet("/api/labs");
+        populateLabSelect();
+
+        // Switch to the newly created lab in booking view
+        const labSel = $("lab-select");
+        if (labSel) {
+          labSel.value = id;
+          selectedLab = id;
+          selectedSlots = [];
+          loadGrid();
+        }
+
+        // Also reload analytics dashboard cards if present
+        if (typeof loadAnalytics === "function") {
+          loadAnalytics();
+        }
+      } else {
+        showMsg(msgEl, res.error || "Failed to add lab", true);
+      }
+    } catch (err) {
+      showMsg(msgEl, "Network error adding lab: " + err, true);
+    }
+  });
 }
 
 function populateLabSelect() {
