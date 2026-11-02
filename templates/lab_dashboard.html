@@ -63,7 +63,7 @@
                 <span class="metric-label">Utilization</span>
                 <span class="metric-value">{{ info.utilization_pct }}%</span>
               </div>
-              <div class="util-bar"><div class="util-fill" style="width:{{ info.utilization_pct }}%"></div></div>
+              <div class="util-bar"><div class="util-fill" data-pct="{{ info.utilization_pct }}"></div></div>
               <div class="metric">
                 <span class="metric-label">Booked / Free</span>
                 <span class="metric-value">{{ info.booked_count }} / {{ info.free_count }}</span>
@@ -188,8 +188,7 @@
               <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.free_count }}</td>
               <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.utilization_pct }}%</td>
               <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.avg_fill_pct }}%</td>
-              <td style="padding:8px;border:1px solid var(--border);text-align:center
-                {% if info.over_cap_count > 0 %};color:var(--col-in-use);font-weight:700{% endif %}">
+              <td class="td-center {% if info.over_cap_count > 0 %}td-overcap{% endif %}">
                 {{ info.over_cap_count }}
               </td>
               <td style="padding:8px;border:1px solid var(--border);text-align:center">

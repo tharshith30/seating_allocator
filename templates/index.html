@@ -120,12 +120,12 @@
         </div>
 
         <!-- Server-side or AJAX Error Message -->
-        <div id="seating-error-box" class="error" style="{% if error %}display:block{% else %}display:none{% endif %}">
+        <div id="seating-error-box" class="error {% if not error %}d-none{% endif %}">
           ❌ <span id="seating-error-text">{{ error }}</span>
         </div>
 
         <!-- Server-side or AJAX Results Display -->
-        <div id="seating-results-box" class="results-card" style="{% if success %}display:block{% else %}display:none{% endif %}">
+        <div id="seating-results-box" class="results-card {% if not success %}d-none{% endif %}">
           <div class="results-header">
             <span style="font-size:1.6rem">✅</span>
             <span class="results-header-title">Seating Successfully Generated!</span>
@@ -254,7 +254,7 @@
                   <span class="metric-label">Utilization</span>
                   <span class="metric-value">{{ info.utilization_pct }}%</span>
                 </div>
-                <div class="util-bar"><div class="util-fill" style="width:{{ info.utilization_pct }}%"></div></div>
+                <div class="util-bar"><div class="util-fill" data-pct="{{ info.utilization_pct }}"></div></div>
                 <div class="metric">
                   <span class="metric-label">Booked / Free</span>
                   <span class="metric-value">{{ info.booked_count }} / {{ info.free_count }}</span>
@@ -370,18 +370,18 @@
             {% for lab in labs %}
               {% set info = analytics.get(lab.id, {}) %}
               <tr>
-                <td style="padding:8px;border:1px solid var(--border);font-weight:700">{{ lab.id }}</td>
-                <td style="padding:8px;border:1px solid var(--border)">{{ lab.name }}</td>
-                <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ lab.capacity }}</td>
+                <td class="td-cell" style="font-weight:700">{{ lab.id }}</td>
+                <td class="td-cell">{{ lab.name }}</td>
+                <td class="td-center">{{ lab.capacity }}</td>
                 {% if info.has_data %}
-                  <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.booked_count }}</td>
-                  <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.free_count }}</td>
-                  <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.utilization_pct }}%</td>
-                  <td style="padding:8px;border:1px solid var(--border);text-align:center">{{ info.avg_fill_pct }}%</td>
-                  <td style="padding:8px;border:1px solid var(--border);text-align:center {% if info.over_cap_count > 0 %};color:var(--col-in-use);font-weight:700{% endif %}">
+                  <td class="td-center">{{ info.booked_count }}</td>
+                  <td class="td-center">{{ info.free_count }}</td>
+                  <td class="td-center">{{ info.utilization_pct }}%</td>
+                  <td class="td-center">{{ info.avg_fill_pct }}%</td>
+                  <td class="td-center {% if info.over_cap_count > 0 %}td-overcap{% endif %}">
                     {{ info.over_cap_count }}
                   </td>
-                  <td style="padding:8px;border:1px solid var(--border);text-align:center">
+                  <td class="td-center">
                     <span class="status-badge
                       {% if info.status == 'Healthy' %}status-healthy
                       {% elif info.status == 'Underused' %}status-underused
@@ -389,10 +389,10 @@
                       {% else %}status-nodata{% endif %}">{{ info.status }}</span>
                   </td>
                 {% else %}
-                  <td colspan="5" style="padding:8px;border:1px solid var(--border);text-align:center;color:var(--text-muted)">
+                  <td colspan="5" class="td-center" style="color:var(--text-muted)">
                     <em>No data</em>
                   </td>
-                  <td style="padding:8px;border:1px solid var(--border);text-align:center">
+                  <td class="td-center">
                     <span class="status-badge status-nodata">No data</span>
                   </td>
                 {% endif %}
@@ -610,6 +610,11 @@
     if (typeof initBooking === "function") {
       initBooking();
     }
+
+    // Set initial util-fill bars from data-pct
+    document.querySelectorAll(".util-fill[data-pct]").forEach(el => {
+      el.style.width = el.getAttribute("data-pct") + "%";
+    });
 
     // Lab card selection to update heatmap
     document.querySelectorAll(".lab-card").forEach(card => {

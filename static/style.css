@@ -391,6 +391,13 @@ button:active { transform: scale(0.98); }
 /* Divider */
 .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
+/* Display & Table helpers to eliminate inline Jinja styles */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.td-cell { padding: 8px; border: 1px solid var(--border); }
+.td-center { padding: 8px; border: 1px solid var(--border); text-align: center; }
+.td-overcap { color: var(--col-in-use); font-weight: 700; }
+
 /* Inline form row */
 .inline-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
 .inline-row .form-group { flex: 1; min-width: 120px; }
