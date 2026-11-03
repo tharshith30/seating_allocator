@@ -669,3 +669,282 @@ button:active { transform: scale(0.98); }
   line-height: 1;
 }
 
+/* ================================================================
+   SMART LIBRARY UTILIZATION MODULE STYLES
+   ================================================================ */
+
+/* Sub-navigation tabs within the Library module */
+.lib-sub-nav {
+  display: flex;
+  gap: 8px;
+  background: var(--surface2);
+  padding: 6px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.lib-sub-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  margin: 0;
+}
+.lib-sub-btn:hover {
+  color: var(--text);
+  background: rgba(23, 105, 170, 0.08);
+}
+.lib-sub-btn.active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 6px rgba(23, 105, 170, 0.3);
+}
+
+/* Sub-panes */
+.lib-sub-pane {
+  display: none;
+  animation: fadeInPane 0.2s ease-in-out;
+}
+.lib-sub-pane.active {
+  display: block;
+}
+
+/* Crowd Badges & Theme Colors */
+.crowd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.crowd-success { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+.crowd-info    { background: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
+.crowd-warning { background: #fff8e1; color: #e65100; border: 1px solid #ffe082; }
+.crowd-danger  { background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a; }
+.crowd-secondary { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+
+[data-theme="dark"] .crowd-success { background: #1b3a1f; color: #a5d6a7; border-color: #2e7d32; }
+[data-theme="dark"] .crowd-info    { background: #0d2b45; color: #90caf9; border-color: #1565c0; }
+[data-theme="dark"] .crowd-warning { background: #3e2723; color: #ffcc80; border-color: #e65100; }
+[data-theme="dark"] .crowd-danger  { background: #3a1a1a; color: #ef9a9a; border-color: #b71c1c; }
+[data-theme="dark"] .crowd-secondary { background: #262626; color: #b0bec5; border-color: #424242; }
+
+.crowd-bg-success { background-color: #2e7d32 !important; }
+.crowd-bg-info    { background-color: #1565c0 !important; }
+.crowd-bg-warning { background-color: #f57c00 !important; }
+.crowd-bg-danger  { background-color: #c62828 !important; }
+
+.crowd-border-success { border-top: 4px solid #2e7d32 !important; }
+.crowd-border-info    { border-top: 4px solid #1565c0 !important; }
+.crowd-border-warning { border-top: 4px solid #f57c00 !important; }
+.crowd-border-danger  { border-top: 4px solid #c62828 !important; }
+
+/* Stale Data Warning Banner */
+.stale-alert {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-left: 5px solid #ff8f00;
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+[data-theme="dark"] .stale-alert {
+  background: #332500;
+  border-color: #664d00;
+  border-left-color: #ffa000;
+}
+.stale-icon { font-size: 1.6rem; line-height: 1; }
+.stale-content { font-size: 0.85rem; color: #5d4037; }
+[data-theme="dark"] .stale-content { color: #ffe082; }
+
+/* Large Occupancy Progress Meter */
+.meter-track {
+  height: 18px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  margin: 14px 0 8px;
+}
+.meter-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hourly Bar Chart */
+.chart-bars-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 200px;
+  padding: 20px 10px 0;
+  overflow-x: auto;
+}
+.chart-bar-col {
+  flex: 1;
+  min-width: 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+.chart-bar-val {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.chart-bar-track {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  height: 140px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.chart-bar-fill {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.5s ease;
+}
+.chart-bar-lbl {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Library Peak-Hour Heatmap */
+.lib-heatmap-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  text-align: center;
+}
+.lib-heatmap-grid th {
+  padding: 8px 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.lib-heatmap-grid td {
+  padding: 8px 4px;
+  border: 1px solid var(--border);
+  font-weight: 600;
+}
+.hm-day-lbl {
+  background: var(--surface2);
+  color: var(--text);
+  font-weight: 700;
+}
+.hm-c0 { background: var(--surface); color: var(--text-muted); }
+.hm-c1 { background: #e8f5e9; color: #1b5e20; }
+.hm-c2 { background: #e3f2fd; color: #0d47a1; }
+.hm-c3 { background: #fff8e1; color: #e65100; }
+.hm-c4 { background: #ffebee; color: #b71c1c; font-weight: 800; }
+[data-theme="dark"] .hm-c1 { background: #1b3a1f; color: #a5d6a7; }
+[data-theme="dark"] .hm-c2 { background: #0d2b45; color: #90caf9; }
+[data-theme="dark"] .hm-c3 { background: #3e2723; color: #ffcc80; }
+[data-theme="dark"] .hm-c4 { background: #3a1a1a; color: #ef9a9a; }
+
+/* Forecast Cards Grid */
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+.forecast-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  transition: transform 0.15s ease;
+}
+.forecast-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.fc-time { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+.fc-pct { font-size: 1.6rem; font-weight: 800; color: var(--accent); line-height: 1.1; margin-bottom: 6px; }
+.fc-seats { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
+
+/* Smart Recommendation Cards */
+.rec-alert-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 14px;
+  border-left: 5px solid var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.rec-type-danger  { border-left-color: #c62828; }
+.rec-type-warning { border-left-color: #f57c00; }
+.rec-type-info    { border-left-color: #1769aa; }
+.rec-type-success { border-left-color: #2e7d32; }
+
+.rec-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.rec-category-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+}
+.rec-tag-badge {
+  font-size: 0.7rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+.rec-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.rec-card-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+.rec-card-action {
+  font-size: 0.84rem;
+  color: var(--text);
+  background: var(--surface2);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+

@@ -1,6 +1,6 @@
-# 🎓 ResourceHub — Exam Seating & Lab Utilization Suite
+# 🎓 ResourceHub — Smart Resource Management System
 
-> A unified, intelligent campus resource management portal for automated conflict-free exam seating distribution, computer lab utilization analytics, and slot booking.
+> A unified, intelligent campus resource management portal integrating automated conflict-free exam seating distribution, computer lab utilization analytics & slot booking, and smart library utilization with machine learning forecasting.
 
 [![Python Version](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/)
 [![Framework](https://img.shields.io/badge/Framework-Flask%203.x-lightgrey.svg)](https://flask.palletsprojects.com/)
@@ -10,10 +10,10 @@
 
 ## 📌 Table of Contents
 - [Overview](#-overview)
-- [Key Features](#-key-features)
-  - [1. 🪑 Exam Seating Allocator](#1--exam-seating-allocator)
-  - [2. 📊 Lab Utilization & Analytics](#2--lab-utilization--analytics)
-  - [3. 📅 Lab Slot Booking & Facility Management](#3--lab-slot-booking--facility-management)
+- [Key Modules & Features](#-key-modules--features)
+  - [1. 🪑 Exam Seating Allotment](#1--exam-seating-allotment)
+  - [2. 📊 Laboratory Utilization & Booking](#2--laboratory-utilization--booking)
+  - [3. 📚 Smart Library Utilization & Analytics](#3--smart-library-utilization--analytics)
 - [Project Architecture](#-project-architecture)
 - [Input File Specifications](#-input-file-specifications)
 - [Installation & Quickstart](#-installation--quickstart)
@@ -27,36 +27,57 @@
 
 ## 🌟 Overview
 
-ResourceHub brings together examination logistics and computer laboratory infrastructure management into a single, cohesive, modern web application.
+**ResourceHub** centralizes institutional academic infrastructure management across three integrated modules within a single responsive web interface:
 
-- **Exam Halls**: Automatically allocates students across **34 examination halls (1,300+ seats)** ensuring no two students taking the same exam sit adjacent to each other.
-- **Computer Labs**: Monitors real-time and scheduled utilization across all campus computer labs with heatmaps, automated conflict checking, smart booking recommendations, and dynamic lab registration.
+1. **Exam Seating Allotment**: Conflict-free student seat distribution across **34 examination halls (1,300+ seats)** preventing adjacent same-subject seating.
+2. **Laboratory Utilization**: Live slot occupancy tracking, weekly heatmaps, smart auto-allocation, PIN-protected maintenance overrides, and dynamic lab registration across campus computer facilities.
+3. **Smart Library Utilization & Analytics**: Independent seating occupancy monitoring, crowd level categorization, statistical usage analytics, machine learning predictive forecasting, and administrative report generation.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Key Modules & Features
 
-### 1. 🪑 Exam Seating Allocator
-* **Anti-Malpractice Interleaving Engine**: Alternates exams across rows and desks to prevent students taking the same course exam from sitting adjacent in any direction.
-* **Capacity-First Optimization**: Fills large halls first before spilling over into smaller rooms.
-* **Dual Output Generation**:
+### 1. 🪑 Exam Seating Allotment
+* **Anti-Malpractice Interleaving Engine**: Alternates exam codes row-by-row and seat-by-seat to eliminate adjacent same-subject seating in all directions.
+* **Capacity-First Optimization**: Intelligently packs high-capacity exam halls first before filling auxiliary rooms.
+* **Dual Export Capabilities**:
   * 📊 **Excel Spreadsheet (`.xlsx`)**: Comprehensive allotment roster sorted by hall and roll number.
-  * 📄 **Printable PDF Notice (`.pdf`)**: Formatted door charts ready for immediate printing and posting.
-* **Drag-and-Drop Interface**: Real-time upload with progress indicators and inline download buttons without full-page reloads.
+  * 📄 **Printable PDF Notice (`.pdf`)**: Formatted door charts ready for immediate posting outside examination halls.
+* **Modern Web Interface**: Drag-and-drop file upload with live AJAX generation progress and inline download buttons without full-page reloads.
 
-### 2. 📊 Lab Utilization & Analytics
-* **Interactive Weekly Heatmaps**: Visualizes slot occupancy (S1 to S9) across Monday through Friday for any selected lab.
-* **Lab KPI Overview Cards**: Instant metrics on utilization percentage, visual progress fill bars, booked vs. free slots, average seat fill, over-capacity flags, and health status badges (`Healthy`, `Underused`, `Overloaded`).
-* **🔍 Find a Free Lab**: Real-time lookup tool to find completely free laboratories for any specified day and slot.
-* **All-Labs Summary Matrix**: High-level comparative table across all campus facilities.
-* **PDF Analytics Export**: One-click download of the complete infrastructure analytics and scheduling report.
+### 2. 📊 Laboratory Utilization & Booking
+* **Interactive Weekly Heatmaps**: Visualizes slot occupancy (S1 to S9) across Monday through Friday for all laboratories.
+* **Lab KPI Overview Cards**: Real-time metrics on utilization percentage, visual progress fill bars, booked vs. free slots, average seat fill, over-capacity warnings, and status badges (`Healthy`, `Underused`, `Overloaded`).
+* **🔍 Find a Free Lab**: Real-time lookup tool finding completely free laboratories for any specified day and slot.
+* **📅 Lab Slot Booking**: Student and faculty slot booking with conflict detection and automated validation.
+* **➕ Dynamic Lab Registration**: Instantly registers new lab facilities directly through the UI, persisting to `labs.json` without server restarts.
 
-### 3. 📅 Lab Slot Booking & Facility Management
-* **Color-Coded Interactive Week Grid**: Status-tracked grid displaying `Empty`, `In Use`, `Maintenance`, `Booked`, `Lunch`, and `Exam Block`.
-* **Smart Auto-Allocator**: Automated recommendation engine that finds the best available lab and slot given a target group size and preferred days.
-* **Role-Based Bookings**: Booking form supporting student projects and faculty sessions with instant validation.
-* **In-Charge Overrides**: Operator maintenance blocks and custom slot state overrides secured with a PIN.
-* **➕ Dynamic Lab Registration**: Add and register new labs directly from the dashboard; immediately persists to `labs.json` and updates the active booking system without requiring a server reboot.
+### 3. 📚 Smart Library Utilization & Analytics
+* **Independent Occupancy Monitoring**:
+  * Standalone observation recording mechanism operating independently of existing entrance turnstiles.
+  * Captures occupied seat headcounts, available capacity, and occupancy percentage.
+  * Categorizes crowd levels: **Low occupancy** (<35%), **Moderate occupancy** (35–70%), **High occupancy** (70–90%), and **Full capacity** (≥90%).
+  * Automated **Stale Data Warning** if the last recorded observation is older than 2 hours.
+  * **Strict Data Privacy**: Aggregates seating counts only; **zero student IDs, roll numbers, or personal names** are collected or stored.
+* **Usage Pattern Analytics**:
+  * Hourly occupancy breakdown (8:00 AM – 8:00 PM).
+  * Day-of-week demand trends and busiest day identification.
+  * Interactive Day × Hour peak heatmap matrix.
+  * Configurable date filters: *Today*, *Last 7 Days*, *Last 30 Days*, and *All Time*.
+* **Machine Learning Predictive Analytics**:
+  * Regression model (Random Forest / Weighted Pattern Engine) forecasting seating occupancy for upcoming operating hours.
+  * Rigorous 80/20 train/test evaluation reporting **Mean Absolute Error (MAE)** and **Root Mean Squared Error (RMSE)**.
+  * Identifies projected rush hours and upcoming crowd surges.
+  * Displays provisional status notices when training points are under calibration threshold.
+* **Smart Resource Recommendations**:
+  * Actionable administrative insights distinguishing between `Data-Based Insights`, `Statistical Estimates`, and `ML Predictions`.
+  * Flags recurring peak-hour saturation, identifies optimal maintenance windows during quiet hours, and provides seating capacity advisories.
+* **Dual Role Views**:
+  * **Student Live View**: Simplified crowd indicator, available seats counter, "Last updated" indicator, and best visiting time suggestions. No seat booking or seat ownership.
+  * **Admin Occupancy Recorder**: PIN-protected observation recording, capacity configuration, and record correction.
+* **Administrative Reports**:
+  * 📊 **Excel Workbook (`.xlsx`)**: Multi-sheet export including Executive Summary, Hourly Distributions, Day-of-Week Trends, Observation Logs, and Recommendations.
+  * 📄 **Executive PDF Document (`.pdf`)**: Print-ready report with institutional headings, metric summaries, and analytical tables.
 
 ---
 
@@ -64,55 +85,46 @@ ResourceHub brings together examination logistics and computer laboratory infras
 
 ```
 seating_allocator/
-├── app.py                      # Main Flask application & routes (/generate, /download/*)
-├── seating_engine.py           # Core exam seat allocation algorithm (interleaved seating)
-├── room_loader.py              # Parser for exam hall capacities (roomCapacity_FST.xlsx)
-├── excel_generator.py          # Formatted Excel allotment writer (.xlsx)
-├── pdf_generator.py            # ReportLab PDF chart and lab report generator (.pdf)
+├── app.py                      # Main Flask application & Blueprint registration
+├── seating_engine.py           # Core exam seat allocation algorithm (interleaving)
+├── room_loader.py              # Exam hall capacity loader (OpenPyXL)
+├── excel_generator.py          # Excel generator for seating rosters
+├── pdf_generator.py            # ReportLab PDF generator for seating and lab reports
 ├── run.bat                     # Windows one-click launcher script
 │
-├── lab/                        # Lab Management Module (Flask Blueprint)
-│   ├── routes.py               # REST API endpoints & page routes
+├── lab/                        # Module 2: Laboratory Utilization
+│   ├── routes.py               # REST API endpoints & lab routes
 │   ├── booking.py              # SQLite status manager & slot reservation logic
-│   ├── parser.py               # Merged-cell aware timetable Excel parser (openpyxl)
+│   ├── parser.py               # Merged-cell aware timetable parser (OpenPyXL)
 │   ├── allocator.py            # Smart auto-allocator recommendation engine
-│   └── analytics.py            # Utilization metrics, load calculations & KPIs
+│   └── analytics.py            # Lab utilization metrics & load calculations
 │
-├── data/                       # Datasets & Configurations
-│   ├── roomCapacity_FST.xlsx   # 34 examination room capacities & seat numbering
-│   ├── timetable.xlsx          # Weekly master timetable across departments
+├── library/                    # Module 3: Smart Library Utilization & Analytics
+│   ├── routes.py               # Flask Blueprint for library endpoints
+│   ├── occupancy.py            # SQLite observation recorder, capacity config, crowd levels
+│   ├── analytics.py            # Hourly distribution, daily trend, heatmap matrix
+│   ├── predictor.py            # ML regression model, train/test split, MAE evaluation
+│   ├── recommendations.py      # Intelligent operational advice & capacity alerts
+│   └── reports.py              # Excel (.xlsx) and PDF (.pdf) utilization report generation
+│
+├── data/                       # Datasets & Persistent Storage
+│   ├── roomCapacity_FST.xlsx   # 34 examination room capacities & seat ranges
+│   ├── timetable.xlsx          # Weekly master timetable across academic departments
 │   ├── labs.json               # Registered computer lab configurations & capacities
 │   ├── extra_sessions.csv      # Supplemental lab sessions not in timetable
-│   └── lab_bookings.db         # SQLite database storing bookings & slot overrides
+│   ├── lab_bookings.db         # SQLite database storing lab bookings & overrides
+│   └── library.db              # SQLite database storing library observations & config
 │
 ├── static/                     # Frontend Assets
-│   ├── style.css               # Modern unified styling with Light/Dark mode variables
-│   └── lab.js                  # Frontend client-side controller (heatmap, booking, AJAX)
+│   ├── style.css               # Shared CSS design system (Light/Dark themes)
+│   ├── lab.js                  # Lab controller (heatmap, booking grid, auto-allocator)
+│   └── library.js              # Library controller (live crowd meter, charts, ML forecasts)
 │
-└── templates/                  # Jinja2 HTML Templates
-    ├── index.html              # Unified Single-Page Dashboard (Seating + Analytics + Booking)
+└── templates/                  # Jinja2 Single-Page Dashboard
+    ├── index.html              # Unified Dashboard (Seating + Labs + Library)
     ├── lab_dashboard.html      # Standalone lab analytics template
     └── lab_booking.html        # Standalone lab booking template
 ```
-
----
-
-## 📋 Input File Specifications
-
-### Exam Seating Allocator Input (`.xlsx`)
-To generate seating arrangements, upload a Microsoft Excel workbook containing the following two sheets:
-
-#### Sheet 1: `EXAMS`
-| Exam ID | Course Code | Course Name | Slot |
-| :--- | :--- | :--- | :--- |
-| `E1` | `CS301` | Database Management Systems | Morning |
-| `E2` | `EC204` | Signals & Systems | Morning |
-
-#### Sheet 2: `STUDENTS`
-| Roll Number | Student Name | Exam ID |
-| :--- | :--- | :--- |
-| `21B91A0501` | John Doe | `E1` |
-| `21B91A0402` | Jane Smith | `E2` |
 
 ---
 
@@ -125,11 +137,12 @@ To generate seating arrangements, upload a Microsoft Excel workbook containing t
 ```bash
 pip install flask pandas openpyxl reportlab pillow
 ```
+*(Optional for ML component: `pip install scikit-learn` — system includes an automated fallback regression engine if omitted).*
 
 ### Running the Application
 
 #### One-Click Start (Windows)
-Simply double-click **`run.bat`** in the project directory, or execute in CMD:
+Double-click **`run.bat`** in the project directory, or execute in CMD:
 ```cmd
 cd C:\sp\sp\seating_allocator
 run.bat
@@ -155,48 +168,62 @@ Open your browser at:
 
 ## 🔗 Deep Links & Navigation
 
-| View | Direct URL |
+| Module / View | Direct URL |
 | :--- | :--- |
 | **Unified Portal (Default)** | [http://127.0.0.1:5000/](http://127.0.0.1:5000/) |
 | **Exam Seating View** | [http://127.0.0.1:5000/#seating](http://127.0.0.1:5000/#seating) |
 | **Lab Analytics View** | [http://127.0.0.1:5000/#analytics](http://127.0.0.1:5000/#analytics) |
 | **Lab Booking View** | [http://127.0.0.1:5000/#booking](http://127.0.0.1:5000/#booking) |
+| **Library Analytics View** | [http://127.0.0.1:5000/#library](http://127.0.0.1:5000/#library) |
 
 ---
 
 ## 🔌 API Reference
 
+### Library Module Endpoints
+
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/labs` | Returns list of all registered labs and their capacities |
-| `POST` | `/api/labs/add` | Register a new lab (`id`, `name`, `location`, `capacity`, `pin`) |
-| `GET` | `/api/analytics` | Returns computed KPIs and timetable utilization statistics |
-| `GET` | `/api/week?lab=<id>&week=<date>` | Returns 5×9 slot state grid for a specific lab and week |
-| `POST` | `/api/book` | Books one or more empty slots for a user |
-| `GET` | `/api/bookings?lab=<id>&week=<date>` | Lists active user bookings for a lab and week |
-| `DELETE` | `/api/book/<id>` | Cancels a specific booking (requires in-charge PIN if not owner) |
-| `GET` | `/api/free_labs?day=<day>&slot=<slot>` | Returns list of labs with empty timetable slots |
-| `POST` | `/api/smart/suggest` | Generates smart lab slot recommendations based on group size |
-| `POST` | `/api/status` | Sets manual slot status overrides (maintenance, in_use, exam) |
-| `GET` | `/download/excel` | Downloads latest generated exam seating spreadsheet |
-| `GET` | `/download/pdf` | Downloads latest generated exam seating PDF document |
-| `GET` | `/download/lab-report` | Downloads complete lab infrastructure report PDF |
+| `GET` | `/api/library/status` | Returns latest occupancy reading, available seats, crowd level, and staleness details |
+| `POST` | `/api/library/occupancy` | Record a periodic headcount observation (requires admin PIN) |
+| `PUT` | `/api/library/occupancy/<id>` | Correct an inaccurate observation record (requires admin PIN) |
+| `DELETE` | `/api/library/occupancy/<id>` | Delete an observation record (requires admin PIN) |
+| `GET` | `/api/library/records` | Retrieve historical observation logs with date filtering (`today`, `7d`, `30d`, `all`) |
+| `GET` | `/api/library/analytics` | Returns computed KPIs, hourly distributions, day-of-week trends, and peak heatmap |
+| `GET` | `/api/library/predictions` | Generates ML forward forecast for upcoming hours with MAE evaluation metrics |
+| `GET` | `/api/library/recommendations` | Returns synthesized data-driven administrative recommendations |
+| `POST` | `/api/library/config` | Update library seating capacity and crowd threshold percentages (requires admin PIN) |
+| `GET` | `/download/library-report/excel` | Export complete library analytics workbook (`.xlsx`) |
+| `GET` | `/download/library-report/pdf` | Export executive PDF utilization report (`.pdf`) |
+
+### Core & Lab Endpoints
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/generate` | Generate conflict-free exam seating allocation from uploaded Excel workbook |
+| `GET` | `/download/excel` | Download generated exam seating spreadsheet |
+| `GET` | `/download/pdf` | Download generated exam seating printable PDF |
+| `GET` | `/api/labs` | Returns list of registered computer labs and capacities |
+| `POST` | `/api/labs/add` | Dynamically register a new computer lab |
+| `GET` | `/api/week` | Returns 5×9 slot state grid for a specified lab and week |
+| `POST` | `/api/book` | Reserve empty laboratory slot(s) |
+| `GET` | `/download/lab-report` | Download computer lab utilization report PDF |
 
 ---
 
 ## 🔐 Configuration & Security
 
-- **In-Charge PIN**: Administrative operations (such as adding labs, setting maintenance blocks, and overriding bookings) require an in-charge PIN.
+- **In-Charge Administrator PIN**: Administrative mutations (adding labs, recording library headcounts, updating capacities, maintenance overrides) require an authorization PIN.
   - Set via environment variable: `INCHARGE_PIN=your_custom_pin`
-  - Default fallback for development: `1234`
-- **Concurrency & WAL Mode**: SQLite runs in Write-Ahead Logging (`WAL`) mode to support concurrent operations without locking conflicts.
-- **Input Sanitization**: All user inputs (names, reasons, descriptions) are HTML-escaped before persistence.
+  - Default development fallback: `1234`
+- **Data Privacy**: The library module does not access, collect, or store student IDs, names, or turnstile entry records.
+- **Concurrency & Reliability**: SQLite databases run with Write-Ahead Logging (`PRAGMA journal_mode=WAL`) for high concurrency and resilience.
 
 ---
 
 ## 🌿 Git Branching
 
-All current updates, unified dashboard enhancements, bug fixes, and lab additions are maintained on branch:
+All current features, unified dashboard enhancements, and the new Smart Library Utilization module are maintained on branch:
 ```bash
 git checkout navya
 ```
@@ -205,4 +232,4 @@ Remote repository: `https://github.com/tharshith30/seating_allocator.git`
 ---
 
 ## 📄 License
-This project is developed for academic scheduling and resource management. Released under the MIT License.
+This project is developed for institutional academic scheduling and resource management. Released under the MIT License.

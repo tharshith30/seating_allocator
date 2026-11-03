@@ -29,6 +29,9 @@
     <button type="button" class="nav-tab-btn {% if active_tab == 'booking' %}active{% endif %}" data-tab="booking">
       <span>📅</span> Lab Booking
     </button>
+    <button type="button" class="nav-tab-btn {% if active_tab == 'library' %}active{% endif %}" data-tab="library">
+      <span>📚</span> Library Analytics
+    </button>
   </div>
 
   <span class="spacer"></span>
@@ -54,10 +57,10 @@
       </div>
     </div>
     <div class="stat-pill">
-      <div class="stat-icon">📋</div>
+      <div class="stat-icon">📚</div>
       <div class="stat-info">
-        <span class="stat-label">Timetable Sessions</span>
-        <span class="stat-value">62 Scheduled</span>
+        <span class="stat-label">Central Library</span>
+        <span class="stat-value" id="lib-total-capacity">{{ lib_config.total_capacity if lib_config else 250 }} Seats</span>
       </div>
     </div>
     <div class="stat-pill">
@@ -609,9 +612,409 @@
     </div>
   </section>
 
+  <!-- ========================================================================= -->
+  <!-- TAB 4: SMART LIBRARY UTILIZATION & ANALYTICS                              -->
+  <!-- ========================================================================= -->
+  <section id="tab-library" class="tab-pane {% if active_tab == 'library' %}active{% endif %}">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Smart Library Utilization &amp; Analytics</div>
+        <div class="page-subtitle">
+          Independent seating occupancy tracking, crowd pattern analytics &amp; machine learning forecasting
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="/download/library-report/pdf" class="btn-primary" style="text-decoration:none;padding:10px 18px;border-radius:8px">
+          📄 Download PDF Report
+        </a>
+        <a href="/download/library-report/excel" class="btn-dl-excel" style="text-decoration:none;padding:10px 18px;border-radius:8px">
+          📊 Download Excel Report
+        </a>
+      </div>
+    </div>
+
+    <!-- Library Sub-Navigation Tabs -->
+    <div class="lib-sub-nav">
+      <button type="button" class="lib-sub-btn active" data-sub="student">
+        <span>🎓</span> Student Live Crowd View
+      </button>
+      <button type="button" class="lib-sub-btn" data-sub="admin">
+        <span>🔒</span> Admin Occupancy Recorder
+      </button>
+      <button type="button" class="lib-sub-btn" data-sub="analytics">
+        <span>📊</span> Usage Analytics
+      </button>
+      <button type="button" class="lib-sub-btn" data-sub="predictions">
+        <span>🤖</span> Predictive Forecasts (ML)
+      </button>
+      <button type="button" class="lib-sub-btn" data-sub="recommendations">
+        <span>💡</span> Smart Recommendations
+      </button>
+      <button type="button" class="lib-sub-btn" data-sub="reports">
+        <span>📄</span> Reports &amp; Exports
+      </button>
+    </div>
+
+    <!-- SUB-PANE 1: STUDENT LIVE CROWD VIEW -->
+    <div id="lib-pane-student" class="lib-sub-pane active">
+      <!-- Stale Data Warning Banner -->
+      <div id="lib-stale-alert" class="stale-alert" style="display:none">
+        <span class="stale-icon">⚠️</span>
+        <div class="stale-content">
+          <strong>Periodic Observation Notice:</strong><br>
+          <span id="lib-stale-text">Data reflects periodic observations. Last recorded reading was over 2 hours ago.</span>
+        </div>
+      </div>
+
+      <div class="seating-layout">
+        <!-- Hero Crowd Level Card -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <span class="section-title" style="margin:0;border:none;padding:0">Current Library Seating Status</span>
+            <span id="lib-live-status-badge" class="crowd-badge crowd-success">Low occupancy</span>
+          </div>
+
+          <div class="results-stats-row" style="margin-bottom:16px">
+            <div class="result-stat-box">
+              <div id="lib-live-available" class="result-stat-num" style="color:#2e7d32">--</div>
+              <div class="result-stat-lbl">Available Seats</div>
+            </div>
+            <div class="result-stat-box">
+              <div id="lib-live-occupied" class="result-stat-num" style="color:var(--accent)">--</div>
+              <div class="result-stat-lbl">Occupied Seats</div>
+            </div>
+            <div class="result-stat-box">
+              <div id="lib-live-pct" class="result-stat-num" style="color:var(--text)">--%</div>
+              <div class="result-stat-lbl">Occupancy Rate</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-muted);font-weight:600">
+              <span>Seating Fill Level</span>
+              <span>Capacity: {{ lib_config.total_capacity if lib_config else 250 }} Seats</span>
+            </div>
+            <div class="meter-track">
+              <div id="lib-meter-fill" class="meter-fill crowd-bg-success" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between">
+            <span>🕒 Last Observation Recorded: <strong id="lib-live-updated">Just now</strong></span>
+            <span>📍 Central University Library &bull; Ground &amp; 1st Floor</span>
+          </div>
+        </div>
+
+        <!-- Student Study Advisory Card -->
+        <div class="card">
+          <div class="section-title">💡 Study Planning &amp; Best Visiting Times</div>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+            Plan your library study sessions during low-traffic windows to easily secure preferred desks.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
+            <div style="background:var(--surface2);padding:12px 16px;border-radius:8px;border:1px solid var(--border)">
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">Recommended Quiet Hours</div>
+              <div id="lib-best-visiting" style="font-size:1.05rem;font-weight:700;color:var(--accent);margin-top:2px">
+                Early morning (8:00 AM – 9:30 AM) or after 6:30 PM
+              </div>
+            </div>
+            <div style="background:var(--surface2);padding:12px 16px;border-radius:8px;border:1px solid var(--border)">
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">Typical Peak Occupancy Windows</div>
+              <div id="lib-typical-peaks" style="font-size:1.05rem;font-weight:700;color:#e65100;margin-top:2px">
+                10:00 AM – 12:00 PM &bull; 03:00 PM – 05:00 PM
+              </div>
+            </div>
+          </div>
+
+          <ul class="feature-list" style="margin-top:8px">
+            <li class="feature-item">
+              <span class="feature-icon">📖</span>
+              <div>
+                <strong>Open Seating Policy</strong><br>
+                Desks are available on a first-come, first-served basis. No seat reservations or advance booking needed.
+              </div>
+            </li>
+            <li class="feature-item">
+              <span class="feature-icon">🛡️</span>
+              <div>
+                <strong>Privacy Guaranteed</strong><br>
+                This system displays headcount metrics only. No student IDs, turnstile logs, or personal records are accessed.
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-PANE 2: ADMIN OCCUPANCY RECORDER -->
+    <div id="lib-pane-admin" class="lib-sub-pane">
+      <div class="seating-layout">
+        <!-- Record New Observation Form -->
+        <div class="card">
+          <div class="section-title">📝 Record Headcount Observation</div>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+            Enter the currently occupied seat count observed in the reading halls. The system computes available seats and crowd levels automatically.
+          </p>
+
+          <form id="lib-obs-form">
+            <div class="inline-row" style="margin-bottom:12px">
+              <div class="form-group">
+                <label for="lib-obs-seats">Occupied Seats Count <span style="color:red">*</span></label>
+                <input type="number" id="lib-obs-seats" name="occupied_seats" required min="0" max="{{ lib_config.total_capacity if lib_config else 500 }}" placeholder="e.g. 145">
+              </div>
+              <div class="form-group" style="max-width:160px">
+                <label for="lib-obs-pin">Admin PIN <span style="color:red">*</span></label>
+                <input type="password" id="lib-obs-pin" name="pin" required placeholder="Default 1234" value="1234">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px">
+              <label for="lib-obs-notes">Observation Notes (Optional)</label>
+              <input type="text" id="lib-obs-notes" name="notes" placeholder="e.g. Pre-exam revision period; Group study desks fully utilized">
+            </div>
+            <div id="lib-obs-msg" class="msg"></div>
+            <button type="submit" class="btn-primary" style="width:100%;margin:0">
+              📌 Save Occupancy Observation
+            </button>
+          </form>
+        </div>
+
+        <!-- Library Seating Configuration Form -->
+        <div class="card">
+          <div class="section-title">⚙️ Library Seating &amp; Thresholds Configuration</div>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+            Configure the total library seating capacity and crowd classification percentage thresholds.
+          </p>
+
+          <form id="lib-cfg-form">
+            <div class="form-group" style="margin-bottom:12px">
+              <label for="lib-cfg-capacity">Total Library Seating Capacity <span style="color:red">*</span></label>
+              <input type="number" id="lib-cfg-capacity" name="total_capacity" required min="1" max="2000" value="{{ lib_config.total_capacity if lib_config else 250 }}">
+            </div>
+            <div class="inline-row" style="margin-bottom:12px">
+              <div class="form-group">
+                <label for="lib-cfg-low">Low Crowd (% &le;)</label>
+                <input type="number" id="lib-cfg-low" name="low_th" step="0.5" min="10" max="50" value="{{ lib_config.low_threshold_pct if lib_config else 35.0 }}">
+              </div>
+              <div class="form-group">
+                <label for="lib-cfg-mod">Moderate (% &le;)</label>
+                <input type="number" id="lib-cfg-mod" name="mod_th" step="0.5" min="40" max="80" value="{{ lib_config.mod_threshold_pct if lib_config else 70.0 }}">
+              </div>
+              <div class="form-group">
+                <label for="lib-cfg-high">High Crowd (% &ge;)</label>
+                <input type="number" id="lib-cfg-high" name="high_th" step="0.5" min="70" max="98" value="{{ lib_config.high_threshold_pct if lib_config else 90.0 }}">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px">
+              <label for="lib-cfg-pin">In-charge PIN <span style="color:red">*</span></label>
+              <input type="password" id="lib-cfg-pin" name="pin" required placeholder="Default 1234" value="1234">
+            </div>
+            <div id="lib-cfg-msg" class="msg"></div>
+            <button type="submit" class="btn-secondary" style="width:100%;margin:0">
+              Update Facility Configuration
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-PANE 3: USAGE ANALYTICS -->
+    <div id="lib-pane-analytics" class="lib-sub-pane">
+      <!-- Analytics Date Filter Bar -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+          <div>
+            <div class="section-title" style="margin:0;border:none;padding:0">Historical Occupancy Analytics</div>
+            <div style="font-size:0.82rem;color:var(--text-muted)">Aggregate metrics derived from periodic seating observations</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="lib-filter-btn" data-filter="today">Today</button>
+            <button type="button" class="lib-filter-btn" data-filter="7d">Last 7 Days</button>
+            <button type="button" class="lib-filter-btn active" data-filter="30d">Last 30 Days</button>
+            <button type="button" class="lib-filter-btn" data-filter="all">All Time</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="stats-banner" style="margin-bottom:24px">
+        <div class="stat-pill">
+          <div class="stat-icon">📈</div>
+          <div class="stat-info">
+            <span class="stat-label">Average Occupancy</span>
+            <span class="stat-value" id="lib-kpi-avg">--%</span>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-info">
+            <span class="stat-label">Peak Occupancy Recorded</span>
+            <span class="stat-value" id="lib-kpi-max" style="font-size:1.15rem;color:#c62828">--</span>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-icon">❄️</div>
+          <div class="stat-info">
+            <span class="stat-label">Lowest Occupancy Recorded</span>
+            <span class="stat-value" id="lib-kpi-min" style="font-size:1.15rem;color:#2e7d32">--</span>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-icon">📋</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Observations</span>
+            <span class="stat-value" id="lib-kpi-total" style="font-size:0.95rem">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Charts Layout -->
+      <div class="seating-layout">
+        <!-- Hourly Occupancy Bar Chart -->
+        <div class="card">
+          <div class="section-title">Hourly Occupancy Distribution (8:00 AM – 8:00 PM)</div>
+          <div id="lib-hourly-chart">
+            <div class="no-data-msg">Loading hourly distribution...</div>
+          </div>
+        </div>
+
+        <!-- Daily Occupancy Trend Line Chart -->
+        <div class="card">
+          <div class="section-title">Daily Occupancy Trend</div>
+          <div id="lib-daily-chart">
+            <div class="no-data-msg">Loading daily trend...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day × Hour Peak Heatmap -->
+      <div class="card" style="margin-bottom:24px">
+        <div class="section-title">Weekly Peak-Hour Heatmap Matrix (Day &times; Hour)</div>
+        <div class="grid-legend" style="margin-bottom:12px">
+          <div class="legend-item"><span class="legend-dot" style="background:#e8f5e9"></span> Low (&lt;35%)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#e3f2fd"></span> Moderate (35–70%)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#fff8e1"></span> High (70–90%)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#ffebee"></span> Full (&ge;90%)</div>
+        </div>
+        <div id="lib-heatmap-table" style="overflow-x:auto">
+          <div class="no-data-msg">Loading heatmap...</div>
+        </div>
+      </div>
+
+      <!-- Recent Observation Log Table -->
+      <div class="card">
+        <div class="section-title">Recent Headcount Observation Logs</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+            <thead>
+              <tr style="background:var(--surface2)">
+                <th style="padding:8px;border:1px solid var(--border);text-align:left">ID</th>
+                <th style="padding:8px;border:1px solid var(--border);text-align:left">Date &amp; Time</th>
+                <th style="padding:8px;border:1px solid var(--border)">Occupied</th>
+                <th style="padding:8px;border:1px solid var(--border)">Available</th>
+                <th style="padding:8px;border:1px solid var(--border)">Occupancy %</th>
+                <th style="padding:8px;border:1px solid var(--border)">Status</th>
+                <th style="padding:8px;border:1px solid var(--border);text-align:left">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="lib-recent-table-body">
+              <tr><td colspan="7" class="td-center" style="color:var(--text-muted)">Loading observations...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-PANE 4: PREDICTIVE FORECASTS (ML) -->
+    <div id="lib-pane-predictions" class="lib-sub-pane">
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+          <div>
+            <div class="section-title" style="margin:0;border:none;padding:0">Machine Learning Predictive Seating Forecast</div>
+            <div style="font-size:0.82rem;color:var(--text-muted)">
+              Trained on historical occupancy observations with separate 80/20 train/test evaluation
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span id="lib-pred-model-type" class="status-badge status-healthy">Random Forest Regressor</span>
+            <span id="lib-pred-mae" class="status-badge status-healthy" style="background:#e3f2fd;color:#0d47a1">MAE: Evaluated</span>
+            <span id="lib-pred-samples" class="status-badge status-nodata">-- samples</span>
+          </div>
+        </div>
+
+        <div id="lib-pred-provisional-alert" class="stale-alert" style="margin-top:14px;margin-bottom:0;display:none">
+          <span class="stale-icon">ℹ️</span>
+          <div class="stale-content">
+            <strong>Provisional Forecast Notice:</strong><br>
+            <span id="lib-pred-status-text">Provisional model. Accuracy will improve as continuous observations are recorded.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Horizon Forecast Grid -->
+      <div class="card">
+        <div class="section-title">Upcoming Hours Seating Occupancy Forecast</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+          Estimated crowd levels and projected available seats for upcoming library operating hours:
+        </p>
+        <div id="lib-forecast-grid" class="forecast-grid">
+          <div class="no-data-msg">Loading predictive forecast...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-PANE 5: SMART RECOMMENDATIONS -->
+    <div id="lib-pane-recommendations" class="lib-sub-pane">
+      <div class="card" style="margin-bottom:20px">
+        <div class="section-title">💡 Strategic Resource Utilization Recommendations</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:6px">
+          Automated insights synthesized from actual recorded observations to assist college administration in capacity planning, study scheduling, and facility maintenance.
+        </p>
+      </div>
+
+      <div id="lib-recommendations-list">
+        <div class="no-data-msg">Synthesizing recommendations...</div>
+      </div>
+    </div>
+
+    <!-- SUB-PANE 6: REPORTS & EXPORTS -->
+    <div id="lib-pane-reports" class="lib-sub-pane">
+      <div class="card">
+        <div class="section-title">📄 Export Administrative Utilization Reports</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px">
+          Download formatted analytical reports for college committee reviews, accreditation audits, and resource planning.
+        </p>
+
+        <div class="seating-layout">
+          <div style="background:var(--surface2);padding:24px;border-radius:var(--radius);border:1px solid var(--border)">
+            <div style="font-size:1.8rem;margin-bottom:8px">📊</div>
+            <div style="font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:6px">Excel Workbook Report (.xlsx)</div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:18px">
+              Multi-sheet spreadsheet containing Executive KPI Summary, Hourly Distributions, Day-of-Week Trends, and Full Observation Logs.
+            </p>
+            <a href="/download/library-report/excel" class="btn-dl-excel" style="text-decoration:none">
+              <span>📥</span> Download Excel Spreadsheet
+            </a>
+          </div>
+
+          <div style="background:var(--surface2);padding:24px;border-radius:var(--radius);border:1px solid var(--border)">
+            <div style="font-size:1.8rem;margin-bottom:8px">📄</div>
+            <div style="font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:6px">Executive PDF Report (.pdf)</div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:18px">
+              Print-ready formatted document with institutional headings, executive metrics table, hourly breakdown, and strategic recommendations.
+            </p>
+            <a href="/download/library-report/pdf" class="btn-dl-pdf" style="text-decoration:none">
+              <span>📥</span> Download PDF Document
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <script src="{{ url_for('static', filename='lab.js') }}"></script>
+<script src="{{ url_for('static', filename='library.js') }}"></script>
 <script>
   // ─── TAB SWITCHING LOGIC ──────────────────────────────────────────────────
   function switchTab(tabName) {
@@ -635,7 +1038,7 @@
     const hash = window.location.hash.replace("#", "");
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get("tab") || hash;
-    if (tabParam && ["seating", "analytics", "booking"].includes(tabParam)) {
+    if (tabParam && ["seating", "analytics", "booking", "library"].includes(tabParam)) {
       switchTab(tabParam);
     }
 

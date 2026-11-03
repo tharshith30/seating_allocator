@@ -18,6 +18,10 @@ from pdf_generator import create_pdf
 from lab.routes import lab_bp, _get_analytics, _get_labs_cfg, _current_monday
 from lab import booking as bm
 
+# Library module Blueprint
+from library.routes import library_bp
+from library import occupancy as lib_occupancy
+
 
 app = Flask(__name__)
 
@@ -28,16 +32,18 @@ OUTPUT_FOLDER = "outputs"
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # =========================================================
-# REGISTER LAB BLUEPRINT
+# REGISTER MODULE BLUEPRINTS
 # =========================================================
-# All lab routes (/lab/*, /api/*) are handled by the Blueprint.
-# The existing seating routes below are completely unchanged.
+# Lab routes (/lab/*, /api/labs*, /api/week*, /api/book*)
+# Library routes (/library, /api/library/*, /download/library-report/*)
 
 app.register_blueprint(lab_bp)
+app.register_blueprint(library_bp)
 
-# Initialize SQLite DB on startup (creates tables if missing)
+# Initialize SQLite DBs on startup (creates tables if missing)
 with app.app_context():
     bm.init_db()
+    lib_occupancy.init_db()
 
 
 @app.route("/")
@@ -48,6 +54,8 @@ def home():
         labs=_get_labs_cfg(),
         analytics=_get_analytics(),
         current_week=_current_monday(),
+        lib_status=lib_occupancy.get_latest_observation(),
+        lib_config=lib_occupancy.get_config(),
         active_tab=tab
     )
 
@@ -71,6 +79,8 @@ def generate():
             labs=_get_labs_cfg(),
             analytics=_get_analytics(),
             current_week=_current_monday(),
+            lib_status=lib_occupancy.get_latest_observation(),
+            lib_config=lib_occupancy.get_config(),
             error=error_msg,
             active_tab="seating"
         )
@@ -229,6 +239,8 @@ def generate():
             labs=_get_labs_cfg(),
             analytics=_get_analytics(),
             current_week=_current_monday(),
+            lib_status=lib_occupancy.get_latest_observation(),
+            lib_config=lib_occupancy.get_config(),
             success=True,
             total_students=total_students,
             rooms_used=rooms_used,
@@ -245,6 +257,8 @@ def generate():
             labs=_get_labs_cfg(),
             analytics=_get_analytics(),
             current_week=_current_monday(),
+            lib_status=lib_occupancy.get_latest_observation(),
+            lib_config=lib_occupancy.get_config(),
             error=str(e),
             active_tab="seating"
         )
