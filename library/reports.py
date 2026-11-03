@@ -310,3 +310,4 @@ def generate_library_pdf_report(output_file: str, date_filter: str = "30d") -> s
 
     doc.build(elements)
     return output_file
+

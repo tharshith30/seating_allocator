@@ -192,3 +192,4 @@ def compute_library_analytics(date_filter: str = "30d", start_date: str = None, 
         },
         "heatmap": heatmap_matrix
     }
+

@@ -477,3 +477,4 @@ def seed_baseline_if_empty():
 
     conn.close()
     logger.info("Successfully seeded %d baseline occupancy observations.", len(records))
+

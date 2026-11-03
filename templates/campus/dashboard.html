@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campus Space &amp; Facility Management — ResourceHub</title>
+  <meta name="description" content="Integrated Classroom Management, Auditorium Event Scheduling, and Facility Maintenance Tracking for Smart Resource Management.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav-bar">
+  <a href="/" class="nav-brand">🏛 ResourceHub</a>
+  <a href="/?tab=seating">Exam Seating</a>
+  <a href="/lab/dashboard">Lab Analytics</a>
+  <a href="/library">Library Analytics</a>
+  <a href="/classrooms" class="{% if active_sub == 'classrooms' %}active{% endif %}">🏛️ Classrooms</a>
+  <a href="/auditoriums" class="{% if active_sub == 'auditoriums' %}active{% endif %}">🎭 Auditoriums</a>
+  <a href="/facilities" class="{% if active_sub == 'facilities' %}active{% endif %}">🔧 Facilities</a>
+  <span class="spacer"></span>
+  <span id="campus-active-role-badge" class="role-pill role-staff">Role: STAFF</span>
+  <button type="button" id="dark-toggle">🌙 Dark</button>
+</nav>
+
+<main class="lab-page" style="max-width:1240px;margin:20px auto;padding:0 20px">
+
+  <!-- Role Authorization Bar -->
+  <div class="card" style="margin-bottom:20px;padding:14px 20px;background:var(--surface2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.2rem">🔐</span>
+        <div>
+          <strong style="font-size:0.92rem">Active User Authorization Role</strong>
+          <div style="font-size:0.78rem;color:var(--text-muted)">Default PINs: Admin=1234, Staff=2345, Maintenance=3456</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="campus-role-select" style="padding:6px 12px;font-size:0.85rem">
+          <option value="staff">Department Staff (Booking &amp; Issue Reporting)</option>
+          <option value="admin">Campus Administrator (Full Approvals &amp; Assignments)</option>
+          <option value="maintenance">Maintenance Staff (Work Orders &amp; PM Tasks)</option>
+        </select>
+        <input type="password" id="campus-pin-input" placeholder="Security PIN" style="width:110px;padding:6px 10px;font-size:0.85rem">
+        <button type="button" id="campus-role-save-btn" class="btn-primary" style="padding:6px 14px;font-size:0.85rem">Apply Role</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:20px">
+    <div>
+      <div class="page-title">Campus Space &amp; Facility Management</div>
+      <div class="page-subtitle">
+        Unified Classroom Schedules, Auditorium Event Approvals, and Facility Maintenance Work Orders
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <a href="/download/campus-report/excel" class="btn-primary" style="text-decoration:none;padding:8px 16px;background:#2e7d32">
+        📊 Excel Export
+      </a>
+      <a href="/download/campus-report/pdf" class="btn-primary" style="text-decoration:none;padding:8px 16px;background:#c62828">
+        📄 PDF Summary
+      </a>
+    </div>
+  </div>
+
+  <!-- Primary Submodule Navigation Buttons -->
+  <div class="campus-sub-nav">
+    <button type="button" class="campus-sub-btn {% if active_sub == 'classrooms' %}active{% endif %}" data-sub="classrooms">
+      🏛️ 1. Classroom Management
+    </button>
+    <button type="button" class="campus-sub-btn {% if active_sub == 'auditoriums' %}active{% endif %}" data-sub="auditoriums">
+      🎭 2. Auditorium Management
+    </button>
+    <button type="button" class="campus-sub-btn {% if active_sub == 'facilities' %}active{% endif %}" data-sub="facilities">
+      🔧 3. Facility Management
+    </button>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- SUBMODULE 1: CLASSROOM MANAGEMENT                                     -->
+  <!-- ===================================================================== -->
+  <section id="campus-view-classrooms" class="campus-view {% if active_sub == 'classrooms' %}active{% endif %}">
+    
+    <!-- Classroom Stats Grid -->
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card">
+        <span class="stat-label">Total Classrooms</span>
+        <span class="stat-value">{{ cr_analytics.total_rooms }} Rooms</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Total Seating Desks</span>
+        <span class="stat-value">{{ cr_analytics.total_seats }} Seats</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Weekly Lecture Slots</span>
+        <span class="stat-value">{{ cr_analytics.total_scheduled_slots }} Slots</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Campus Utilization</span>
+        <span class="stat-value" style="color:#2e7d32">{{ cr_analytics.utilization_rate_pct }}%</span>
+      </div>
+    </div>
+
+    <!-- Classroom Booking & Availability Checker -->
+    <div class="grid-2col" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:20px;margin-bottom:24px">
+      
+      <!-- Card: Find Free Classrooms -->
+      <div class="card">
+        <div class="section-title">🔍 Find Free Classrooms</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+          Check real-time availability across regular academic timetables and active maintenance blocks.
+        </p>
+        <form id="cr-find-free-form">
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="ff-cr-date">Date</label>
+              <input type="date" id="ff-cr-date" required>
+            </div>
+            <div class="form-group">
+              <label for="ff-cr-start">Start Slot</label>
+              <select id="ff-cr-start">
+                <option value="1">Slot 1 (09:00 - 09:50)</option>
+                <option value="2">Slot 2 (09:50 - 10:40)</option>
+                <option value="3">Slot 3 (10:50 - 11:40)</option>
+                <option value="4">Slot 4 (11:40 - 12:30)</option>
+                <option value="6">Slot 6 (13:20 - 14:10)</option>
+                <option value="7">Slot 7 (14:10 - 15:00)</option>
+                <option value="8">Slot 8 (15:10 - 16:00)</option>
+                <option value="9">Slot 9 (16:00 - 16:50)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="ff-cr-end">End Slot</label>
+              <select id="ff-cr-end">
+                <option value="1">Slot 1</option>
+                <option value="2">Slot 2</option>
+                <option value="3">Slot 3</option>
+                <option value="4">Slot 4</option>
+                <option value="6">Slot 6</option>
+                <option value="7">Slot 7</option>
+                <option value="8">Slot 8</option>
+                <option value="9" selected>Slot 9</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label for="ff-cr-cap">Minimum Capacity</label>
+            <input type="number" id="ff-cr-cap" placeholder="e.g. 60" min="0">
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;padding:10px">
+            🔍 Check Free Classrooms
+          </button>
+        </form>
+        <div id="ff-cr-results" style="margin-top:14px"></div>
+      </div>
+
+      <!-- Card: Ad-Hoc Classroom Reservation -->
+      <div class="card">
+        <div class="section-title">📅 Reserve a Classroom</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+          Ad-hoc room reservations automatically validate conflicts with academic classes and maintenance downtime.
+        </p>
+        <form id="cr-booking-form">
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="cr-book-room-id">Classroom ID</label>
+              <input type="text" id="cr-book-room-id" placeholder="e.g. G16" required>
+            </div>
+            <div class="form-group">
+              <label for="cr-book-date">Date</label>
+              <input type="date" id="cr-book-date" required>
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="cr-book-slot-start">Start Slot</label>
+              <select id="cr-book-slot-start">
+                <option value="1">Slot 1 (09:00)</option>
+                <option value="2">Slot 2 (09:50)</option>
+                <option value="3">Slot 3 (10:50)</option>
+                <option value="4">Slot 4 (11:40)</option>
+                <option value="6">Slot 6 (13:20)</option>
+                <option value="7">Slot 7 (14:10)</option>
+                <option value="8">Slot 8 (15:10)</option>
+                <option value="9">Slot 9 (16:00)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="cr-book-slot-end">End Slot</label>
+              <select id="cr-book-slot-end">
+                <option value="1">Slot 1</option>
+                <option value="2">Slot 2</option>
+                <option value="3">Slot 3</option>
+                <option value="4">Slot 4</option>
+                <option value="6">Slot 6</option>
+                <option value="7">Slot 7</option>
+                <option value="8">Slot 8</option>
+                <option value="9">Slot 9</option>
+              </select>
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="cr-book-dept">Department</label>
+              <input type="text" id="cr-book-dept" placeholder="e.g. Computer Science" required>
+            </div>
+            <div class="form-group">
+              <label for="cr-book-by">Faculty / Staff Name</label>
+              <input type="text" id="cr-book-by" placeholder="e.g. Prof. Raman" required>
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom:16px">
+            <div class="form-group">
+              <label for="cr-book-purpose">Purpose</label>
+              <input type="text" id="cr-book-purpose" placeholder="e.g. Project Review Presentation" required>
+            </div>
+            <div class="form-group">
+              <label for="cr-book-attendees">Attendees</label>
+              <input type="number" id="cr-book-attendees" placeholder="Estimated students" min="1">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;padding:10px">
+            🔒 Confirm Reservation
+          </button>
+          <div id="cr-book-feedback" style="margin-top:10px;font-size:0.85rem;display:none"></div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Interactive Weekly Timetable Matrix Inspector -->
+    <div class="card" style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div class="section-title" style="margin:0;border:none;padding:0">
+          📅 Weekly Timetable Matrix Inspector
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <label for="cr-schedule-room-select" style="font-size:0.85rem;font-weight:600">Inspect Classroom:</label>
+          <select id="cr-schedule-room-select" style="padding:6px 12px;font-size:0.85rem">
+            {% for cr in classrooms %}
+              <option value="{{ cr.id }}">{{ cr.id }} &mdash; {{ cr.name }} ({{ cr.seating_capacity }} seats)</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div id="cr-schedule-grid-container"></div>
+    </div>
+
+    <!-- Classroom Inventory & Status Table -->
+    <div class="card" style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div class="section-title" style="margin:0;border:none;padding:0">Classroom Inventory</div>
+        <div class="admin-only d-none">
+          <form id="cr-import-form" style="display:inline-flex;gap:8px;align-items:center">
+            <span style="font-size:0.8rem;color:var(--text-muted)">Import Timetable:</span>
+            <input type="file" name="timetable_file" accept=".xlsx" style="font-size:0.8rem">
+            <button type="submit" class="btn-primary" style="padding:4px 10px;font-size:0.8rem">Import</button>
+          </form>
+          <span id="cr-import-feedback" style="margin-left:8px;font-size:0.8rem;display:none"></span>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+          <thead>
+            <tr style="background:var(--surface2)">
+              <th class="td-cell" style="text-align:left">Room ID</th>
+              <th class="td-cell" style="text-align:left">Name</th>
+              <th class="td-cell" style="text-align:left">Block / Wing</th>
+              <th class="td-center">Floor</th>
+              <th class="td-center">Benches</th>
+              <th class="td-center">Capacity</th>
+              <th class="td-cell" style="text-align:left">Room Type</th>
+              <th class="td-center">Projector</th>
+              <th class="td-center">Audio</th>
+              <th class="td-center">AC</th>
+              <th class="td-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cr in classrooms %}
+              <tr>
+                <td class="td-cell" style="font-weight:700">{{ cr.id }}</td>
+                <td class="td-cell">{{ cr.name }}</td>
+                <td class="td-cell">{{ cr.block }}</td>
+                <td class="td-center">{{ cr.floor }}</td>
+                <td class="td-center">{{ cr.bench_count }}</td>
+                <td class="td-center" style="font-weight:700">{{ cr.seating_capacity }}</td>
+                <td class="td-cell">{{ cr.room_type }}</td>
+                <td class="td-center">{{ '✅' if cr.has_projector else '—' }}</td>
+                <td class="td-center">{{ '✅' if cr.has_audio else '—' }}</td>
+                <td class="td-center">{{ '✅' if cr.has_ac else '—' }}</td>
+                <td class="td-center">
+                  {% if cr.is_under_maintenance %}
+                    <span class="crowd-badge badge-full" title="{{ cr.maintenance_info.message }}">⚠️ Maintenance</span>
+                  {% else %}
+                    <span class="crowd-badge badge-low">Available</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- SUBMODULE 2: AUDITORIUM MANAGEMENT                                   -->
+  <!-- ===================================================================== -->
+  <section id="campus-view-auditoriums" class="campus-view {% if active_sub == 'auditoriums' %}active{% endif %}">
+    
+    <!-- Auditorium KPI Banner -->
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card">
+        <span class="stat-label">Total Auditoriums</span>
+        <span class="stat-value">{{ aud_analytics.total_auditoriums }} Venues</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Auditorium Seating</span>
+        <span class="stat-value">{{ aud_analytics.total_capacity }} Seats</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Approved Events</span>
+        <span class="stat-value" style="color:#2e7d32">{{ aud_analytics.approved_events }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Pending Approval</span>
+        <span class="stat-value" style="color:#ef6c00">{{ aud_analytics.pending_requests }}</span>
+      </div>
+    </div>
+
+    <!-- Auditorium Cards -->
+    <div class="aud-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;margin-bottom:24px">
+      {% for aud in auditoriums %}
+        <div class="card aud-summary-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <span class="lab-id">{{ aud.id }}</span>
+            {% if aud.is_under_maintenance %}
+              <span class="crowd-badge badge-full">⚠️ Maintenance</span>
+            {% else %}
+              <span class="crowd-badge badge-low">Available</span>
+            {% endif %}
+          </div>
+          <div style="font-size:1.15rem;font-weight:700;margin-bottom:4px">{{ aud.name }}</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">📍 {{ aud.location }}</div>
+          <div style="font-size:0.85rem;margin-bottom:6px">
+            Capacity: <strong>{{ aud.capacity }} attendees</strong> &bull; Stage: {{ aud.stage_size }}
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);line-height:1.4">
+            AV: {{ aud.av_facilities }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Event Request Form & Event List -->
+    <div class="grid-2col" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:20px;margin-bottom:24px">
+      
+      <!-- Event Request Form -->
+      <div class="card">
+        <div class="section-title">📝 Request Auditorium Booking</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+          Submit department event scheduling requests for administrative review.
+        </p>
+
+        <form id="aud-request-form">
+          <div class="form-group" style="margin-bottom:12px">
+            <label for="aud-req-id">Auditorium Venue</label>
+            <select id="aud-req-id" required>
+              {% for aud in auditoriums %}
+                <option value="{{ aud.id }}">{{ aud.name }} (Capacity: {{ aud.capacity }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px">
+            <label for="aud-req-title">Event Title</label>
+            <input type="text" id="aud-req-title" placeholder="e.g. Annual Technical Symposium" required>
+          </div>
+
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="aud-req-type">Event Type</label>
+              <select id="aud-req-type">
+                <option value="Conference">Conference / Symposium</option>
+                <option value="Guest Lecture">Guest Lecture / Keynote</option>
+                <option value="Workshop">Hands-on Workshop</option>
+                <option value="Cultural Fest">Cultural / Arts Festival</option>
+                <option value="Seminar">Academic Seminar</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="aud-req-dept">Department</label>
+              <input type="text" id="aud-req-dept" placeholder="e.g. CSE / ECE" required>
+            </div>
+          </div>
+
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="aud-req-organizer">Organizer Name</label>
+              <input type="text" id="aud-req-organizer" placeholder="Faculty In-charge" required>
+            </div>
+            <div class="form-group">
+              <label for="aud-req-email">Contact Email</label>
+              <input type="email" id="aud-req-email" placeholder="faculty@college.edu" required>
+            </div>
+          </div>
+
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="aud-req-date">Event Date</label>
+              <input type="date" id="aud-req-date" required>
+            </div>
+            <div class="form-group">
+              <label for="aud-req-start">Start Time</label>
+              <input type="time" id="aud-req-start" value="09:30" required>
+            </div>
+            <div class="form-group">
+              <label for="aud-req-end">End Time</label>
+              <input type="time" id="aud-req-end" value="16:30" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px">
+            <label for="aud-req-attendees">Expected Attendees</label>
+            <input type="number" id="aud-req-attendees" placeholder="Estimated participants" min="1" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px">
+            <label for="aud-req-notes">Special AV / Staging Requirements</label>
+            <input type="text" id="aud-req-notes" placeholder="e.g. 4 collar mics, livestream recording, floral stage setup">
+          </div>
+
+          <button type="submit" class="btn-primary" style="width:100%;padding:10px">
+            🚀 Submit Event Booking Request
+          </button>
+          <div id="aud-req-feedback" style="margin-top:10px;font-size:0.85rem;display:none"></div>
+        </form>
+      </div>
+
+      <!-- Event Status & Approval Management -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="section-title" style="margin:0;border:none;padding:0">📅 Event Requests &amp; Readiness</div>
+          <div class="filter-pill-group">
+            <button type="button" class="filter-pill aud-filter-btn active" data-status="all">All</button>
+            <button type="button" class="filter-pill aud-filter-btn" data-status="pending">Pending</button>
+            <button type="button" class="filter-pill aud-filter-btn" data-status="approved">Approved</button>
+          </div>
+        </div>
+
+        <div id="aud-events-feed">
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px">
+            Click on any event to inspect its <strong>Event Readiness Checklist</strong> (AV check, stage lighting, HVAC pre-cooling).
+          </p>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="aud-event-card card" data-status="approved" style="padding:14px;background:var(--surface2)">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div>
+                  <div style="font-weight:700;font-size:1.05rem">National AI &amp; Cloud Computing Symposium 2026</div>
+                  <div style="font-size:0.82rem;color:var(--text-muted)">
+                    📅 2026-11-20 &bull; 09:30 - 16:30 &bull; 📍 AUD-MAIN (Sir Visvesvaraya Hall)
+                  </div>
+                  <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">
+                    Dept: Computer Science &bull; Expected Attendees: 650
+                  </div>
+                </div>
+                <span class="crowd-badge badge-low">Approved</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+                <button type="button" class="btn-quick" onclick="Campus.openEventChecklistModal(1)">
+                  📋 Readiness Checklist (1/6)
+                </button>
+                <div class="admin-only d-none">
+                  <button type="button" class="btn-quick" style="color:#c62828" onclick="Campus.reviewEvent(1, 'cancel')">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- SUBMODULE 3: FACILITY MANAGEMENT                                      -->
+  <!-- ===================================================================== -->
+  <section id="campus-view-facilities" class="campus-view {% if active_sub == 'facilities' %}active{% endif %}">
+    
+    <!-- Facility KPI Banner -->
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card">
+        <span class="stat-label">Total Assets Registered</span>
+        <span class="stat-value">{{ fac_analytics.total_assets }} Assets</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Open Work Orders</span>
+        <span class="stat-value" style="color:#c62828">{{ fac_analytics.open_tickets }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Resolved Tickets</span>
+        <span class="stat-value" style="color:#2e7d32">{{ fac_analytics.resolved_tickets }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Overdue PM Reminders</span>
+        <span class="stat-value" style="color:#ef6c00">{{ fac_analytics.preventive_maintenance_overdue }} Overdue</span>
+      </div>
+    </div>
+
+    <!-- Active Downtime Warning Alert -->
+    {% if fac_analytics.blocked_spaces_count > 0 %}
+      <div class="stale-alert" style="margin-bottom:20px">
+        ⚠️ <strong>Campus Downtime Notice:</strong> {{ fac_analytics.blocked_spaces_count }} campus space(s) are currently under maintenance lockdown. Bookings for these rooms are automatically blocked until work orders are marked resolved.
+      </div>
+    {% endif %}
+
+    <!-- Facility Work Order Ticket Submission & Board -->
+    <div class="grid-2col" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:20px;margin-bottom:24px">
+      
+      <!-- Maintenance Ticket Form -->
+      <div class="card">
+        <div class="section-title">🔧 Report Maintenance Issue</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+          Submit equipment, electrical, civil, or IT repair tickets. High/Critical tickets automatically lock room availability.
+        </p>
+
+        <form id="fac-ticket-form">
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="fac-loc-type">Location Type</label>
+              <select id="fac-loc-type">
+                <option value="classroom">Classroom</option>
+                <option value="auditorium">Auditorium</option>
+                <option value="lab">Computer Lab</option>
+                <option value="general">Campus Grounds / Building</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fac-loc-id">Location ID / Room No</label>
+              <input type="text" id="fac-loc-id" placeholder="e.g. G16, AUD-MAIN" required>
+            </div>
+          </div>
+
+          <div class="inline-row" style="margin-bottom:12px">
+            <div class="form-group">
+              <label for="fac-cat">Issue Category</label>
+              <select id="fac-cat">
+                <option value="IT/AV">IT / Audio-Visual</option>
+                <option value="Electrical">Electrical / Lighting</option>
+                <option value="HVAC">HVAC / Air Conditioning</option>
+                <option value="Civil">Civil / Structural</option>
+                <option value="Plumbing">Plumbing / Water</option>
+                <option value="Furniture">Furniture / Benches</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fac-prio">Priority Level</label>
+              <select id="fac-prio">
+                <option value="Low">Low (Cosmetic / Minor)</option>
+                <option value="Medium" selected>Medium (Standard Repair)</option>
+                <option value="High">High (Impairs Teaching)</option>
+                <option value="Critical">Critical (Halts Space Operations)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px">
+            <label for="fac-title">Issue Summary</label>
+            <input type="text" id="fac-title" placeholder="e.g. Projector HDMI port damaged, no display output" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px">
+            <label for="fac-desc">Detailed Description</label>
+            <input type="text" id="fac-desc" placeholder="Details for the maintenance technician">
+          </div>
+
+          <div class="inline-row" style="margin-bottom:16px">
+            <div class="form-group">
+              <label for="fac-reporter">Reported By</label>
+              <input type="text" id="fac-reporter" placeholder="Staff Name" required>
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;padding-top:20px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                <input type="checkbox" id="fac-blocks">
+                <span>Requires Complete Room Lockdown</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width:100%;padding:10px">
+            🛠️ Submit Work Order
+          </button>
+          <div id="fac-tkt-feedback" style="margin-top:10px;font-size:0.85rem;display:none"></div>
+        </form>
+      </div>
+
+      <!-- Preventive Maintenance Reminders -->
+      <div class="card">
+        <div class="section-title">⏱️ Preventive Maintenance Reminders</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+          Recurring scheduled service inspections for HVAC, Silent Generators, Projectors, and Fire Extinguishers.
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card" style="padding:14px;background:var(--surface2)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div style="font-weight:700">Air Conditioning Filter Cleaning &amp; Coolant Check</div>
+                <div style="font-size:0.8rem;color:var(--text-muted)">Location: <strong>G16</strong> &bull; Assigned: Ramesh (HVAC Tech)</div>
+                <div style="font-size:0.78rem;color:#c62828;margin-top:4px">⚠️ Inspection Overdue since 2026-11-01</div>
+              </div>
+              <button type="button" class="btn-quick" onclick="Campus.completePreventiveTask(1, 'G16 AC Inspection')">
+                ✅ Complete Inspection
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="padding:14px;background:var(--surface2)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div style="font-weight:700">Main Auditorium AV Mixer &amp; Mic Calibration</div>
+                <div style="font-size:0.8rem;color:var(--text-muted)">Location: <strong>AUD-MAIN</strong> &bull; Assigned: Kiran (Sound Engineer)</div>
+                <div style="font-size:0.78rem;color:#2e7d32;margin-top:4px">Next due: 2026-11-15 (Pending)</div>
+              </div>
+              <button type="button" class="btn-quick" onclick="Campus.completePreventiveTask(2, 'Main Aud AV Check')">
+                ✅ Complete Inspection
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Registered Assets Table -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="section-title">📦 Campus Asset Inventory</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px">
+        Infrastructure items tracked across classrooms, auditoriums, and facilities.
+      </p>
+
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+          <thead>
+            <tr style="background:var(--surface2)">
+              <th class="td-cell" style="text-align:left">Asset ID</th>
+              <th class="td-cell" style="text-align:left">Asset Name</th>
+              <th class="td-cell" style="text-align:left">Category</th>
+              <th class="td-cell" style="text-align:left">Location</th>
+              <th class="td-cell" style="text-align:left">Serial No</th>
+              <th class="td-center">Condition</th>
+              <th class="td-center">Last Serviced</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-cell" style="font-weight:700">AST-PRJ-G16</td>
+              <td class="td-cell">Epson Full-HD Laser Projector</td>
+              <td class="td-cell">IT/AV</td>
+              <td class="td-cell">Classroom G16</td>
+              <td class="td-cell">SN-EPS-98214</td>
+              <td class="td-center"><span class="crowd-badge badge-low">Good</span></td>
+              <td class="td-center">2026-09-10</td>
+            </tr>
+            <tr>
+              <td class="td-cell" style="font-weight:700">AST-AV-AUDMAIN</td>
+              <td class="td-cell">Yamaha 32-Channel Digital Mixer</td>
+              <td class="td-cell">IT/AV</td>
+              <td class="td-cell">AUD-MAIN</td>
+              <td class="td-cell">SN-YAM-88123</td>
+              <td class="td-center"><span class="crowd-badge badge-low">Good</span></td>
+              <td class="td-center">2026-10-15</td>
+            </tr>
+            <tr>
+              <td class="td-cell" style="font-weight:700">AST-GEN-OAT</td>
+              <td class="td-cell">Kirloskar 62.5 kVA Silent Generator</td>
+              <td class="td-cell">Electrical</td>
+              <td class="td-cell">AUD-OAT</td>
+              <td class="td-cell">SN-KIR-55201</td>
+              <td class="td-center"><span class="crowd-badge badge-moderate">Fair</span></td>
+              <td class="td-center">2026-07-12</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- Modal: Event Readiness Checklist -->
+<div id="aud-checklist-modal" class="modal-backdrop" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
+  <div class="card" style="max-width:600px;width:90%;max-height:85vh;overflow-y:auto;padding:24px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      <div id="aud-checklist-modal-title" style="font-size:1.15rem;font-weight:700">Event Readiness Checklist</div>
+      <button type="button" onclick="Campus.closeChecklistModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer">&times;</button>
+    </div>
+    <div id="aud-checklist-items-container"></div>
+    <div style="text-align:right;margin-top:16px">
+      <button type="button" class="btn-primary" onclick="Campus.closeChecklistModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='campus.js') }}"></script>
+<script>
+  // Set default dates to today
+  document.addEventListener("DOMContentLoaded", () => {
+    const today = new Date().toISOString().split("T")[0];
+    const ffDate = document.getElementById("ff-cr-date");
+    const bookDate = document.getElementById("cr-book-date");
+    const reqDate = document.getElementById("aud-req-date");
+    if (ffDate) ffDate.value = today;
+    if (bookDate) bookDate.value = today;
+    if (reqDate) reqDate.value = today;
+  });
+</script>
+
+</body>
+</html>

@@ -22,6 +22,13 @@ from lab import booking as bm
 from library.routes import library_bp
 from library import occupancy as lib_occupancy
 
+# Campus Space & Facility Management Blueprint
+from campus.routes import campus_bp
+from campus import db as campus_db
+from campus import classroom_service
+from campus import auditorium_service
+from campus import facility_service
+
 
 app = Flask(__name__)
 
@@ -39,11 +46,13 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 app.register_blueprint(lab_bp)
 app.register_blueprint(library_bp)
+app.register_blueprint(campus_bp)
 
 # Initialize SQLite DBs on startup (creates tables if missing)
 with app.app_context():
     bm.init_db()
     lib_occupancy.init_db()
+    campus_db.init_db()
 
 
 @app.route("/")
@@ -56,6 +65,11 @@ def home():
         current_week=_current_monday(),
         lib_status=lib_occupancy.get_latest_observation(),
         lib_config=lib_occupancy.get_config(),
+        campus_classrooms=classroom_service.list_classrooms(),
+        campus_auditoriums=auditorium_service.list_auditoriums(),
+        campus_cr_analytics=classroom_service.get_classroom_utilization_analytics(),
+        campus_aud_analytics=auditorium_service.get_auditorium_analytics(),
+        campus_fac_analytics=facility_service.get_facility_analytics(),
         active_tab=tab
     )
 

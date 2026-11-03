@@ -129,3 +129,4 @@ def generate_recommendations() -> list[dict]:
         pass
 
     return recommendations
+

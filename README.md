@@ -32,6 +32,7 @@
 1. **Exam Seating Allotment**: Conflict-free student seat distribution across **34 examination halls (1,300+ seats)** preventing adjacent same-subject seating.
 2. **Laboratory Utilization**: Live slot occupancy tracking, weekly heatmaps, smart auto-allocation, PIN-protected maintenance overrides, and dynamic lab registration across campus computer facilities.
 3. **Smart Library Utilization & Analytics**: Independent seating occupancy monitoring, crowd level categorization, statistical usage analytics, machine learning predictive forecasting, and administrative report generation.
+4. **Campus Space & Facility Management**: Integrated Classroom inventory & timetable schedules, Auditorium event requests & admin approvals with readiness checklists, Facility asset inventory, maintenance ticketing with automated downtime space blocking, and preventive maintenance reminders.
 
 ---
 
@@ -79,6 +80,30 @@
   * 📊 **Excel Workbook (`.xlsx`)**: Multi-sheet export including Executive Summary, Hourly Distributions, Day-of-Week Trends, Observation Logs, and Recommendations.
   * 📄 **Executive PDF Document (`.pdf`)**: Print-ready report with institutional headings, metric summaries, and analytical tables.
 
+### 4. 🏛️ Campus Space & Facility Management
+* **Classroom Management**:
+  * **Classroom Inventory**: Complete record of 34 classrooms with bench count, capacity, room type, projector, audio, and AC flags.
+  * **Excel Timetable Import**: Parses semester timetables mapping academic lecture slots (1 to 9, Mon–Fri) to classrooms.
+  * **Timetable-Based Availability**: Instant search finding completely free classrooms for specified dates, slots, and capacities.
+  * **Classroom Utilization Analytics**: Tracks scheduled lecture hours, free hours, utilization percentages, and room rankings.
+  * **Scheduling Conflict Detection**: Validates ad-hoc bookings against academic timetables, prior reservations, and active maintenance downtime blocks.
+* **Auditorium Management**:
+  * **Auditorium Inventory**: Tracks 4 campus venues (Grand Auditorium, Mini Auditorium, Seminar Hall, Open Air Theatre) with capacities up to 1,400 seats, stage dimensions, and AV specs.
+  * **Event Scheduling Requests**: Department staff event submission with attendee capacity verification and automated readiness checklists.
+  * **Admin Approval Workflow**: Multi-state approval cycle (`pending` -> `approved` / `rejected` / `cancelled`) with administrative remarks.
+  * **Event Readiness Checklist**: Interactive verification covering AV systems, stage lighting, HVAC pre-cooling, seating hygiene, power backup, and hospitality.
+  * **Event Utilization Analytics**: Tracks hosted events, attendee reach, and department participation.
+* **Facility Management**:
+  * **Asset Inventory**: Infrastructure equipment (Projectors, ACs, Sound Mixers, Generators, Pumps) linked to campus spaces.
+  * **Maintenance Work Orders**: Ticket submission with categories (IT/AV, Electrical, HVAC, Civil, Plumbing) and priority levels (Low, Medium, High, Critical).
+  * **Automated Downtime Space Blocking**: Critical and High priority maintenance issues automatically lock the room or auditorium, instantly preventing conflicting reservations.
+  * **Dynamic Space Unblocking**: Resolving or closing the ticket automatically restores the space to `available` status.
+  * **Preventive Maintenance Reminders**: Recurring inspection schedules with overdue alerts.
+* **Role-Based Access Control (RBAC)**:
+  * 👑 **Admin** (`PIN: 1234`): Approvals, staff assignments, inventory updates, timetable imports.
+  * 👔 **Department Staff** (`PIN: 2345`): Room reservations, event booking requests, maintenance reporting.
+  * 🛠️ **Maintenance Staff** (`PIN: 3456`): Work order tracking, status updates, preventive maintenance completion.
+
 ---
 
 ## 📂 Project Architecture
@@ -91,6 +116,15 @@ seating_allocator/
 ├── excel_generator.py          # Excel generator for seating rosters
 ├── pdf_generator.py            # ReportLab PDF generator for seating and lab reports
 ├── run.bat                     # Windows one-click launcher script
+│
+├── campus/                     # Module 4: Campus Space & Facility Management
+│   ├── db.py                   # SQLite connection, schema creation & seed loader
+│   ├── classroom_service.py    # Classroom inventory, timetable parser, booking & analytics
+│   ├── auditorium_service.py   # Auditorium inventory, event workflow & checklists
+│   ├── facility_service.py     # Asset inventory, maintenance tickets & PM scheduler
+│   ├── scheduling_service.py   # Shared conflict detection & downtime space blocking
+│   ├── reports.py              # Multi-tab Excel and ReportLab PDF generator
+│   └── routes.py               # Flask Blueprint exposing all REST APIs & views
 │
 ├── lab/                        # Module 2: Laboratory Utilization
 │   ├── routes.py               # REST API endpoints & lab routes
@@ -107,7 +141,29 @@ seating_allocator/
 │   ├── recommendations.py      # Intelligent operational advice & capacity alerts
 │   └── reports.py              # Excel (.xlsx) and PDF (.pdf) utilization report generation
 │
+├── static/                     # Frontend Assets (Vanilla JS & CSS)
+│   ├── campus.js               # Campus Space & Facility client-side controller
+│   ├── library.js              # Library live polling, charts & prediction controller
+│   ├── lab.js                  # Lab heatmap, booking & slot search controller
+│   └── style.css               # Unified styling for all modules
+│
+├── templates/                  # Jinja2 HTML Templates
+│   ├── index.html              # Unified primary portal dashboard
+│   ├── campus/
+│   │   └── dashboard.html      # Campus Space & Facility Management portal
+│   └── library/
+│       ├── dashboard.html      # Standalone Library analytics dashboard
+│       ├── student.html        # Simplified student crowd level portal
+│       └── admin.html          # Staff occupancy logger & capacity settings
+│
 ├── data/                       # Datasets & Persistent Storage
+│   ├── campus_facility.db      # SQLite database for classrooms, auditoriums & facilities
+│   ├── lab_bookings.db         # SQLite database for computer lab slot bookings
+│   ├── library.db              # SQLite database for library headcount observations
+│   ├── labs.json               # JSON configuration for computer laboratories
+│   ├── roomCapacity_FST.xlsx   # Classroom capacities (34 halls)
+│   └── timetable.xlsx          # Semester timetable workbook
+```
 │   ├── roomCapacity_FST.xlsx   # 34 examination room capacities & seat ranges
 │   ├── timetable.xlsx          # Weekly master timetable across academic departments
 │   ├── labs.json               # Registered computer lab configurations & capacities
