@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Library Live Occupancy — Student Portal</title>
+  <meta name="description" content="Live student view for library seating crowd level and available seats.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav-bar">
+  <a href="/" class="nav-brand">🏛 ResourceHub</a>
+  <a href="/?tab=seating">Exam Seating</a>
+  <a href="/lab/dashboard">Lab Analytics</a>
+  <a href="/library" class="active">📚 Library Live</a>
+  <span class="spacer"></span>
+  <a href="/library/admin" class="nav-btn" style="text-decoration:none;font-size:0.82rem;padding:6px 12px;border:1px solid var(--border);border-radius:6px">Staff Login 🔒</a>
+</nav>
+
+<main class="lab-page" style="max-width:900px;margin:28px auto;padding:0 20px">
+
+  <!-- Header -->
+  <div class="page-header" style="text-align:center;display:block;margin-bottom:24px">
+    <div style="font-size:2rem;margin-bottom:6px">📚 Central Library Seating Status</div>
+    <div style="font-size:0.95rem;color:var(--text-muted)">
+      Real-time crowd level monitoring &mdash; check seat availability before visiting
+    </div>
+  </div>
+
+  <!-- Live Crowd Card -->
+  <div class="card" style="margin-bottom:24px;text-align:center;padding:32px 24px">
+    
+    <!-- Status Badge -->
+    <div style="margin-bottom:14px">
+      <span id="lib-student-badge" class="crowd-badge badge-{{ latest.badge_color if latest else 'success' }}">
+        {{ latest.status if latest else 'Low occupancy' }}
+      </span>
+    </div>
+
+    <!-- Main Seat Availability Number -->
+    <div style="font-size:4rem;font-weight:800;color:var(--text);line-height:1;margin-bottom:6px">
+      <span id="lib-student-avail">{{ latest.available_seats if latest else config.total_capacity }}</span>
+      <span style="font-size:1.6rem;font-weight:500;color:var(--text-muted)">/ {{ config.total_capacity }}</span>
+    </div>
+    <div style="font-size:1.05rem;font-weight:600;color:var(--text-muted);margin-bottom:24px">
+      Available Seating Capacity
+    </div>
+
+    <!-- Progress Meter -->
+    <div class="crowd-bar-container" style="max-width:540px;margin:0 auto 20px auto">
+      <div id="lib-student-meter" class="crowd-bar-fill fill-{{ latest.badge_color if latest else 'success' }}" data-pct="{{ latest.occupancy_pct if latest else 0 }}"></div>
+    </div>
+
+    <!-- Occupied percentage breakdown -->
+    <div style="font-size:0.92rem;color:var(--text);margin-bottom:18px">
+      Currently Occupied: <strong id="lib-student-occ">{{ latest.occupied_seats if latest else 0 }} seats</strong>
+      (<span id="lib-student-pct">{{ latest.occupancy_pct if latest else 0 }}%</span> capacity)
+    </div>
+
+    <!-- Last Recorded Timestamp & Stale Alert -->
+    <div style="font-size:0.82rem;color:var(--text-muted);display:inline-flex;align-items:center;gap:6px">
+      <span>🕒 Last Observation:</span>
+      <strong id="lib-student-updated">{{ latest.recorded_at if latest else 'Pending initial reading' }}</strong>
+    </div>
+
+    <div id="lib-student-stale-alert" class="stale-alert {% if not latest or not latest.is_stale %}d-none{% endif %}" style="max-width:540px;margin:16px auto 0 auto">
+      ⚠️ <strong>Observation Update Notice:</strong> The recorded seating count is over 2 hours old. Actual current availability may vary.
+    </div>
+  </div>
+
+  <!-- Helpful Tips for Students -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px;margin-bottom:24px">
+    
+    <div class="card" style="padding:20px">
+      <div style="font-size:1.2rem;margin-bottom:8px">⏰ Quiet Study Windows</div>
+      <div style="font-size:0.88rem;color:var(--text);line-height:1.5">
+        The library typically has the highest seat availability during:
+        <ul style="margin:8px 0 0 18px;color:var(--text-muted)">
+          <li><strong>8:00 AM – 9:30 AM</strong> (Morning quiet hours)</li>
+          <li><strong>1:00 PM – 2:00 PM</strong> (Lunch break dip)</li>
+          <li><strong>6:30 PM – 8:00 PM</strong> (Evening study hours)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="padding:20px">
+      <div style="font-size:1.2rem;margin-bottom:8px">📈 Peak Busy Hours</div>
+      <div style="font-size:0.88rem;color:var(--text);line-height:1.5">
+        Highest crowd density is regularly recorded between:
+        <ul style="margin:8px 0 0 18px;color:var(--text-muted)">
+          <li><strong>10:30 AM – 12:30 PM</strong> (Midday study groups)</li>
+          <li><strong>3:30 PM – 5:30 PM</strong> (Post-lecture revisions)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="padding:20px">
+      <div style="font-size:1.2rem;margin-bottom:8px">ℹ️ Seating Guidelines</div>
+      <div style="font-size:0.88rem;color:var(--text-muted);line-height:1.5">
+        • Seating is first-come, first-served.<br>
+        • No advance reservations or seat claiming.<br>
+        • Please keep desks clear when taking extended breaks.
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center;padding:16px 0;font-size:0.82rem;color:var(--text-muted)">
+    ResourceHub Smart Resource Management System &bull; Library Utilization &copy; 2026
+  </div>
+
+</main>
+
+<script>
+  // Initialize progress bar fill from data-pct
+  document.querySelectorAll("[data-pct]").forEach(el => {
+    el.style.width = el.getAttribute("data-pct") + "%";
+  });
+
+  // Polling to keep student status fresh
+  async function refreshStudentStatus() {
+    try {
+      const res = await fetch("/api/library/status");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.latest) return;
+
+      const lat = data.latest;
+      const cfg = data.config || { total_capacity: 250 };
+
+      const availEl = document.getElementById("lib-student-avail");
+      const occEl = document.getElementById("lib-student-occ");
+      const pctEl = document.getElementById("lib-student-pct");
+      const meterEl = document.getElementById("lib-student-meter");
+      const badgeEl = document.getElementById("lib-student-badge");
+      const updatedEl = document.getElementById("lib-student-updated");
+      const staleAlert = document.getElementById("lib-student-stale-alert");
+
+      if (availEl) availEl.textContent = lat.available_seats;
+      if (occEl) occEl.textContent = lat.occupied_seats + " seats";
+      if (pctEl) pctEl.textContent = lat.occupancy_percentage + "%";
+      if (meterEl) {
+        meterEl.style.width = lat.occupancy_percentage + "%";
+        meterEl.className = "crowd-bar-fill fill-" + lat.status_category.toLowerCase();
+      }
+      if (badgeEl) {
+        badgeEl.textContent = lat.status_category;
+        badgeEl.className = "crowd-badge badge-" + lat.status_category.toLowerCase();
+      }
+      if (updatedEl) updatedEl.textContent = lat.recorded_timestamp;
+      if (staleAlert) {
+        if (lat.is_stale) staleAlert.classList.remove("d-none");
+        else staleAlert.classList.add("d-none");
+      }
+    } catch (e) {
+      console.warn("Student status poll error:", e);
+    }
+  }
+
+  // Poll every 30 seconds
+  setInterval(refreshStudentStatus, 30000);
+</script>
+
+</body>
+</html>

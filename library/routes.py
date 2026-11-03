@@ -20,7 +20,7 @@ Routes:
 
 import os
 import logging
-from flask import Blueprint, request, jsonify, send_file, redirect
+from flask import Blueprint, request, jsonify, send_file, redirect, render_template
 from . import occupancy
 from . import analytics
 from . import predictor
@@ -36,9 +36,30 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 @library_bp.route("/library")
+@library_bp.route("/library/dashboard")
 def library_index():
-    """Redirect to unified dashboard with library tab active."""
-    return redirect("/?tab=library#library")
+    """Render standalone library utilization and analytics dashboard."""
+    latest = occupancy.get_latest_observation()
+    cfg = occupancy.get_config()
+    records = occupancy.get_observations(limit=50)
+    return render_template("library/dashboard.html", latest=latest, config=cfg, records=records)
+
+
+@library_bp.route("/library/student")
+def library_student_view():
+    """Render simplified student live occupancy portal."""
+    latest = occupancy.get_latest_observation()
+    cfg = occupancy.get_config()
+    return render_template("library/student.html", latest=latest, config=cfg)
+
+
+@library_bp.route("/library/admin")
+def library_admin_view():
+    """Render dedicated administrative recording and capacity management view."""
+    cfg = occupancy.get_config()
+    records = occupancy.get_observations(limit=50)
+    latest = occupancy.get_latest_observation()
+    return render_template("library/admin.html", config=cfg, records=records, latest=latest)
 
 
 # ─── Status & Latest Reading ──────────────────────────────────────────────────
@@ -239,3 +260,4 @@ def download_library_pdf():
     except Exception as e:
         logger.error("Error generating library PDF report: %s", e)
         return jsonify({"error": f"Failed to generate PDF report: {str(e)}"}), 500
+

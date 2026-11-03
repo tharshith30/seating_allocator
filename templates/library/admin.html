@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Library Admin Portal — Smart Resource Management</title>
+  <meta name="description" content="Library staff portal for recording occupancy, configuring seating limits, and managing observations.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav-bar">
+  <a href="/" class="nav-brand">🏛 ResourceHub</a>
+  <a href="/?tab=seating">Exam Seating</a>
+  <a href="/lab/dashboard">Lab Analytics</a>
+  <a href="/library">📚 Library Dashboard</a>
+  <a href="/library/student">Student Live View</a>
+  <a href="/library/admin" class="active">Staff Admin 🔒</a>
+  <span class="spacer"></span>
+  <button id="dark-toggle">🌙 Dark</button>
+</nav>
+
+<main class="lab-page" style="max-width:1100px;margin:24px auto;padding:0 20px">
+
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+    <div>
+      <div class="page-title">Library In-Charge Administration</div>
+      <div class="page-subtitle">
+        Periodic Headcount Observation Recording, Capacity Settings &amp; Reporting
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <a href="/download/library-report/excel" class="btn-primary" style="text-decoration:none;padding:8px 16px;background:#2e7d32">
+        📊 Excel Export
+      </a>
+      <a href="/download/library-report/pdf" class="btn-primary" style="text-decoration:none;padding:8px 16px;background:#c62828">
+        📄 PDF Report
+      </a>
+    </div>
+  </div>
+
+  <div class="admin-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:20px;margin-bottom:24px">
+
+    <!-- Record Observation Card -->
+    <div class="card">
+      <div class="section-title">📝 Record Headcount Observation</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+        Log the latest periodic count of students seated in the central study area.
+      </p>
+
+      <form id="standalone-obs-form">
+        <div class="form-group" style="margin-bottom:12px">
+          <label for="admin-occupied">Occupied Seats Count</label>
+          <input type="number" id="admin-occupied" name="occupied_seats" min="0" max="{{ config.total_capacity }}" placeholder="e.g. 142" required style="font-size:1.1rem;font-weight:700">
+        </div>
+
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+          <button type="button" class="btn-quick" onclick="adjustCount(-10)">-10</button>
+          <button type="button" class="btn-quick" onclick="adjustCount(-5)">-5</button>
+          <button type="button" class="btn-quick" onclick="adjustCount(+5)">+5</button>
+          <button type="button" class="btn-quick" onclick="adjustCount(+10)">+10</button>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px">
+          <label for="admin-notes">Optional Notes / Context</label>
+          <input type="text" id="admin-notes" name="notes" placeholder="e.g. Semester exam prep week, rain, power outage">
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px">
+          <label for="admin-pin">Staff Security PIN</label>
+          <input type="password" id="admin-pin" name="pin" placeholder="Enter PIN (Default: 1234)" required>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width:100%;padding:10px">
+          💾 Save Observation
+        </button>
+
+        <div id="obs-feedback" style="margin-top:10px;font-size:0.85rem;display:none"></div>
+      </form>
+    </div>
+
+    <!-- Seating Capacity & Thresholds Card -->
+    <div class="card">
+      <div class="section-title">⚙️ Library Capacity Configuration</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">
+        Update overall desk capacity and crowd category percentage thresholds.
+      </p>
+
+      <form id="standalone-cfg-form">
+        <div class="form-group" style="margin-bottom:12px">
+          <label for="admin-capacity">Total Seating Capacity</label>
+          <input type="number" id="admin-capacity" name="total_capacity" value="{{ config.total_capacity }}" min="20" max="1500" required>
+        </div>
+
+        <div class="inline-row" style="margin-bottom:12px">
+          <div class="form-group">
+            <label for="admin-t-mod">Moderate (% &ge;)</label>
+            <input type="number" id="admin-t-mod" name="threshold_moderate" value="{{ config.threshold_moderate }}" min="10" max="80" required>
+          </div>
+          <div class="form-group">
+            <label for="admin-t-high">High (% &ge;)</label>
+            <input type="number" id="admin-t-high" name="threshold_high" value="{{ config.threshold_high }}" min="30" max="95" required>
+          </div>
+          <div class="form-group">
+            <label for="admin-t-full">Full (% &ge;)</label>
+            <input type="number" id="admin-t-full" name="threshold_full" value="{{ config.threshold_full }}" min="70" max="100" required>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px">
+          <label for="cfg-pin">Staff Security PIN</label>
+          <input type="password" id="cfg-pin" name="pin" placeholder="Enter PIN (Default: 1234)" required>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width:100%;padding:10px;background:#455a64">
+          ⚙️ Update Configuration
+        </button>
+
+        <div id="cfg-feedback" style="margin-top:10px;font-size:0.85rem;display:none"></div>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Recent Observations Table -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="section-title">📋 Recent Headcount Observations Log</div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px">
+      Audit trail of periodic observations. Data is stored locally in SQLite with zero personally identifiable information.
+    </p>
+
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+        <thead>
+          <tr style="background:var(--surface2)">
+            <th style="padding:8px;border:1px solid var(--border);text-align:left">ID</th>
+            <th style="padding:8px;border:1px solid var(--border);text-align:left">Recorded At</th>
+            <th style="padding:8px;border:1px solid var(--border);text-align:center">Occupied</th>
+            <th style="padding:8px;border:1px solid var(--border);text-align:center">Available</th>
+            <th style="padding:8px;border:1px solid var(--border);text-align:center">Capacity %</th>
+            <th style="padding:8px;border:1px solid var(--border);text-align:center">Category</th>
+            <th style="padding:8px;border:1px solid var(--border);text-align:left">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="admin-records-tbody">
+          {% for r in records %}
+            <tr>
+              <td class="td-cell" style="font-weight:700">#{{ r.id }}</td>
+              <td class="td-cell">{{ r.recorded_at }}</td>
+              <td class="td-center">{{ r.occupied_seats }}</td>
+              <td class="td-center">{{ r.available_seats }}</td>
+              <td class="td-center">{{ r.occupancy_pct }}%</td>
+              <td class="td-center">
+                <span class="crowd-badge badge-{{ r.badge_color }}">{{ r.status }}</span>
+              </td>
+              <td class="td-cell" style="color:var(--text-muted)">{{ r.notes or '—' }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7" class="td-center" style="color:var(--text-muted)">No observations recorded yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function adjustCount(delta) {
+    const inp = document.getElementById("admin-occupied");
+    if (!inp) return;
+    const cur = parseInt(inp.value, 10) || 0;
+    inp.value = Math.max(0, cur + delta);
+  }
+
+  // Handle Headcount submission
+  document.getElementById("standalone-obs-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fb = document.getElementById("obs-feedback");
+    fb.style.display = "block";
+    fb.innerHTML = "Saving...";
+
+    const occupied = parseInt(document.getElementById("admin-occupied").value, 10);
+    const notes = document.getElementById("admin-notes").value;
+    const pin = document.getElementById("admin-pin").value;
+
+    try {
+      const res = await fetch("/api/library/occupancy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ occupied_seats: occupied, notes: notes, pin: pin })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        fb.innerHTML = `<span style="color:#2e7d32;font-weight:600">✅ Observation logged: ${data.record.occupied_seats} occupied (${data.record.occupancy_percentage}%)</span>`;
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        fb.innerHTML = `<span style="color:#c62828;font-weight:600">❌ Error: ${data.error || "Failed to save"}</span>`;
+      }
+    } catch (err) {
+      fb.innerHTML = `<span style="color:#c62828">❌ Network error</span>`;
+    }
+  });
+
+  // Handle Config submission
+  document.getElementById("standalone-cfg-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fb = document.getElementById("cfg-feedback");
+    fb.style.display = "block";
+    fb.innerHTML = "Saving configuration...";
+
+    const cap = parseInt(document.getElementById("admin-capacity").value, 10);
+    const tMod = parseInt(document.getElementById("admin-t-mod").value, 10);
+    const tHigh = parseInt(document.getElementById("admin-t-high").value, 10);
+    const tFull = parseInt(document.getElementById("admin-t-full").value, 10);
+    const pin = document.getElementById("cfg-pin").value;
+
+    try {
+      const res = await fetch("/api/library/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          total_capacity: cap,
+          threshold_moderate: tMod,
+          threshold_high: tHigh,
+          threshold_full: tFull,
+          pin: pin
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        fb.innerHTML = `<span style="color:#2e7d32;font-weight:600">✅ Capacity updated to ${data.config.total_capacity} seats</span>`;
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        fb.innerHTML = `<span style="color:#c62828;font-weight:600">❌ Error: ${data.error || "Failed to update"}</span>`;
+      }
+    } catch (err) {
+      fb.innerHTML = `<span style="color:#c62828">❌ Network error</span>`;
+    }
+  });
+</script>
+
+</body>
+</html>
