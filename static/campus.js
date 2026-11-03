@@ -106,6 +106,68 @@ const Campus = {
         await this.importTimetable(importForm);
       });
     }
+
+    // Add Classroom Form & Auto-Capacity Calculator
+    const benchesInput = document.getElementById("ac-benches");
+    const capacityInput = document.getElementById("ac-capacity");
+    if (benchesInput && capacityInput) {
+      benchesInput.addEventListener("input", () => {
+        const b = parseInt(benchesInput.value, 10);
+        if (!isNaN(b) && b > 0) {
+          capacityInput.value = b * 2;
+        }
+      });
+    }
+
+    const addCrForm = document.getElementById("add-classroom-form");
+    if (addCrForm) {
+      addCrForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await this.submitAddClassroom();
+      });
+    }
+  },
+
+  toggleAddClassroomForm() {
+    const form = document.getElementById("add-classroom-form");
+    if (!form) return;
+    form.style.display = (form.style.display === "none") ? "block" : "none";
+  },
+
+  async submitAddClassroom() {
+    const fb = document.getElementById("add-cr-feedback");
+    fb.style.display = "block";
+    fb.innerHTML = "Registering new classroom...";
+
+    const payload = {
+      id: document.getElementById("ac-room-id").value.trim().toUpperCase(),
+      name: document.getElementById("ac-name").value.trim(),
+      block: document.getElementById("ac-block").value,
+      floor: parseInt(document.getElementById("ac-floor").value, 10) || 0,
+      bench_count: parseInt(document.getElementById("ac-benches").value, 10) || 30,
+      seating_capacity: parseInt(document.getElementById("ac-capacity").value, 10) || 60,
+      room_type: document.getElementById("ac-type").value,
+      has_projector: document.getElementById("ac-proj").checked,
+      has_audio: document.getElementById("ac-audio").checked,
+      has_ac: document.getElementById("ac-ac").checked,
+      status: "available",
+      pin: document.getElementById("ac-pin").value || this.currentPin
+    };
+
+    try {
+      const res = await fetch("/api/campus/classrooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to register classroom");
+
+      fb.innerHTML = `<span style="color:#2e7d32;font-weight:700">✅ ${escapeHtml(data.message)}</span>`;
+      setTimeout(() => location.reload(), 1400);
+    } catch (err) {
+      fb.innerHTML = `<span style="color:#c62828;font-weight:700">❌ ${escapeHtml(err.message)}</span>`;
+    }
   },
 
   async loadClassroomSchedule(roomId) {
@@ -540,3 +602,4 @@ function escapeHtml(str) {
 document.addEventListener("DOMContentLoaded", () => {
   Campus.init();
 });
+

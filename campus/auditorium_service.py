@@ -400,3 +400,4 @@ def get_auditorium_analytics() -> dict:
         "type_distribution": type_distribution,
         "auditorium_breakdown": aud_breakdown
     }
+

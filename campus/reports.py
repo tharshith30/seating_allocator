@@ -285,3 +285,4 @@ def generate_campus_pdf_report(output_path: str) -> str:
 
     doc.build(elements)
     return output_path
+

@@ -320,21 +320,18 @@ def seed_initial_data():
         except Exception as e:
             logger.error("Failed to seed classrooms from Excel: %s", e)
 
-    # 2. Seed Auditoriums
+    # 2. Seed Auditoriums (Campus has 1 Primary Auditorium)
     cursor.execute("SELECT COUNT(*) FROM auditoriums;")
     if cursor.fetchone()[0] == 0:
         auditoriums_data = [
-            ("AUD-MAIN", "Sir Visvesvaraya Grand Auditorium", "Central Campus Building", 850, "40ft x 25ft Elevated Teak Stage", "Dual 4K Laser Projectors, 32-Ch Dolby Surround, Stage Line Mics, Intelligent Lighting", 1, "available"),
-            ("AUD-MINI", "Mini Auditorium", "Academic Block C, 3rd Floor", 250, "25ft x 15ft Stage", "4K Video Wall, Wireless Collar Mics, Acoustic Paneling", 1, "available"),
-            ("AUD-SEM1", "APJ Abdul Kalam Seminar Hall", "Science & Research Block, 1st Floor", 120, "20ft x 12ft Podium Stage", "Interactive Smart Screen, Hybrid Video Conferencing PTZ Cameras", 0, "available"),
-            ("AUD-OAT", "University Open Air Theatre", "Campus Amphitheatre Grounds", 1400, "60ft x 35ft Outdoor Stage", "Stage Spotlights, Public Address Horn Array, Power Generator Backup", 1, "available"),
+            ("AUD-MAIN", "Central Campus Auditorium", "Central Administration Building", 800, "40ft x 25ft Elevated Teak Stage", "Dual 4K Laser Projectors, 32-Channel Dolby Surround, Wireless Collar & Podium Mics, Intelligent Stage Lighting", 1, "available"),
         ]
         with conn:
             conn.executemany("""
                 INSERT INTO auditoriums (id, name, location, capacity, stage_size, av_facilities, has_green_room, status)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """, auditoriums_data)
-        logger.info("Seeded %d campus auditoriums.", len(auditoriums_data))
+        logger.info("Seeded %d campus auditorium.", len(auditoriums_data))
 
     # 3. Seed Facility Assets
     cursor.execute("SELECT COUNT(*) FROM facility_assets;")
@@ -344,9 +341,9 @@ def seed_initial_data():
             ("AST-AC-G16", "Voltas 2.0 Ton Inverter Split AC", "HVAC", "classroom", "G-16", "SN-VOL-44120", "Good", "2024-03-20", "2026-10-01"),
             ("AST-AV-AUDMAIN", "Yamaha 32-Channel Digital Mixer", "IT/AV", "auditorium", "AUD-MAIN", "SN-YAM-88123", "Good", "2023-11-10", "2026-10-15"),
             ("AST-AC-AUDMAIN", "BlueStar 15-Ton Central Chiller Unit", "HVAC", "auditorium", "AUD-MAIN", "SN-BLU-10293", "Good", "2023-08-01", "2026-09-20"),
-            ("AST-PRJ-AUDMINI", "Sony 4K Venue Laser Projector", "IT/AV", "auditorium", "AUD-MINI", "SN-SNY-33019", "Good", "2024-01-12", "2026-08-15"),
+            ("AST-PRJ-AUDMAIN2", "Sony 4K Venue Laser Projector", "IT/AV", "auditorium", "AUD-MAIN", "SN-SNY-33019", "Good", "2024-01-12", "2026-08-15"),
             ("AST-SB-G04", "ViewSonic 75-inch Interactive Smartboard", "IT/AV", "classroom", "G04", "SN-VS-77291", "Good", "2024-07-05", "2026-10-10"),
-            ("AST-GEN-OAT", "Kirloskar 62.5 kVA Silent Diesel Generator", "Electrical", "auditorium", "AUD-OAT", "SN-KIR-55201", "Fair", "2022-04-18", "2026-07-12"),
+            ("AST-GEN-AUDMAIN", "Kirloskar 62.5 kVA Silent Diesel Generator", "Electrical", "auditorium", "AUD-MAIN", "SN-KIR-55201", "Fair", "2022-04-18", "2026-07-12"),
             ("AST-PLM-BLKA", "Main Academic Block Restroom Water Pump", "Plumbing", "general", "BLKA", "SN-CRI-99104", "Good", "2023-05-10", "2026-08-30"),
         ]
         with conn:
@@ -363,7 +360,7 @@ def seed_initial_data():
             ("Air Conditioning Filter Cleaning & Coolant Check", "HVAC", "G-16", 30, "2026-10-01", "2026-11-01", "Ramesh (HVAC Tech)", "Filter wash, gas pressure inspection, thermostat calibration", "overdue"),
             ("Main Auditorium AV Mixer & Mic Calibration", "IT/AV", "AUD-MAIN", 60, "2026-09-15", "2026-11-15", "Kiran (Sound Engineer)", "Check stage line balance, replace wireless mic batteries, clean faders", "pending"),
             ("Interactive Smartboard Firmware & Touch Calibration", "IT/AV", "G04", 90, "2026-08-10", "2026-11-10", "Suresh (IT Support)", "Inspect HDMI cabling, apply firmware patches, align optical sensors", "pending"),
-            ("Open Air Theatre Generator Load Test & Fuel Top-up", "Electrical", "AUD-OAT", 30, "2026-10-10", "2026-11-10", "Mahesh (Electrician)", "Check battery voltage, engine oil level, automatic transfer switch test", "pending"),
+            ("Campus Generator Load Test & Fuel Top-up", "Electrical", "AUD-MAIN", 30, "2026-10-10", "2026-11-10", "Mahesh (Electrician)", "Check battery voltage, engine oil level, automatic transfer switch test", "pending"),
         ]
         with conn:
             conn.executemany("""

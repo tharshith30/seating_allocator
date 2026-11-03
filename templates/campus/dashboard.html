@@ -250,6 +250,96 @@
       <div id="cr-schedule-grid-container"></div>
     </div>
 
+    <!-- Add Classroom Feature Card -->
+    <div class="card" style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div>
+          <div class="section-title" style="margin:0;border:none;padding:0">➕ Add New Classroom</div>
+          <div style="font-size:0.82rem;color:var(--text-muted)">
+            Register and persist new campus classrooms, desk capacities, and amenities directly into the inventory.
+          </div>
+        </div>
+        <button type="button" id="toggle-add-cr-btn" class="btn-quick" onclick="Campus.toggleAddClassroomForm()">
+          ▼ Show / Hide Form
+        </button>
+      </div>
+
+      <form id="add-classroom-form" style="display:block">
+        <div class="inline-row" style="margin-bottom:12px">
+          <div class="form-group">
+            <label for="ac-room-id">Classroom ID / Number</label>
+            <input type="text" id="ac-room-id" placeholder="e.g. G21, R105" required style="font-weight:700">
+          </div>
+          <div class="form-group">
+            <label for="ac-name">Room Display Name</label>
+            <input type="text" id="ac-name" placeholder="e.g. Classroom G21">
+          </div>
+          <div class="form-group">
+            <label for="ac-block">Block / Wing</label>
+            <select id="ac-block">
+              <option value="Ground Floor Wing A">Ground Floor Wing A</option>
+              <option value="First Floor Block B">First Floor Block B</option>
+              <option value="Main Academic Block" selected>Main Academic Block</option>
+              <option value="Science &amp; Research Block">Science &amp; Research Block</option>
+              <option value="Civil Engineering Block">Civil Engineering Block</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="inline-row" style="margin-bottom:12px">
+          <div class="form-group">
+            <label for="ac-floor">Floor Number</label>
+            <input type="number" id="ac-floor" value="0" min="0" max="10" required>
+          </div>
+          <div class="form-group">
+            <label for="ac-benches">Bench Count</label>
+            <input type="number" id="ac-benches" value="35" min="1" max="200" required>
+          </div>
+          <div class="form-group">
+            <label for="ac-capacity">Seating Capacity (2 seats / bench)</label>
+            <input type="number" id="ac-capacity" value="70" min="2" max="400" required>
+          </div>
+          <div class="form-group">
+            <label for="ac-type">Room Type</label>
+            <select id="ac-type">
+              <option value="Lecture Hall" selected>Lecture Hall</option>
+              <option value="Seminar Hall">Seminar Hall</option>
+              <option value="Smart Classroom">Smart Classroom</option>
+              <option value="Drawing Hall">Drawing Hall</option>
+              <option value="Tutorial Room">Tutorial Room</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="inline-row" style="margin-bottom:16px;align-items:center">
+          <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.88rem">
+              <input type="checkbox" id="ac-proj" checked>
+              <span>📽️ Projector Installed</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.88rem">
+              <input type="checkbox" id="ac-audio">
+              <span>🔊 Audio / Line Mics</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.88rem">
+              <input type="checkbox" id="ac-ac">
+              <span>❄️ Air Conditioned (AC)</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="max-width:180px;margin-left:auto">
+            <label for="ac-pin">Security PIN</label>
+            <input type="password" id="ac-pin" placeholder="Enter PIN" value="1234" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" style="padding:10px 24px;font-size:0.95rem">
+          💾 Save &amp; Register Classroom
+        </button>
+        <div id="add-cr-feedback" style="margin-top:10px;font-size:0.88rem;display:none"></div>
+      </form>
+    </div>
+
     <!-- Classroom Inventory & Status Table -->
     <div class="card" style="margin-bottom:24px">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
@@ -318,8 +408,8 @@
     <!-- Auditorium KPI Banner -->
     <div class="stats-grid" style="margin-bottom:20px">
       <div class="stat-card">
-        <span class="stat-label">Total Auditoriums</span>
-        <span class="stat-value">{{ aud_analytics.total_auditoriums }} Venues</span>
+        <span class="stat-label">Campus Auditorium</span>
+        <span class="stat-value">1 Primary Venue</span>
       </div>
       <div class="stat-card">
         <span class="stat-label">Auditorium Seating</span>

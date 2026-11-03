@@ -491,3 +491,4 @@ def get_classroom_utilization_analytics() -> dict:
         "day_distribution": days_data,
         "slot_distribution": slots_data
     }
+

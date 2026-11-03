@@ -71,13 +71,20 @@ def api_list_classrooms():
 def api_add_classroom():
     data = request.get_json() or {}
     pin = data.get("pin")
-    if not db.verify_role_pin("admin", pin):
-        return jsonify({"error": "Admin PIN required to add or edit classrooms."}), 403
+    if not db.verify_role_pin("admin", pin) and not db.verify_role_pin("staff", pin):
+        return jsonify({"error": "Admin or Staff PIN required to add or edit classrooms."}), 403
     try:
         room = classroom_service.add_or_update_classroom(data)
-        return jsonify({"status": "success", "classroom": room}), 201
-    except Exception as e:
+        return jsonify({
+            "status": "success",
+            "classroom": room,
+            "message": f"Classroom {room['id']} registered successfully!"
+        }), 201
+    except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error("Error adding classroom: %s", e)
+        return jsonify({"error": f"Failed to register classroom: {str(e)}"}), 500
 
 
 @campus_bp.route("/api/campus/classrooms/<classroom_id>", methods=["GET"])
@@ -438,3 +445,4 @@ def download_campus_pdf():
     except Exception as e:
         logger.error("Error generating campus PDF report: %s", e)
         return jsonify({"error": f"Failed to generate PDF report: {str(e)}"}), 500
+

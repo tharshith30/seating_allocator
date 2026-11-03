@@ -15,3 +15,4 @@ from . import facility_service
 from . import scheduling_service
 from . import reports
 from .routes import campus_bp
+

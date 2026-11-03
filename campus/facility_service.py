@@ -423,3 +423,4 @@ def get_facility_analytics() -> dict:
         "preventive_maintenance_total": total_pm,
         "preventive_maintenance_overdue": overdue_pm
     }
+
