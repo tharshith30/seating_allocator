@@ -21,9 +21,23 @@ if os.path.isdir(_cached_site) and _cached_site not in sys.path:
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "campus_facility.db")
-ROOMS_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "roomCapacity_FST.xlsx")
-TIMETABLE_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "timetable.xlsx")
+# Resolve base data directory (Render persistent disk support via DATA_DIR)
+_DATA_DIR = os.environ.get("DATA_DIR")
+if _DATA_DIR:
+    os.makedirs(_DATA_DIR, exist_ok=True)
+    DB_PATH = os.path.join(_DATA_DIR, "campus_facility.db")
+    _repo_data = os.path.join(os.path.dirname(__file__), "..", "data")
+    ROOMS_FILE = os.path.join(_DATA_DIR, "roomCapacity_FST.xlsx")
+    if not os.path.exists(ROOMS_FILE):
+        ROOMS_FILE = os.path.join(_repo_data, "roomCapacity_FST.xlsx")
+    TIMETABLE_FILE = os.path.join(_DATA_DIR, "timetable.xlsx")
+    if not os.path.exists(TIMETABLE_FILE):
+        TIMETABLE_FILE = os.path.join(_repo_data, "timetable.xlsx")
+else:
+    _repo_data = os.path.join(os.path.dirname(__file__), "..", "data")
+    DB_PATH = os.path.join(_repo_data, "campus_facility.db")
+    ROOMS_FILE = os.path.join(_repo_data, "roomCapacity_FST.xlsx")
+    TIMETABLE_FILE = os.path.join(_repo_data, "timetable.xlsx")
 
 # Configurable PINs for RBAC
 ROLE_PINS = {
@@ -429,7 +443,9 @@ def seed_initial_data():
     # 6. Seed Student Exam Seating from outputs/seating_allotment.xlsx if available
     cursor.execute("SELECT COUNT(*) FROM student_exam_seating;")
     if cursor.fetchone()[0] == 0:
-        seating_xlsx = os.path.join(os.path.dirname(__file__), "..", "outputs", "seating_allotment.xlsx")
+        seating_xlsx = os.path.join(_DATA_DIR or os.path.join(os.path.dirname(__file__), "..", "outputs"), "seating_allotment.xlsx")
+        if not os.path.exists(seating_xlsx):
+            seating_xlsx = os.path.join(os.path.dirname(__file__), "..", "outputs", "seating_allotment.xlsx")
         if os.path.exists(seating_xlsx):
             try:
                 import pandas as pd

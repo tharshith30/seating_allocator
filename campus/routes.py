@@ -15,7 +15,8 @@ from . import reports
 logger = logging.getLogger(__name__)
 
 campus_bp = Blueprint("campus_bp", __name__)
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "outputs")
+_DATA_DIR = os.environ.get("DATA_DIR")
+OUTPUT_DIR = os.path.join(_DATA_DIR, "outputs") if _DATA_DIR else os.path.join(os.path.dirname(__file__), "..", "outputs")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 

@@ -13,7 +13,13 @@ from datetime import datetime, date, timedelta
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "library.db")
+# Resolve base data directory (Render persistent disk support via DATA_DIR)
+_DATA_DIR = os.environ.get("DATA_DIR")
+if _DATA_DIR:
+    os.makedirs(_DATA_DIR, exist_ok=True)
+    DB_PATH = os.path.join(_DATA_DIR, "library.db")
+else:
+    DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "library.db")
 
 
 def _get_pin() -> str:

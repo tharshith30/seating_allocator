@@ -59,3 +59,4 @@ def api_me():
     if not user:
         return jsonify({"authenticated": False, "user": None})
     return jsonify({"authenticated": True, "user": user})
+

@@ -25,7 +25,13 @@ from datetime import date, timedelta
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "lab_bookings.db")
+# Resolve base data directory (Render persistent disk support via DATA_DIR)
+_DATA_DIR = os.environ.get("DATA_DIR")
+if _DATA_DIR:
+    os.makedirs(_DATA_DIR, exist_ok=True)
+    DB_PATH = os.path.join(_DATA_DIR, "lab_bookings.db")
+else:
+    DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "lab_bookings.db")
 
 # Valid slot states
 VALID_STATES = {"in_use", "empty", "maintenance", "exam", "booked"}

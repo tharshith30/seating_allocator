@@ -35,14 +35,20 @@ logger = logging.getLogger(__name__)
 
 lab_bp = Blueprint("lab", __name__, url_prefix="")
 
-# ─── Paths (relative to the app's root directory) ───────────────────────────
+# ─── Paths (relative to the app's root directory or DATA_DIR) ──────────────────
 
 def _data(filename: str) -> str:
+    data_dir = os.environ.get("DATA_DIR")
+    if data_dir and os.path.exists(os.path.join(data_dir, filename)):
+        return os.path.join(data_dir, filename)
     return os.path.join(current_app.root_path, "data", filename)
 
 
 def _outputs(filename: str) -> str:
-    return os.path.join(current_app.root_path, "outputs", filename)
+    data_dir = os.environ.get("DATA_DIR")
+    out_dir = os.path.join(data_dir, "outputs") if data_dir else os.path.join(current_app.root_path, "outputs")
+    os.makedirs(out_dir, exist_ok=True)
+    return os.path.join(out_dir, filename)
 
 
 # ─── Cached parsed data (re-parse only on startup) ──────────────────────────

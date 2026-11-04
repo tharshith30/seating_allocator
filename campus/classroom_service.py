@@ -24,7 +24,11 @@ from . import scheduling_service
 
 logger = logging.getLogger(__name__)
 
-TIMETABLE_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "timetable.xlsx")
+_DATA_DIR = os.environ.get("DATA_DIR")
+if _DATA_DIR and os.path.exists(os.path.join(_DATA_DIR, "timetable.xlsx")):
+    TIMETABLE_FILE = os.path.join(_DATA_DIR, "timetable.xlsx")
+else:
+    TIMETABLE_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "timetable.xlsx")
 
 # Regex to detect Section header with Room in parentheses, e.g. "Section:  A (G-16)" or "Section: C (R-216)"
 SECTION_ROOM_RE = re.compile(r"Section\s*:\s*([A-Za-z0-9_\-\.\s]+?)(?:\s*\((.+?)\)|$)", re.IGNORECASE)

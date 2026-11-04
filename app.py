@@ -40,9 +40,17 @@ from admin.routes import admin_bp
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "smart-campus-resource-2026-secure-session-key")
 
-ROOM_FILE = "data/roomCapacity_FST.xlsx"
-
-OUTPUT_FOLDER = "outputs"
+# Storage paths with Render persistent disk support via DATA_DIR
+DATA_DIR = os.environ.get("DATA_DIR")
+if DATA_DIR:
+    os.makedirs(DATA_DIR, exist_ok=True)
+    ROOM_FILE = os.path.join(DATA_DIR, "roomCapacity_FST.xlsx")
+    if not os.path.exists(ROOM_FILE):
+        ROOM_FILE = "data/roomCapacity_FST.xlsx"
+    OUTPUT_FOLDER = os.path.join(DATA_DIR, "outputs")
+else:
+    ROOM_FILE = "data/roomCapacity_FST.xlsx"
+    OUTPUT_FOLDER = "outputs"
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
@@ -360,18 +368,22 @@ def generate():
 
 @app.route("/download/excel")
 def download_excel():
-
+    excel_path = os.path.join(OUTPUT_FOLDER, "seating_allotment.xlsx")
+    if not os.path.exists(excel_path) and os.path.exists("outputs/seating_allotment.xlsx"):
+        excel_path = "outputs/seating_allotment.xlsx"
     return send_file(
-        "outputs/seating_allotment.xlsx",
+        excel_path,
         as_attachment=True
     )
 
 
 @app.route("/download/pdf")
 def download_pdf():
-
+    pdf_path = os.path.join(OUTPUT_FOLDER, "seating_allotment.pdf")
+    if not os.path.exists(pdf_path) and os.path.exists("outputs/seating_allotment.pdf"):
+        pdf_path = "outputs/seating_allotment.pdf"
     return send_file(
-        "outputs/seating_allotment.pdf",
+        pdf_path,
         as_attachment=True
     )
 

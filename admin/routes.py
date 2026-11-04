@@ -134,3 +134,4 @@ def api_reset_pin():
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": "User PIN successfully updated."})
+

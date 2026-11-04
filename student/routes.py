@@ -170,3 +170,4 @@ def student_dashboard():
         announcements=announcements,
         exam_schedule=exam_schedule
     )
+
