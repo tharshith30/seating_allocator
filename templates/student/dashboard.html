@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal — Smart Resource Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-light: #38bdf8;
+            --primary-dark: #0369a1;
+            --surface-bg: #090d16;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--surface-bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .portal-sidebar {
+            width: 260px;
+            background: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .portal-brand {
+            padding: 1.5rem 1.25rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .portal-brand h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .portal-brand span.subtitle {
+            font-size: 0.72rem;
+            color: #38bdf8;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0.75rem;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 0.55rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+        }
+
+        .nav-item.active a {
+            background: rgba(2, 132, 199, 0.18);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-meta {
+            font-size: 0.82rem;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .user-role-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.15);
+            padding: 0.15rem 0.45rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            margin-top: 0.2rem;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.45rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ffffff;
+        }
+
+        /* Main Portal Content */
+        .portal-main {
+            flex-grow: 1;
+            padding: 2rem 2.5rem;
+            overflow-y: auto;
+            max-width: 1300px;
+            box-sizing: border-box;
+        }
+
+        .top-banner {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 1rem;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .welcome-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin: 0 0 0.3rem;
+            color: #ffffff;
+        }
+
+        .welcome-sub {
+            font-size: 0.88rem;
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        .meta-pills {
+            display: flex;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.4rem 0.85rem;
+            border-radius: 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .meta-pill strong {
+            color: #38bdf8;
+        }
+
+        .section-container {
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .section-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .portal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 0.95rem;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        .portal-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0 0 1rem;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Quick Stat Cards */
+        .stat-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 0.85rem;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            flex-shrink: 0;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .stat-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 0.2rem;
+        }
+
+        /* Timetable UI */
+        .tt-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #1f2937;
+            padding-bottom: 0.75rem;
+        }
+
+        .tt-btn {
+            background: #1f2937;
+            border: 1px solid #374151;
+            color: #cbd5e1;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .tt-btn.active {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: #ffffff;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 0.75rem 0.9rem;
+            font-weight: 700;
+            border-bottom: 1px solid #334155;
+            white-space: nowrap;
+        }
+
+        .custom-table td {
+            padding: 0.75rem 0.9rem;
+            border-bottom: 1px solid #1e293b;
+            color: #f1f5f9;
+        }
+
+        .custom-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge-slot {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            background: #334155;
+            color: #e2e8f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.35rem;
+            font-weight: 600;
+        }
+
+        .badge-room {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 0.2rem 0.55rem;
+            border-radius: 0.35rem;
+            font-weight: 700;
+        }
+
+        /* Seating Allocation Card */
+        .seating-box {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(2, 132, 199, 0.12) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .seating-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: #38bdf8;
+        }
+
+        .seat-badge-large {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0284c7;
+            color: #ffffff;
+            border-radius: 0.85rem;
+            padding: 1rem 1.5rem;
+            font-weight: 800;
+            min-width: 100px;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+        }
+
+        .seat-badge-large .number {
+            font-size: 2.2rem;
+            line-height: 1;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .seat-badge-large .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 0.3rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #94a3b8;
+        }
+
+        .empty-state-icon {
+            font-size: 2.75rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .stale-warning {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+            padding: 0.65rem 0.95rem;
+            border-radius: 0.5rem;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-pill {
+            display: inline-block;
+            font-size: 0.72rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-pill.success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-pill.info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .status-pill.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .announcement-item {
+            border-left: 3px solid #0284c7;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.65rem 0.65rem 0;
+            margin-bottom: 1rem;
+        }
+
+        .announcement-item h4 {
+            margin: 0 0 0.35rem;
+            font-size: 0.95rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .announcement-item p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="portal-sidebar">
+        <div class="portal-brand">
+            <h2>🎓 Student Portal</h2>
+            <span class="subtitle">Smart Resource Management</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchSection('overview', this)">
+                <a href="javascript:void(0)"><span>🏠</span> My Dashboard</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('timetable', this)">
+                <a href="javascript:void(0)"><span>📅</span> My Timetable</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('seating', this)">
+                <a href="javascript:void(0)"><span>🪑</span> My Exam Seating</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('exams', this)">
+                <a href="javascript:void(0)"><span>📝</span> Examination Details</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('library', this)">
+                <a href="javascript:void(0)"><span>📚</span> Library Availability</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('labs', this)">
+                <a href="javascript:void(0)"><span>🔬</span> Lab Information</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('events', this)">
+                <a href="javascript:void(0)"><span>🎭</span> Campus Events</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('announcements', this)">
+                <a href="javascript:void(0)"><span>📢</span> Announcements</a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-pill">
+                <div class="user-meta">
+                    <div class="user-name">{{ user.name }}</div>
+                    <span class="user-role-badge">View Only</span>
+                </div>
+                <a href="/logout" class="logout-btn">Log Out</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="portal-main">
+
+        <!-- TOP STUDENT BANNER -->
+        <div class="top-banner">
+            <div>
+                <h1 class="welcome-title">Welcome back, {{ user.name }}</h1>
+                <p class="welcome-sub">Student Roll No: <strong>{{ user.student_id or user.username }}</strong> &bull; {{ user.academic_year or 'Academic Session 2026-2027' }}</p>
+            </div>
+            <div class="meta-pills">
+                <div class="meta-pill">Department: <strong>{{ user.department or 'Computer Science & Engineering' }}</strong></div>
+                <div class="meta-pill">Section: <strong>{{ user.section or 'A' }}</strong></div>
+                <div class="meta-pill">Portal Access: <strong>Verified Student</strong></div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION A: OVERVIEW ================= -->
+        <div id="sec-overview" class="section-container active">
+            <div class="stat-banner">
+                <div class="stat-card" onclick="switchSection('timetable', document.querySelectorAll('.nav-item')[1])" style="cursor: pointer;">
+                    <div class="stat-icon">📅</div>
+                    <div>
+                        <div class="stat-label">Today's Lectures</div>
+                        <div class="stat-value">{{ daily_timetable|length }} Classes</div>
+                    </div>
+                </div>
+
+                <div class="stat-card" onclick="switchSection('seating', document.querySelectorAll('.nav-item')[2])" style="cursor: pointer;">
+                    <div class="stat-icon">🪑</div>
+                    <div>
+                        <div class="stat-label">Exam Hall Allotment</div>
+                        <div class="stat-value">
+                            {% if my_seating %}
+                                Hall {{ my_seating[0].room_id }} (Seat {{ my_seating[0].seat_no }})
+                            {% else %}
+                                Standby
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card" onclick="switchSection('library', document.querySelectorAll('.nav-item')[4])" style="cursor: pointer;">
+                    <div class="stat-icon">📚</div>
+                    <div>
+                        <div class="stat-label">Library Free Seats</div>
+                        <div class="stat-value">
+                            {% if lib_status and lib_status.has_data %}
+                                {{ lib_status.available_seats }} Available
+                            {% else %}
+                                Unknown
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card" onclick="switchSection('events', document.querySelectorAll('.nav-item')[6])" style="cursor: pointer;">
+                    <div class="stat-icon">🎭</div>
+                    <div>
+                        <div class="stat-label">Upcoming Events</div>
+                        <div class="stat-value">{{ campus_events|length }} Approved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Highlights Grid -->
+            <div class="grid-2">
+                <!-- Seating Snapshot -->
+                <div class="portal-card">
+                    <h3>
+                        <span>🪑 My Examination Seating</span>
+                        <a href="javascript:void(0)" onclick="switchSection('seating', document.querySelectorAll('.nav-item')[2])" style="font-size: 0.8rem; color: #38bdf8; text-decoration: none;">View Full Details &rarr;</a>
+                    </h3>
+                    {% if my_seating %}
+                        <div class="seating-box">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div>
+                                    <div style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Examination Course</div>
+                                    <div style="font-size: 1.15rem; font-weight: 800; color: #ffffff;">{{ my_seating[0].course_name }}</div>
+                                    <div style="font-size: 0.82rem; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">Code: {{ my_seating[0].course_code }}</div>
+                                </div>
+                                <div class="seat-badge-large">
+                                    <div class="number">{{ my_seating[0].seat_no }}</div>
+                                    <div class="label">Seat Number</div>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.85rem;">
+                                <div><strong>Room / Hall:</strong> <span class="badge-room">{{ my_seating[0].room_id }}</span></div>
+                                <div><strong>Desk Set:</strong> <span class="badge-slot">{{ my_seating[0].desk_set }}</span></div>
+                                <div><strong>Date:</strong> {{ my_seating[0].exam_date }}</div>
+                                <div><strong>Session:</strong> {{ my_seating[0].exam_session }}</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div style="font-weight: 700; color: #cbd5e1; margin-bottom: 0.25rem;">No examination seating information is currently available.</div>
+                            <div style="font-size: 0.82rem;">Seating allotments will appear here once finalized by the Examination Section.</div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Library Real-Time Gauge -->
+                <div class="portal-card">
+                    <h3>
+                        <span>📚 Central Library Availability</span>
+                        <a href="javascript:void(0)" onclick="switchSection('library', document.querySelectorAll('.nav-item')[4])" style="font-size: 0.8rem; color: #38bdf8; text-decoration: none;">Live Counter &rarr;</a>
+                    </h3>
+                    {% if lib_status and lib_status.has_data %}
+                        {% if lib_status.is_stale %}
+                            <div class="stale-warning">
+                                <span>⚠️</span> Last updated: {{ lib_status.recorded_at }} – Information may be outdated.
+                            </div>
+                        {% endif %}
+                        <div style="display: flex; align-items: center; justify-content: space-around; margin: 1.5rem 0;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Capacity</div>
+                                <div style="font-size: 1.75rem; font-weight: 800; color: #ffffff;">{{ lib_status.total_capacity }}</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Occupied</div>
+                                <div style="font-size: 1.75rem; font-weight: 800; color: #f87171;">{{ lib_status.occupied_seats }}</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Available</div>
+                                <div style="font-size: 1.75rem; font-weight: 800; color: #4ade80;">{{ lib_status.available_seats }}</div>
+                            </div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 0.85rem; border-radius: 0.65rem; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Status: <strong>{{ lib_status.status }}</strong> ({{ lib_status.occupancy_pct }}% full)</span>
+                            <span class="status-pill {{ 'success' if lib_status.available_seats > 50 else 'info' }}">Verified Observation</span>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📖</div>
+                            <div style="font-weight: 700; color: #cbd5e1;">Library availability is currently unavailable.</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Official Announcements -->
+            <div class="portal-card">
+                <h3><span>📢 Campus &amp; Department Announcements</span></h3>
+                {% for ann in announcements %}
+                    <div class="announcement-item">
+                        <h4>
+                            <span>{{ ann.title }}</span>
+                            <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">{{ ann.date }}</span>
+                        </h4>
+                        <p>{{ ann.content }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ================= SECTION B: TIMETABLE ================= -->
+        <div id="sec-timetable" class="section-container">
+            <h2 class="section-title"><span>📅</span> Academic Class Timetable</h2>
+            
+            <div class="tt-tabs">
+                <button class="tt-btn active" onclick="toggleTimetableMode('daily', this)">Today's Schedule ({{ current_day }})</button>
+                <button class="tt-btn" onclick="toggleTimetableMode('weekly', this)">Full Weekly View (Mon &ndash; Fri)</button>
+            </div>
+
+            <!-- Daily Timetable View -->
+            <div id="dailyTimetableBox" class="portal-card">
+                <h3>Today's Classes &bull; Section {{ user.section or 'A' }}</h3>
+                {% if daily_timetable %}
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Period / Slot</th>
+                                    <th>Timing</th>
+                                    <th>Subject Code</th>
+                                    <th>Subject / Course Title</th>
+                                    <th>Classroom</th>
+                                    <th>Faculty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in daily_timetable %}
+                                    <tr>
+                                        <td><span class="badge-slot">Slot {{ item.slot }}</span></td>
+                                        <td>{{ item.time_range }}</td>
+                                        <td><strong style="color: #38bdf8;">{{ item.subject_code }}</strong></td>
+                                        <td>{{ item.subject_name }}</td>
+                                        <td><span class="badge-room">{{ item.classroom_id }}</span></td>
+                                        <td>{{ item.faculty_name or 'Department Faculty' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">☕</div>
+                        <div>No scheduled classes found for today.</div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Weekly Timetable View -->
+            <div id="weeklyTimetableBox" class="portal-card" style="display: none;">
+                <h3>Weekly Academic Schedule &bull; Section {{ user.section or 'A' }}</h3>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Slot 1<br><small style="color: #94a3b8; font-weight: normal;">09:00-09:50</small></th>
+                                <th>Slot 2<br><small style="color: #94a3b8; font-weight: normal;">09:50-10:40</small></th>
+                                <th>Slot 3<br><small style="color: #94a3b8; font-weight: normal;">10:50-11:40</small></th>
+                                <th>Slot 4<br><small style="color: #94a3b8; font-weight: normal;">11:40-12:30</small></th>
+                                <th>Slot 6<br><small style="color: #94a3b8; font-weight: normal;">01:20-02:10</small></th>
+                                <th>Slot 7<br><small style="color: #94a3b8; font-weight: normal;">02:10-03:00</small></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day_name in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] %}
+                                <tr>
+                                    <td><strong>{{ day_name }}</strong></td>
+                                    {% for target_slot in [1, 2, 3, 4, 6, 7] %}
+                                        <td>
+                                            {% set match = [] %}
+                                            {% for sess in weekly_timetable[day_name] %}
+                                                {% if sess.slot == target_slot %}
+                                                    <div style="font-weight: 700; color: #38bdf8;">{{ sess.subject_code }}</div>
+                                                    <div style="font-size: 0.72rem; color: #94a3b8;">{{ sess.classroom_id }}</div>
+                                                    {% set _ = match.append(1) %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if not match %}
+                                                <span style="color: #475569;">&mdash;</span>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION C: MY EXAM SEATING ================= -->
+        <div id="sec-seating" class="section-container">
+            <h2 class="section-title"><span>🪑</span> My Allocated Examination Seating</h2>
+            <p style="color: #94a3b8; font-size: 0.88rem; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                Isolated personal view for Roll Number: <strong>{{ user.student_id or user.username }}</strong>. Only your authorized seat assignment is displayed.
+            </p>
+
+            {% if my_seating %}
+                {% for seat in my_seating %}
+                    <div class="portal-card" style="margin-bottom: 1.5rem; border-color: rgba(56, 189, 248, 0.4);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <span class="status-pill success" style="margin-bottom: 0.5rem;">Allotment Confirmed</span>
+                                <h3 style="font-size: 1.35rem; margin: 0.35rem 0 0.2rem; color: #ffffff;">{{ seat.course_name }}</h3>
+                                <div style="font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-size: 0.88rem;">Course Code: {{ seat.course_code }}</div>
+                            </div>
+                            <div class="seat-badge-large">
+                                <div class="number">{{ seat.seat_no }}</div>
+                                <div class="label">Seat Number</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; background: rgba(0, 0, 0, 0.25); padding: 1.25rem; border-radius: 0.75rem;">
+                            <div>
+                                <div style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Hall / Classroom</div>
+                                <div style="font-size: 1.2rem; font-weight: 800; color: #38bdf8; margin-top: 0.2rem;">{{ seat.room_id }}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Building / Wing</div>
+                                <div style="font-size: 1.05rem; font-weight: 600; color: #ffffff; margin-top: 0.2rem;">{{ seat.building }}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Desk Question Set</div>
+                                <div style="font-size: 1.05rem; font-weight: 700; color: #a5b4fc; margin-top: 0.2rem;">Set: {{ seat.desk_set }}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Date &amp; Session</div>
+                                <div style="font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-top: 0.2rem;">{{ seat.exam_date }} &bull; {{ seat.exam_session }}</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.25rem; padding: 0.75rem 1rem; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.25); border-radius: 0.5rem; font-size: 0.82rem; color: #94a3b8;">
+                            ℹ️ Seating arrangement is enforced by the Anti-Malpractice Engine. Students must occupy their designated desk.
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="portal-card">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3 style="color: #ffffff; margin-bottom: 0.5rem;">No examination seating information is currently available.</h3>
+                        <p style="font-size: 0.88rem; max-width: 480px; margin: 0 auto; line-height: 1.5;">
+                            Seating plans are released prior to examination commencement. Once generated by administration, your designated hall and seat number will appear here automatically.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ================= SECTION D: EXAMINATION DETAILS ================= -->
+        <div id="sec-exams" class="section-container">
+            <h2 class="section-title"><span>📝</span> Examination Schedule &amp; Guidelines</h2>
+            <div class="portal-card" style="margin-bottom: 1.5rem;">
+                <h3>Upcoming Semester Examinations</h3>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Course Title</th>
+                                <th>Examination Date</th>
+                                <th>Timings</th>
+                                <th>Exam Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ex in exam_schedule %}
+                                <tr>
+                                    <td><strong style="color: #38bdf8;">{{ ex.course_code }}</strong></td>
+                                    <td>{{ ex.course_name }}</td>
+                                    <td>{{ ex.date }}</td>
+                                    <td>{{ ex.time }}</td>
+                                    <td>{{ ex.type }}</td>
+                                    <td><span class="status-pill info">{{ ex.status }}</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="portal-card">
+                <h3><span>📋</span> Mandatory Candidate Instructions</h3>
+                <ul style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7; padding-left: 1.25rem; margin: 0;">
+                    <li>Candidates must report to the allocated examination hall at least <strong>15 minutes prior</strong> to commencement.</li>
+                    <li>Possession of electronic gadgets including mobile phones, programmable calculators, and smartwatches is strictly prohibited.</li>
+                    <li>Students must strictly sit in the seat allocated to their Roll Number as displayed in the <strong>My Exam Seating</strong> tab.</li>
+                    <li>Carry your authentic College Identity Card and Hall Ticket for verification.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ================= SECTION E: LIBRARY AVAILABILITY ================= -->
+        <div id="sec-library" class="section-container">
+            <h2 class="section-title"><span>📚</span> Central University Library Availability</h2>
+            <p style="color: #94a3b8; font-size: 0.88rem; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                Independent verified occupancy observations from authorized library monitoring.
+            </p>
+
+            {% if lib_status and lib_status.has_data %}
+                {% if lib_status.is_stale %}
+                    <div class="stale-warning">
+                        <span>⚠️</span> Last updated: {{ lib_status.recorded_at }} – Information may be outdated.
+                    </div>
+                {% endif %}
+
+                <div class="stat-banner">
+                    <div class="stat-card">
+                        <div class="stat-icon">🪑</div>
+                        <div>
+                            <div class="stat-label">Total Seating Capacity</div>
+                            <div class="stat-value">{{ lib_status.total_capacity }} Seats</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #f87171; background: rgba(239, 68, 68, 0.12);">👥</div>
+                        <div>
+                            <div class="stat-label">Verified Occupied</div>
+                            <div class="stat-value">{{ lib_status.occupied_seats }} Seats</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #4ade80; background: rgba(34, 197, 94, 0.12);">✅</div>
+                        <div>
+                            <div class="stat-label">Available Study Seats</div>
+                            <div class="stat-value" style="color: #4ade80;">{{ lib_status.available_seats }} Seats</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #a5b4fc; background: rgba(129, 140, 248, 0.12);">📊</div>
+                        <div>
+                            <div class="stat-label">Occupancy Rate</div>
+                            <div class="stat-value">{{ lib_status.occupancy_pct }}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portal-card">
+                    <h3><span>ℹ️</span> Verification &amp; Freshness Details</h3>
+                    <div style="font-size: 0.88rem; line-height: 1.6; color: #cbd5e1;">
+                        <p><strong>Availability Status:</strong> <span class="status-pill {{ 'success' if lib_status.available_seats > 50 else 'info' }}">{{ lib_status.status }}</span></p>
+                        <p><strong>Last Recorded Observation:</strong> {{ lib_status.recorded_at }} ({{ lib_status.last_updated_human }})</p>
+                        <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">
+                            * Note: Our institution does not calculate seat availability using raw turnstile entry logs, as student exits are not tracked electronically. Verified observations are logged independently by authorized staff.
+                        </p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="portal-card">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📖</div>
+                        <h3>Library availability is currently unavailable.</h3>
+                        <p>No recent verified headcount observations are on record. Please check back later.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ================= SECTION F: LAB INFORMATION ================= -->
+        <div id="sec-labs" class="section-container">
+            <h2 class="section-title"><span>🔬</span> Computing Laboratories &amp; Schedules</h2>
+            <div class="grid-2">
+                {% for lab in labs %}
+                    <div class="portal-card">
+                        <h3>
+                            <span>{{ lab.name }}</span>
+                            <span class="badge-room">{{ lab.id }}</span>
+                        </h3>
+                        <div style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 1rem;">
+                            <div><strong>Location:</strong> {{ lab.location or 'Computing Block' }}</div>
+                            <div><strong>Capacity:</strong> {{ lab.capacity or 60 }} Workstations</div>
+                            <div><strong>Specifications:</strong> Intel Core i7, 32GB RAM, Dedicated GPU, Ubuntu/Windows Dual Boot</div>
+                        </div>
+                        <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem; font-size: 0.82rem; color: #cbd5e1;">
+                            View-only student access. For research or ad-hoc laboratory allocations, please contact your department coordinator.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ================= SECTION G: CAMPUS EVENTS ================= -->
+        <div id="sec-events" class="section-container">
+            <h2 class="section-title"><span>🎭</span> Approved Campus Events</h2>
+            <p style="color: #94a3b8; font-size: 0.88rem; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                Official schedule of authorized symposiums, conferences, and student events in the Central Campus Auditorium.
+            </p>
+
+            {% if campus_events %}
+                <div class="grid-2">
+                    {% for ev in campus_events %}
+                        <div class="portal-card" style="border-left: 4px solid #0284c7;">
+                            <span class="status-pill success" style="margin-bottom: 0.5rem;">Approved Event</span>
+                            <h3 style="font-size: 1.15rem; margin: 0.25rem 0 0.5rem; color: #ffffff;">{{ ev.event_title }}</h3>
+                            <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.6;">
+                                <div><strong>Date:</strong> {{ ev.event_date }}</div>
+                                <div><strong>Timing:</strong> {{ ev.start_time }} &ndash; {{ ev.end_time }}</div>
+                                <div><strong>Venue:</strong> {{ ev.auditorium_name or 'Central Campus Auditorium' }}</div>
+                                <div><strong>Organizing Department:</strong> {{ ev.department }}</div>
+                                <div><strong>Coordinator:</strong> {{ ev.organizer_name }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="portal-card">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎟️</div>
+                        <h3>No upcoming approved campus events.</h3>
+                        <p>Approved auditorium events will appear here.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ================= SECTION H: ANNOUNCEMENTS ================= -->
+        <div id="sec-announcements" class="section-container">
+            <h2 class="section-title"><span>📢</span> Official Institutional Announcements</h2>
+            <div class="portal-card">
+                {% for ann in announcements %}
+                    <div class="announcement-item">
+                        <h4>
+                            <span>{{ ann.title }}</span>
+                            <span style="font-size: 0.75rem; color: #94a3b8;">{{ ann.date }}</span>
+                        </h4>
+                        <p>{{ ann.content }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        function switchSection(secId, navElem) {
+            // Hide all sections
+            document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active'));
+            // Remove active nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            // Show selected section
+            const target = document.getElementById('sec-' + secId);
+            if (target) target.classList.add('active');
+
+            // Highlight nav item
+            if (navElem) navElem.classList.add('active');
+        }
+
+        function toggleTimetableMode(mode, btn) {
+            document.querySelectorAll('.tt-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const dailyBox = document.getElementById('dailyTimetableBox');
+            const weeklyBox = document.getElementById('weeklyTimetableBox');
+
+            if (mode === 'daily') {
+                dailyBox.style.display = 'block';
+                weeklyBox.style.display = 'none';
+            } else {
+                dailyBox.style.display = 'none';
+                weeklyBox.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

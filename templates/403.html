@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied — 403 Forbidden</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: #090d16;
+            color: #f1f5f9;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        .error-card {
+            background: #111827;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 1.25rem;
+            padding: 2.5rem 2rem;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        .error-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-size: 1.75rem;
+            margin: 0 0 0.75rem;
+            color: #f87171;
+        }
+        p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0 0 1.75rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        .btn-primary { background: #0284c7; color: white; }
+        .btn-outline { background: transparent; border: 1px solid #475569; color: #cbd5e1; }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <div class="error-icon">🛡️</div>
+        <h1>403 — Access Denied</h1>
+        <p>You do not have the required administrative permissions to access this campus module. Your current role is <strong>{{ user.role.title() if user else 'Guest' }}</strong>.</p>
+        <div class="btn-group">
+            <a href="/{{ user.role if user else '' }}" class="btn btn-primary">Return to My Dashboard</a>
+            <a href="/logout" class="btn btn-outline">Log Out</a>
+        </div>
+    </div>
+</body>
+</html>

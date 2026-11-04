@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration Console — Smart Resource Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-light: #2dd4bf;
+            --primary-dark: #0f766e;
+            --surface-bg: #090d16;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--surface-bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .portal-sidebar {
+            width: 270px;
+            background: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .portal-brand {
+            padding: 1.5rem 1.25rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .portal-brand h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .portal-brand span.subtitle {
+            font-size: 0.72rem;
+            color: #2dd4bf;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0.75rem;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 0.55rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.86rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+        }
+
+        .nav-item.active a {
+            background: rgba(13, 148, 136, 0.18);
+            color: #5eead4;
+            border: 1px solid rgba(45, 212, 191, 0.3);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-meta { font-size: 0.82rem; }
+        .user-name { font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+        .user-role-badge { display: inline-block; font-size: 0.7rem; color: #5eead4; background: rgba(45, 212, 191, 0.15); padding: 0.15rem 0.45rem; border-radius: 9999px; font-weight: 700; margin-top: 0.2rem; }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.45rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .portal-main {
+            flex-grow: 1;
+            padding: 2rem 2.5rem;
+            overflow-y: auto;
+            max-width: 1350px;
+            box-sizing: border-box;
+        }
+
+        .top-banner {
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.2) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border: 1px solid rgba(45, 212, 191, 0.25);
+            border-radius: 1rem;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .welcome-title { font-size: 1.45rem; font-weight: 800; margin: 0 0 0.3rem; color: #ffffff; }
+        .welcome-sub { font-size: 0.88rem; color: #94a3b8; margin: 0; }
+
+        .meta-pills { display: flex; gap: 0.65rem; flex-wrap: wrap; }
+        .meta-pill { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); padding: 0.4rem 0.85rem; border-radius: 0.5rem; font-size: 0.82rem; font-weight: 600; color: #cbd5e1; }
+        .meta-pill strong { color: #2dd4bf; }
+
+        .section-container { display: none; animation: fadeIn 0.2s ease-out; }
+        .section-container.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title { font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+
+        .portal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 0.95rem;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            margin-bottom: 1.5rem;
+        }
+
+        .portal-card h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 1rem; color: #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
+
+        .stat-card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 0.85rem;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            background: rgba(45, 212, 191, 0.12);
+            color: #2dd4bf;
+            flex-shrink: 0;
+        }
+
+        .stat-label { font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; }
+        .stat-value { font-size: 1.35rem; font-weight: 800; color: #ffffff; margin-top: 0.2rem; }
+
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; font-size: 0.84rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.4rem; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 0.55rem;
+            padding: 0.75rem 0.9rem;
+            color: #ffffff;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #2dd4bf;
+            box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2);
+        }
+
+        .btn-primary {
+            background: #0d9488;
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.55rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover { background: #0f766e; }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-secondary:hover { background: #334155; color: #ffffff; }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; text-align: left; }
+        .custom-table th { background: #1e293b; color: #cbd5e1; padding: 0.75rem 0.9rem; font-weight: 700; border-bottom: 1px solid #334155; white-space: nowrap; }
+        .custom-table td { padding: 0.75rem 0.9rem; border-bottom: 1px solid #1e293b; color: #f1f5f9; }
+
+        .badge-slot { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: #334155; color: #e2e8f0; padding: 0.2rem 0.5rem; border-radius: 0.35rem; font-weight: 600; }
+        .badge-room { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); padding: 0.2rem 0.55rem; border-radius: 0.35rem; font-weight: 700; }
+
+        .status-pill { display: inline-block; font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; text-transform: uppercase; }
+        .status-pill.success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-pill.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-pill.danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .alert-box { padding: 0.85rem 1.15rem; border-radius: 0.65rem; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; }
+        .alert-success { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
+        .alert-error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="portal-sidebar">
+        <div class="portal-brand">
+            <h2>🏛️ Admin Console</h2>
+            <span class="subtitle">Campus Operations &amp; RBAC</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchSection('overview', this)">
+                <a href="javascript:void(0)"><span>🏠</span> Overview &amp; KPIs</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('seating', this)">
+                <a href="javascript:void(0)"><span>🪑</span> Exam Seating Engine</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('classrooms', this)">
+                <a href="javascript:void(0)"><span>🏛️</span> Classroom Space</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('auditorium', this)">
+                <a href="javascript:void(0)"><span>🎭</span> Auditorium (200 Cap)</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('facility', this)">
+                <a href="javascript:void(0)"><span>🔧</span> Facility &amp; Maintenance</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('labs', this)">
+                <a href="javascript:void(0)"><span>💻</span> Computer Labs</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('library', this)">
+                <a href="javascript:void(0)"><span>📚</span> Library Headcount</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('users', this)">
+                <a href="javascript:void(0)"><span>👥</span> User Accounts &amp; PINs</a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-pill">
+                <div class="user-meta">
+                    <div class="user-name">{{ user.name }}</div>
+                    <span class="user-role-badge">Super Admin</span>
+                </div>
+                <a href="/logout" class="logout-btn">Log Out</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="portal-main">
+
+        <!-- TOP ADMIN BANNER -->
+        <div class="top-banner">
+            <div>
+                <h1 class="welcome-title">{{ user.name }}</h1>
+                <p class="welcome-sub">{{ user.department or 'College Administration & Principal Office' }} &bull; Session 2026-2027</p>
+            </div>
+            <div class="meta-pills">
+                <div class="meta-pill">Admin ID: <strong>{{ user.username }}</strong></div>
+                <div class="meta-pill">Campus Facilities: <strong>34 Classrooms &bull; 1 Auditorium (200 Seats)</strong></div>
+                <div class="meta-pill">Security Status: <strong>PIN Verified &bull; Active</strong></div>
+            </div>
+        </div>
+
+        <div id="globalSuccessAlert" class="alert-box alert-success"></div>
+        <div id="globalErrorAlert" class="alert-box alert-error"></div>
+
+        <!-- ================= SECTION 1: OVERVIEW ================= -->
+        <div id="sec-overview" class="section-container active">
+            <div class="grid-3">
+                <div class="stat-card" onclick="switchSection('seating', document.querySelectorAll('.nav-item')[1])" style="cursor: pointer;">
+                    <div class="stat-icon">🪑</div>
+                    <div>
+                        <div class="stat-label">Exam Seating Records</div>
+                        <div class="stat-value">{{ seating_count }} Students</div>
+                    </div>
+                </div>
+
+                <div class="stat-card" onclick="switchSection('classrooms', document.querySelectorAll('.nav-item')[2])" style="cursor: pointer;">
+                    <div class="stat-icon">🏛️</div>
+                    <div>
+                        <div class="stat-label">Total Classrooms</div>
+                        <div class="stat-value">{{ classrooms|length }} Rooms</div>
+                    </div>
+                </div>
+
+                <div class="stat-card" onclick="switchSection('auditorium', document.querySelectorAll('.nav-item')[3])" style="cursor: pointer;">
+                    <div class="stat-icon">🎭</div>
+                    <div>
+                        <div class="stat-label">Auditorium Capacity</div>
+                        <div class="stat-value">{{ auditoriums[0].capacity if auditoriums else 200 }} Seats</div>
+                    </div>
+                </div>
+
+                <div class="stat-card" onclick="switchSection('facility', document.querySelectorAll('.nav-item')[4])" style="cursor: pointer;">
+                    <div class="stat-icon">🔧</div>
+                    <div>
+                        <div class="stat-label">Maintenance Tickets</div>
+                        <div class="stat-value">{{ maintenance_tickets|length }} Logged</div>
+                    </div>
+                </div>
+
+                <div class="stat-card" onclick="switchSection('library', document.querySelectorAll('.nav-item')[6])" style="cursor: pointer;">
+                    <div class="stat-icon">📚</div>
+                    <div>
+                        <div class="stat-label">Library Headcount</div>
+                        <div class="stat-value">{{ lib_status.occupied_seats if lib_status else 0 }} / {{ lib_status.total_capacity if lib_status else 250 }}</div>
+                    </div>
+                </div>
+
+                <div class="stat-card" onclick="switchSection('users', document.querySelectorAll('.nav-item')[7])" style="cursor: pointer;">
+                    <div class="stat-icon">👥</div>
+                    <div>
+                        <div class="stat-label">Registered Accounts</div>
+                        <div class="stat-value">{{ users|length }} Users</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Shortcuts -->
+            <div class="portal-card">
+                <h3><span>⚡ Administrative Quick Actions</span></h3>
+                <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+                    <button class="btn-primary" onclick="switchSection('seating', document.querySelectorAll('.nav-item')[1])">🪑 Run Exam Seating Engine</button>
+                    <button class="btn-secondary" onclick="openAddClassroomModal()">➕ Add New Classroom</button>
+                    <button class="btn-secondary" onclick="triggerImportTimetable()">📥 Import Excel Timetable</button>
+                    <button class="btn-secondary" onclick="switchSection('auditorium', document.querySelectorAll('.nav-item')[3])">🎭 Review Auditorium Requests</button>
+                    <button class="btn-secondary" onclick="switchSection('library', document.querySelectorAll('.nav-item')[6])">📝 Log Library Headcount</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 2: EXAM SEATING ENGINE ================= -->
+        <div id="sec-seating" class="section-container">
+            <h2 class="section-title"><span>🪑</span> Automated Exam Seating Allotment Engine</h2>
+            
+            <div class="grid-2">
+                <!-- Seating Upload Form -->
+                <div class="portal-card">
+                    <h3><span>📤 Upload Seating Configuration</span></h3>
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                        Upload Excel file containing <strong>EXAMS</strong> and <strong>STUDENTS</strong> sheets. Seating will be allocated across all 34 rooms automatically with anti-malpractice interleaving.
+                    </p>
+
+                    <form id="seatingUploadForm" onsubmit="handleGenerateSeating(event)">
+                        <div class="form-group">
+                            <label class="form-label">Excel Seating File (.xlsx)</label>
+                            <input type="file" id="seatingFileInput" name="student_file" accept=".xlsx" class="form-input" required>
+                        </div>
+
+                        <button id="generateBtn" type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                            <span id="generateBtnText">🚀 Generate Anti-Malpractice Seating</span>
+                        </button>
+                    </form>
+
+                    <div id="seatingResultBox" style="margin-top: 1.25rem; display: none;">
+                        <div class="alert-box alert-success" style="display: block;">
+                            <div style="font-weight: 700; margin-bottom: 0.4rem;">✅ Seating Generated &amp; Synchronized!</div>
+                            <div id="seatingStatsText" style="font-size: 0.84rem; margin-bottom: 0.85rem;"></div>
+                            <div style="display: flex; gap: 0.75rem;">
+                                <a id="excelDownloadLink" href="/download/excel" class="btn-secondary">📊 Download Excel</a>
+                                <a id="pdfDownloadLink" href="/download/pdf" class="btn-secondary">📄 Download PDF</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Seating Sync Info -->
+                <div class="portal-card">
+                    <h3><span>ℹ️ Real-Time Student Portal Synchronization</span></h3>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                        <p><strong>Current Active Seating Records:</strong> <span class="badge-room">{{ seating_count }} Students</span></p>
+                        <p>When you run the seating engine:</p>
+                        <ol style="padding-left: 1.25rem; margin: 0 0 1rem; color: #94a3b8;">
+                            <li>The anti-malpractice interleaver distributes odd/even seat assignments across rooms.</li>
+                            <li>Excel and PDF master reports are generated in <code>outputs/</code>.</li>
+                            <li>The student database table is refreshed so student portals immediately display their individual seat number and hall!</li>
+                        </ol>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <a href="/download/excel" class="btn-secondary">📊 Download Latest Excel</a>
+                            <a href="/download/pdf" class="btn-secondary">📄 Download Latest PDF</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 3: CLASSROOM MANAGEMENT ================= -->
+        <div id="sec-classrooms" class="section-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h2 class="section-title" style="margin: 0;"><span>🏛️</span> Classroom Management</h2>
+                <div style="display: flex; gap: 0.65rem;">
+                    <button class="btn-secondary" onclick="triggerImportTimetable()">📥 Import Excel Timetable</button>
+                    <button class="btn-primary" onclick="openAddClassroomModal()">➕ Add Classroom</button>
+                </div>
+            </div>
+
+            <div class="portal-card">
+                <h3>Campus Classrooms Inventory ({{ classrooms|length }} Total)</h3>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Room ID</th>
+                                <th>Block / Wing</th>
+                                <th>Floor</th>
+                                <th>Benches</th>
+                                <th>Capacity</th>
+                                <th>Room Type</th>
+                                <th>Projector</th>
+                                <th>AC</th>
+                                <th>Maintenance Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cr in classrooms %}
+                                <tr>
+                                    <td><span class="badge-room">{{ cr.id }}</span></td>
+                                    <td>{{ cr.block }}</td>
+                                    <td>Floor {{ cr.floor }}</td>
+                                    <td>{{ cr.bench_count }}</td>
+                                    <td><strong>{{ cr.seating_capacity }}</strong></td>
+                                    <td>{{ cr.room_type }}</td>
+                                    <td>{{ '✅' if cr.has_projector else '❌' }}</td>
+                                    <td>{{ '❄️' if cr.has_ac else 'Natural' }}</td>
+                                    <td>
+                                        {% if cr.is_under_maintenance %}
+                                            <span class="status-pill danger">Maintenance</span>
+                                        {% else %}
+                                            <span class="status-pill success">Available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 4: AUDITORIUM MANAGEMENT ================= -->
+        <div id="sec-auditorium" class="section-container">
+            <h2 class="section-title"><span>🎭</span> Auditorium Management (Capacity: 200 Seats)</h2>
+
+            <div class="grid-2">
+                <div class="portal-card">
+                    <h3><span>🏛️ Venue Details</span></h3>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                        <div><strong>Auditorium Name:</strong> Central Campus Auditorium</div>
+                        <div><strong>Seating Capacity:</strong> <strong style="color: #2dd4bf;">200 Fixed Cushioned Teak Seats</strong></div>
+                        <div><strong>Location:</strong> Central Administration Building, Ground Floor</div>
+                        <div><strong>Stage Dimensions:</strong> 40ft x 25ft Elevated Teak Stage</div>
+                        <div><strong>AV Infrastructure:</strong> Dual 4K Laser Projectors, 32-Channel Dolby Surround, Wireless Podium Mics</div>
+                        <div><strong>Green Rooms:</strong> 2 Dedicated Backstage Green Rooms</div>
+                    </div>
+                </div>
+
+                <div class="portal-card">
+                    <h3><span>📊 Utilization Metrics</span></h3>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                        <div><strong>Total Scheduled Events:</strong> {{ events|length }}</div>
+                        <div><strong>Approved Events:</strong> {{ events|selectattr('status', 'equalto', 'approved')|list|length }}</div>
+                        <div><strong>Pending Approvals:</strong> {{ events|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portal-card">
+                <h3><span>📋 Event Booking Requests &amp; Review Workflow</span></h3>
+                {% if events %}
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Event Title</th>
+                                    <th>Date &amp; Time</th>
+                                    <th>Department</th>
+                                    <th>Attendees</th>
+                                    <th>Status</th>
+                                    <th>Administrative Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ev in events %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ ev.event_title }}</strong>
+                                            <div style="font-size: 0.75rem; color: #94a3b8;">{{ ev.event_type }} &bull; {{ ev.organizer_name }}</div>
+                                        </td>
+                                        <td>{{ ev.event_date }}<br><small style="color: #94a3b8;">{{ ev.start_time }} - {{ ev.end_time }}</small></td>
+                                        <td>{{ ev.department }}</td>
+                                        <td><strong>{{ ev.expected_attendees }}</strong> / 200</td>
+                                        <td>
+                                            {% if ev.status == 'approved' %}
+                                                <span class="status-pill success">Approved</span>
+                                            {% elif ev.status == 'pending' %}
+                                                <span class="status-pill warning">Pending</span>
+                                            {% else %}
+                                                <span class="status-pill danger">{{ ev.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if ev.status == 'pending' %}
+                                                <button class="btn-primary" style="padding: 0.35rem 0.7rem; font-size: 0.78rem;" onclick="reviewAuditoriumEvent({{ ev.id }}, 'approved')">Approve</button>
+                                                <button class="btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.78rem;" onclick="reviewAuditoriumEvent({{ ev.id }}, 'rejected')">Reject</button>
+                                            {% else %}
+                                                <span style="font-size: 0.78rem; color: #94a3b8;">Reviewed</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p style="color: #94a3b8; font-size: 0.88rem;">No auditorium event requests logged.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ================= SECTION 5: FACILITY & MAINTENANCE ================= -->
+        <div id="sec-facility" class="section-container">
+            <h2 class="section-title"><span>🔧</span> Facility Management &amp; Preventive Maintenance</h2>
+
+            <div class="portal-card">
+                <h3><span>📋 Maintenance Requests &amp; Work Orders</span></h3>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Ticket #</th>
+                                <th>Location</th>
+                                <th>Category</th>
+                                <th>Issue Title</th>
+                                <th>Priority</th>
+                                <th>Reported By</th>
+                                <th>Status</th>
+                                <th>Assignment / Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in maintenance_tickets %}
+                                <tr>
+                                    <td><span class="badge-slot">{{ m.ticket_no }}</span></td>
+                                    <td><span class="badge-room">{{ m.location_id }}</span></td>
+                                    <td>{{ m.category }}</td>
+                                    <td><strong>{{ m.issue_title }}</strong></td>
+                                    <td>
+                                        <span class="status-pill {{ 'danger' if m.priority == 'Critical' else 'warning' }}">{{ m.priority }}</span>
+                                    </td>
+                                    <td>{{ m.reported_by }}</td>
+                                    <td>
+                                        <span class="status-pill {{ 'success' if m.status == 'resolved' else 'info' }}">{{ m.status }}</span>
+                                    </td>
+                                    <td>
+                                        {% if m.status != 'resolved' %}
+                                            <button class="btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.78rem;" onclick="triageTicket('{{ m.ticket_no }}', 'resolved')">Mark Resolved</button>
+                                        {% else %}
+                                            <span style="color: #4ade80; font-size: 0.8rem;">Completed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Preventive Maintenance Tasks -->
+            <div class="portal-card">
+                <h3><span>⏰ Scheduled Preventive Maintenance</span></h3>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Cycle</th>
+                                <th>Next Due Date</th>
+                                <th>Assigned Staff</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pm in pm_schedules %}
+                                <tr>
+                                    <td><strong>{{ pm.title }}</strong></td>
+                                    <td>{{ pm.category }}</td>
+                                    <td><span class="badge-room">{{ pm.location_id }}</span></td>
+                                    <td>Every {{ pm.frequency_days }} days</td>
+                                    <td>{{ pm.next_due_date }}</td>
+                                    <td>{{ pm.assigned_staff }}</td>
+                                    <td>
+                                        <span class="status-pill {{ 'danger' if pm.status == 'overdue' else 'warning' }}">{{ pm.status }}</span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 6: COMPUTER LABS ================= -->
+        <div id="sec-labs" class="section-container">
+            <h2 class="section-title"><span>💻</span> Computer Laboratories &amp; Booking Management</h2>
+            <div class="grid-2">
+                {% for lab in labs %}
+                    <div class="portal-card">
+                        <h3>
+                            <span>{{ lab.name }}</span>
+                            <span class="badge-room">{{ lab.id }}</span>
+                        </h3>
+                        <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                            <div><strong>Location:</strong> {{ lab.location }}</div>
+                            <div><strong>Capacity:</strong> {{ lab.capacity }} Systems</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ================= SECTION 7: LIBRARY HEADCOUNT ================= -->
+        <div id="sec-library" class="section-container">
+            <h2 class="section-title"><span>📚</span> Central University Library Management</h2>
+
+            <div class="grid-2">
+                <!-- Log Manual Verified Observation -->
+                <div class="portal-card">
+                    <h3><span>📝 Log Independent Verified Headcount</span></h3>
+                    <p style="font-size: 0.84rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                        Record verified seating count. Student portals will immediately reflect this independently observed availability without exposing individual logs.
+                    </p>
+                    <form id="libraryObserveForm" onsubmit="handleLibraryObserveSubmit(event)">
+                        <div class="form-group">
+                            <label class="form-label">Verified Occupied Seats (Max {{ lib_config.total_capacity or 250 }})</label>
+                            <input type="number" id="libOccupiedInput" name="occupied_seats" class="form-input" required min="0" max="500" value="{{ lib_status.occupied_seats if lib_status else 150 }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Total Verified Seating Capacity</label>
+                            <input type="number" name="total_capacity" class="form-input" required value="{{ lib_status.total_capacity if lib_status else 250 }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Observation Notes</label>
+                            <input type="text" name="notes" class="form-input" placeholder="e.g. Afternoon study rush during examinations">
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Record Verified Observation</button>
+                    </form>
+                </div>
+
+                <!-- Current Library Status -->
+                <div class="portal-card">
+                    <h3><span>📊 Latest Recorded Library Status</span></h3>
+                    {% if lib_status and lib_status.has_data %}
+                        <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                            <div><strong>Seating Capacity:</strong> {{ lib_status.total_capacity }} Seats</div>
+                            <div><strong>Occupied Seats:</strong> <span style="color: #f87171; font-weight: 700;">{{ lib_status.occupied_seats }}</span></div>
+                            <div><strong>Available Seats:</strong> <span style="color: #4ade80; font-weight: 700;">{{ lib_status.available_seats }}</span></div>
+                            <div><strong>Occupancy Rate:</strong> {{ lib_status.occupancy_pct }}%</div>
+                            <div><strong>Last Recorded:</strong> {{ lib_status.recorded_at }}</div>
+                            <div><strong>Freshness:</strong> {{ '⚠️ Stale' if lib_status.is_stale else '✅ Fresh' }}</div>
+                        </div>
+                        <div style="margin-top: 1.25rem; display: flex; gap: 0.75rem;">
+                            <a href="/download/library-report/excel" class="btn-secondary">📊 Export Excel Report</a>
+                            <a href="/download/library-report/pdf" class="btn-secondary">📄 Export PDF Report</a>
+                        </div>
+                    {% else %}
+                        <p style="color: #94a3b8; font-size: 0.88rem;">No library observation records found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 8: USERS & SECURITY ================= -->
+        <div id="sec-users" class="section-container">
+            <h2 class="section-title"><span>👥</span> User Accounts &amp; PIN Security Management</h2>
+            <div class="portal-card">
+                <h3>Registered Institutional Users</h3>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Full Name</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Student Roll No</th>
+                                <th>Failed PIN Attempts</th>
+                                <th>Lockout Status</th>
+                                <th>Administrative Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                                <tr>
+                                    <td>{{ u.id }}</td>
+                                    <td><strong>{{ u.username }}</strong></td>
+                                    <td>{{ u.name }}</td>
+                                    <td>
+                                        <span class="status-pill {{ 'info' if u.role == 'student' else ('warning' if u.role == 'faculty' else 'success') }}">{{ u.role }}</span>
+                                    </td>
+                                    <td>{{ u.department or 'N/A' }}</td>
+                                    <td>{{ u.student_id or '&mdash;' }}</td>
+                                    <td>{{ u.failed_attempts }}</td>
+                                    <td>
+                                        {% if u.locked_until %}
+                                            <span class="status-pill danger">Locked</span>
+                                        {% else %}
+                                            <span class="status-pill success">Active</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if u.locked_until or u.failed_attempts > 0 %}
+                                            <button class="btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="unlockUserAccount({{ u.id }})">Unlock</button>
+                                        {% endif %}
+                                        <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="promptResetPin({{ u.id }}, '{{ u.username }}')">Reset PIN</button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ADD CLASSROOM MODAL -->
+    <div id="addClassroomModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+        <div style="background: #111827; border: 1px solid #374151; border-radius: 1rem; max-width: 480px; width: 100%; padding: 2rem; position: relative;">
+            <button onclick="closeAddClassroomModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <h3 style="margin-top: 0; color: #ffffff;">➕ Add New Classroom</h3>
+            <form id="addClassroomForm" onsubmit="handleAddClassroomSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">Room ID / Number</label>
+                    <input type="text" name="id" class="form-input" required placeholder="e.g. G21 or R-305">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Room Display Name</label>
+                    <input type="text" name="name" class="form-input" required placeholder="e.g. Classroom G21">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Block / Wing</label>
+                        <input type="text" name="block" class="form-input" required value="Ground Floor Wing A">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Floor</label>
+                        <input type="number" name="floor" class="form-input" required value="0">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Bench Count</label>
+                        <input type="number" name="bench_count" class="form-input" required value="30">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Seating Capacity</label>
+                        <input type="number" name="seating_capacity" class="form-input" required value="60">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 0.5rem;">Register Classroom</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function switchSection(secId, navElem) {
+            document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById('sec-' + secId);
+            if (target) target.classList.add('active');
+            if (navElem) navElem.classList.add('active');
+        }
+
+        function showAlert(msg, isSuccess = true) {
+            const successBox = document.getElementById('globalSuccessAlert');
+            const errorBox = document.getElementById('globalErrorAlert');
+            successBox.style.display = 'none';
+            errorBox.style.display = 'none';
+
+            if (isSuccess) {
+                successBox.textContent = msg;
+                successBox.style.display = 'block';
+                setTimeout(() => successBox.style.display = 'none', 5000);
+            } else {
+                errorBox.textContent = msg;
+                errorBox.style.display = 'block';
+                setTimeout(() => errorBox.style.display = 'none', 6000);
+            }
+        }
+
+        async function handleGenerateSeating(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const btn = document.getElementById('generateBtn');
+            const btnText = document.getElementById('generateBtnText');
+            const resultBox = document.getElementById('seatingResultBox');
+
+            btn.disabled = true;
+            btnText.textContent = "⏳ Interleaving & Allocating...";
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('seatingStatsText').textContent =
+                        `Successfully seated ${data.total_students} students across ${data.rooms_used} examination halls with anti-malpractice interleaving.`;
+                    resultBox.style.display = 'block';
+                    showAlert("Exam seating successfully generated and synchronized with student portals!", true);
+                } else {
+                    showAlert(data.error || "Generation error.", false);
+                }
+            } catch (err) {
+                showAlert("Error executing seating engine: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = "🚀 Generate Anti-Malpractice Seating";
+            }
+        }
+
+        function openAddClassroomModal() {
+            const modal = document.getElementById('addClassroomModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeAddClassroomModal() {
+            document.getElementById('addClassroomModal').style.display = 'none';
+        }
+
+        async function handleAddClassroomSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = Object.fromEntries(new FormData(form).entries());
+
+            try {
+                const response = await fetch('/api/campus/classrooms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const res = await response.json();
+                if (res.success) {
+                    closeAddClassroomModal();
+                    showAlert("Classroom " + data.id + " registered successfully!", true);
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    showAlert(res.error || "Failed to add classroom.", false);
+                }
+            } catch (err) {
+                showAlert("Error: " + err.message, false);
+            }
+        }
+
+        async function triggerImportTimetable() {
+            if (!confirm("Import academic timetable sessions from data/timetable.xlsx into classrooms?")) return;
+            try {
+                const response = await fetch('/api/campus/classrooms/import-timetable', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: 'admin', pin: '1234' })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showAlert(res.message, true);
+                } else {
+                    showAlert(res.error || "Failed to import timetable.", false);
+                }
+            } catch (err) {
+                showAlert("Network error during import.", false);
+            }
+        }
+
+        async function reviewAuditoriumEvent(eventId, decision) {
+            if (!confirm(`Are you sure you want to mark this event as ${decision.toUpperCase()}?`)) return;
+            try {
+                const response = await fetch('/api/campus/auditoriums/events/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event_id: eventId,
+                        status: decision,
+                        reviewed_by: 'Administrator',
+                        review_remarks: `Decision marked as ${decision} by Admin.`
+                    })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showAlert(`Auditorium event ${decision} successfully.`, true);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert(res.error || "Review failed.", false);
+                }
+            } catch (err) {
+                showAlert("Error: " + err.message, false);
+            }
+        }
+
+        async function triageTicket(ticketNo, status) {
+            try {
+                const response = await fetch('/api/campus/facilities/maintenance/triage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ticket_no: ticketNo,
+                        status: status,
+                        resolution_notes: 'Resolved by Facilities Admin.',
+                        role: 'admin',
+                        pin: '1234'
+                    })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showAlert(`Ticket ${ticketNo} marked as resolved!`, true);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert(res.error || "Triage failed.", false);
+                }
+            } catch (err) {
+                showAlert("Error: " + err.message, false);
+            }
+        }
+
+        async function handleLibraryObserveSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = Object.fromEntries(new FormData(form).entries());
+
+            try {
+                const response = await fetch('/api/library/observe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showAlert("Library verified headcount recorded successfully!", true);
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    showAlert(res.error || "Failed to record observation.", false);
+                }
+            } catch (err) {
+                showAlert("Error: " + err.message, false);
+            }
+        }
+
+        async function unlockUserAccount(userId) {
+            try {
+                const response = await fetch('/api/admin/unlock-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showAlert("Account successfully unlocked.", true);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert(res.error || "Unlock failed.", false);
+                }
+            } catch (err) {
+                showAlert("Error: " + err.message, false);
+            }
+        }
+
+        async function promptResetPin(userId, username) {
+            const newPin = prompt(`Enter new 4-digit PIN for ${username}:`);
+            if (!newPin) return;
+            try {
+                const response = await fetch('/api/admin/reset-pin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, new_pin: newPin })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showAlert(`PIN for ${username} updated successfully.`, true);
+                } else {
+                    showAlert(res.error || "Reset failed.", false);
+                }
+            } catch (err) {
+                showAlert("Error: " + err.message, false);
+            }
+        }
+    </script>
+</body>
+</html>

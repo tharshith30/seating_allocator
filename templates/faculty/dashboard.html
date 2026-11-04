@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Portal — Smart Resource Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --surface-bg: #090d16;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--surface-bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .portal-sidebar {
+            width: 260px;
+            background: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .portal-brand {
+            padding: 1.5rem 1.25rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .portal-brand h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .portal-brand span.subtitle {
+            font-size: 0.72rem;
+            color: #818cf8;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0.75rem;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 0.55rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+        }
+
+        .nav-item.active a {
+            background: rgba(79, 70, 229, 0.18);
+            color: #a5b4fc;
+            border: 1px solid rgba(129, 140, 248, 0.3);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-meta {
+            font-size: 0.82rem;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .user-role-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            color: #a5b4fc;
+            background: rgba(129, 140, 248, 0.15);
+            padding: 0.15rem 0.45rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            margin-top: 0.2rem;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.45rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .portal-main {
+            flex-grow: 1;
+            padding: 2rem 2.5rem;
+            overflow-y: auto;
+            max-width: 1300px;
+            box-sizing: border-box;
+        }
+
+        .top-banner {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border: 1px solid rgba(129, 140, 248, 0.25);
+            border-radius: 1rem;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .welcome-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin: 0 0 0.3rem;
+            color: #ffffff;
+        }
+
+        .welcome-sub {
+            font-size: 0.88rem;
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        .meta-pills {
+            display: flex;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.4rem 0.85rem;
+            border-radius: 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .meta-pill strong {
+            color: #818cf8;
+        }
+
+        .section-container {
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .section-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .portal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 0.95rem;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            margin-bottom: 1.5rem;
+        }
+
+        .portal-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0 0 1rem;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 0.55rem;
+            padding: 0.75rem 0.9rem;
+            color: #ffffff;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.55rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-primary:hover { background: #4338ca; }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 0.75rem 0.9rem;
+            font-weight: 700;
+            border-bottom: 1px solid #334155;
+            white-space: nowrap;
+        }
+
+        .custom-table td {
+            padding: 0.75rem 0.9rem;
+            border-bottom: 1px solid #1e293b;
+            color: #f1f5f9;
+        }
+
+        .badge-slot {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            background: #334155;
+            color: #e2e8f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.35rem;
+            font-weight: 600;
+        }
+
+        .badge-room {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            background: rgba(129, 140, 248, 0.15);
+            color: #818cf8;
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            padding: 0.2rem 0.55rem;
+            border-radius: 0.35rem;
+            font-weight: 700;
+        }
+
+        .status-pill {
+            display: inline-block;
+            font-size: 0.72rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-pill.success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-pill.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-pill.danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .alert-box {
+            padding: 0.85rem 1.15rem;
+            border-radius: 0.65rem;
+            font-size: 0.88rem;
+            margin-bottom: 1.25rem;
+            display: none;
+        }
+
+        .alert-success { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
+        .alert-error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="portal-sidebar">
+        <div class="portal-brand">
+            <h2>👨‍🏫 Faculty Portal</h2>
+            <span class="subtitle">Authorized Resources</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchSection('overview', this)">
+                <a href="javascript:void(0)"><span>🏠</span> Faculty Overview</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('teaching', this)">
+                <a href="javascript:void(0)"><span>📅</span> Teaching Timetable</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('classrooms', this)">
+                <a href="javascript:void(0)"><span>🏫</span> Classroom Schedules</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('freerooms', this)">
+                <a href="javascript:void(0)"><span>🔍</span> Free Room Finder</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('auditorium', this)">
+                <a href="javascript:void(0)"><span>🎭</span> Auditorium Requests</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('maintenance', this)">
+                <a href="javascript:void(0)"><span>🔧</span> Report Maintenance</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('labs', this)">
+                <a href="javascript:void(0)"><span>🔬</span> Lab Information</a>
+            </li>
+            <li class="nav-item" onclick="switchSection('resources', this)">
+                <a href="javascript:void(0)"><span>📂</span> Department Resources</a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-pill">
+                <div class="user-meta">
+                    <div class="user-name">{{ user.name }}</div>
+                    <span class="user-role-badge">Faculty Access</span>
+                </div>
+                <a href="/logout" class="logout-btn">Log Out</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="portal-main">
+
+        <!-- TOP FACULTY BANNER -->
+        <div class="top-banner">
+            <div>
+                <h1 class="welcome-title">{{ user.name }}</h1>
+                <p class="welcome-sub">{{ user.department or 'Department of Computer Science & Engineering' }} &bull; Academic Year 2026-2027</p>
+            </div>
+            <div class="meta-pills">
+                <div class="meta-pill">Faculty ID: <strong>{{ user.username }}</strong></div>
+                <div class="meta-pill">Campus Permissions: <strong>Authorized Management</strong></div>
+                <div class="meta-pill">Auditorium Quota: <strong>Central Auditorium (200 Cap)</strong></div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 1: OVERVIEW ================= -->
+        <div id="sec-overview" class="section-container active">
+            <div class="grid-2">
+                <div class="portal-card">
+                    <h3><span>📅 Today's Teaching Highlights</span></h3>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Slot / Time</th>
+                                    <th>Subject</th>
+                                    <th>Room</th>
+                                    <th>Section</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in teaching_schedule[:3] %}
+                                    <tr>
+                                        <td><span class="badge-slot">{{ item.time }}</span></td>
+                                        <td><strong>{{ item.subject }}</strong></td>
+                                        <td><span class="badge-room">{{ item.room }}</span></td>
+                                        <td>Section {{ item.section }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="portal-card">
+                    <h3><span>📢 Departmental Notices</span></h3>
+                    {% for ann in announcements %}
+                        <div style="border-left: 3px solid #818cf8; background: rgba(255, 255, 255, 0.02); padding: 0.85rem 1rem; border-radius: 0 0.5rem 0.5rem 0; margin-bottom: 0.75rem;">
+                            <div style="font-weight: 700; color: #ffffff; font-size: 0.92rem;">{{ ann.title }}</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8; margin: 0.2rem 0 0.4rem;">{{ ann.date }}</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.45;">{{ ann.content }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 2: TEACHING TIMETABLE ================= -->
+        <div id="sec-teaching" class="section-container">
+            <h2 class="section-title"><span>📅</span> Weekly Teaching Timetable</h2>
+            <div class="portal-card">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Slot / Timing</th>
+                                <th>Course Title</th>
+                                <th>Designated Classroom</th>
+                                <th>Target Section</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in teaching_schedule %}
+                                <tr>
+                                    <td><strong>{{ row.day }}</strong></td>
+                                    <td><span class="badge-slot">Slot {{ row.slot }} ({{ row.time }})</span></td>
+                                    <td><strong>{{ row.subject }}</strong></td>
+                                    <td><span class="badge-room">{{ row.room }}</span></td>
+                                    <td>Section {{ row.section }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 3: CLASSROOM SCHEDULES ================= -->
+        <div id="sec-classrooms" class="section-container">
+            <h2 class="section-title"><span>🏫</span> Institutional Classroom Inventory &amp; Facilities</h2>
+            <div class="portal-card">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Room ID</th>
+                                <th>Block / Wing</th>
+                                <th>Capacity</th>
+                                <th>Room Type</th>
+                                <th>Projector</th>
+                                <th>Air Conditioning</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cr in classrooms[:20] %}
+                                <tr>
+                                    <td><span class="badge-room">{{ cr.id }}</span></td>
+                                    <td>{{ cr.block }} (Fl {{ cr.floor }})</td>
+                                    <td><strong>{{ cr.seating_capacity }}</strong> seats</td>
+                                    <td>{{ cr.room_type }}</td>
+                                    <td>{{ '✅ Yes' if cr.has_projector else '❌ No' }}</td>
+                                    <td>{{ '❄️ AC' if cr.has_ac else 'Natural' }}</td>
+                                    <td>
+                                        {% if cr.is_under_maintenance %}
+                                            <span class="status-pill danger">Maintenance</span>
+                                        {% else %}
+                                            <span class="status-pill success">Operational</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 4: FREE ROOM FINDER ================= -->
+        <div id="sec-freerooms" class="section-container">
+            <h2 class="section-title"><span>🔍</span> Free Classroom Finder</h2>
+            <p style="color: #94a3b8; font-size: 0.88rem; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                Locate free classrooms across campus during specific academic periods for ad-hoc doubt clearing, remedial lectures, or club meets.
+            </p>
+
+            <div class="portal-card">
+                <form id="freeRoomForm" onsubmit="handleFindFreeRooms(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: flex-end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Day of Week</label>
+                        <select id="freeRoomDay" class="form-select">
+                            <option value="Mon">Monday</option>
+                            <option value="Tue">Tuesday</option>
+                            <option value="Wed">Wednesday</option>
+                            <option value="Thu">Thursday</option>
+                            <option value="Fri">Friday</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Academic Period / Slot</label>
+                        <select id="freeRoomSlot" class="form-select">
+                            <option value="1">Slot 1 (09:00 - 09:50)</option>
+                            <option value="2">Slot 2 (09:50 - 10:40)</option>
+                            <option value="3">Slot 3 (10:50 - 11:40)</option>
+                            <option value="4">Slot 4 (11:40 - 12:30)</option>
+                            <option value="6">Slot 6 (01:20 - 02:10)</option>
+                            <option value="7">Slot 7 (02:10 - 03:00)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary" style="height: 42px;">Search Free Rooms</button>
+                </form>
+            </div>
+
+            <div id="freeRoomsResults" class="portal-card" style="display: none;">
+                <h3>Available Classrooms Result</h3>
+                <div id="freeRoomsTableContainer"></div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 5: AUDITORIUM REQUESTS ================= -->
+        <div id="sec-auditorium" class="section-container">
+            <h2 class="section-title"><span>🎭</span> Auditorium Scheduling &amp; Event Booking</h2>
+            
+            <div id="audAlertSuccess" class="alert-box alert-success"></div>
+            <div id="audAlertError" class="alert-box alert-error"></div>
+
+            <div class="grid-2">
+                <!-- Submission Form -->
+                <div class="portal-card">
+                    <h3><span>📝 Submit New Event Request</span></h3>
+                    <form id="auditoriumForm" onsubmit="handleAuditoriumSubmit(event)">
+                        <div class="form-group">
+                            <label class="form-label">Auditorium Venue</label>
+                            <select name="auditorium_id" class="form-select" required>
+                                <option value="AUD-MAIN">Central Campus Auditorium (200 Seats Capacity)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Event Title</label>
+                            <input type="text" name="event_title" class="form-input" required placeholder="e.g. Annual Technical Symposium / Guest Lecture">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Event Category / Type</label>
+                            <select name="event_type" class="form-select">
+                                <option value="Academic Seminar">Academic Seminar</option>
+                                <option value="Conference / Symposium">Conference / Symposium</option>
+                                <option value="Guest Lecture">Guest Lecture</option>
+                                <option value="Workshop">Hands-on Workshop</option>
+                                <option value="Cultural / Student Meet">Cultural / Student Meet</option>
+                            </select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Event Date</label>
+                                <input type="date" name="event_date" class="form-input" required value="2026-11-20">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Expected Attendance (Max 200)</label>
+                                <input type="number" name="expected_attendees" class="form-input" required min="1" max="200" value="120">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Start Time</label>
+                                <input type="time" name="start_time" class="form-input" required value="09:30">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">End Time</label>
+                                <input type="time" name="end_time" class="form-input" required value="16:30">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Special Audio/Visual &amp; Stage Requirements</label>
+                            <textarea name="special_requirements" class="form-textarea" rows="2" placeholder="e.g. Dual 4K Projection, 4 Collar Mics, Live Stream, Podium"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%;">Submit for Administrative Approval</button>
+                    </form>
+                </div>
+
+                <!-- Event Status List -->
+                <div class="portal-card">
+                    <h3><span>📋 Departmental &amp; Approved Events</span></h3>
+                    {% if dept_events %}
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Event Title</th>
+                                        <th>Date</th>
+                                        <th>Attendees</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ev in dept_events %}
+                                        <tr>
+                                            <td><strong>{{ ev.event_title }}</strong></td>
+                                            <td>{{ ev.event_date }}</td>
+                                            <td>{{ ev.expected_attendees }} / 200</td>
+                                            <td>
+                                                {% if ev.status == 'approved' %}
+                                                    <span class="status-pill success">Approved</span>
+                                                {% elif ev.status == 'pending' %}
+                                                    <span class="status-pill warning">Pending Approval</span>
+                                                {% else %}
+                                                    <span class="status-pill danger">{{ ev.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p style="color: #94a3b8; font-size: 0.88rem;">No events requested yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 6: MAINTENANCE REPORTING ================= -->
+        <div id="sec-maintenance" class="section-container">
+            <h2 class="section-title"><span>🔧</span> Facility &amp; Equipment Maintenance Reporting</h2>
+            
+            <div id="maintAlertSuccess" class="alert-box alert-success"></div>
+            <div id="maintAlertError" class="alert-box alert-error"></div>
+
+            <div class="grid-2">
+                <div class="portal-card">
+                    <h3><span>⚠️ Report Classroom / Lab Issue</span></h3>
+                    <form id="maintenanceForm" onsubmit="handleMaintenanceSubmit(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Location Type</label>
+                                <select name="location_type" class="form-select" required>
+                                    <option value="classroom">Classroom</option>
+                                    <option value="auditorium">Auditorium</option>
+                                    <option value="laboratory">Laboratory</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Location ID</label>
+                                <input type="text" name="location_id" class="form-input" required placeholder="e.g. G-16, AUD-MAIN, LAB-1">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <select name="category" class="form-select">
+                                    <option value="IT/AV">IT / Projector / Audio</option>
+                                    <option value="HVAC">Air Conditioning (HVAC)</option>
+                                    <option value="Electrical">Electrical / Lighting</option>
+                                    <option value="Furniture">Desks / Benches / Furniture</option>
+                                    <option value="Plumbing">Plumbing</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Priority</label>
+                                <select name="priority" class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Critical">Critical (Blocks Classes)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Issue Title</label>
+                            <input type="text" name="issue_title" class="form-input" required placeholder="e.g. Ceiling Projector HDMI flicker in G-16">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Detailed Description</label>
+                            <textarea name="description" class="form-textarea" rows="3" placeholder="Provide details regarding the fault, error codes, or physical damage..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%;">Submit Maintenance Work Order</button>
+                    </form>
+                </div>
+
+                <div class="portal-card">
+                    <h3><span>📋 Department Reported Issues</span></h3>
+                    {% if dept_maintenance %}
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket #</th>
+                                        <th>Location</th>
+                                        <th>Issue</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for m in dept_maintenance %}
+                                        <tr>
+                                            <td><span class="badge-slot">{{ m.ticket_no }}</span></td>
+                                            <td><span class="badge-room">{{ m.location_id }}</span></td>
+                                            <td>{{ m.issue_title }}</td>
+                                            <td>
+                                                {% if m.status == 'resolved' %}
+                                                    <span class="status-pill success">Resolved</span>
+                                                {% elif m.status == 'in_progress' %}
+                                                    <span class="status-pill info">In Progress</span>
+                                                {% else %}
+                                                    <span class="status-pill warning">Reported</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p style="color: #94a3b8; font-size: 0.88rem;">No open maintenance tickets reported by your department.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 7: LAB INFORMATION ================= -->
+        <div id="sec-labs" class="section-container">
+            <h2 class="section-title"><span>🔬</span> Computing Laboratories Overview</h2>
+            <div class="grid-2">
+                {% for lab in labs %}
+                    <div class="portal-card">
+                        <h3>
+                            <span>{{ lab.name }}</span>
+                            <span class="badge-room">{{ lab.id }}</span>
+                        </h3>
+                        <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                            <div><strong>Location:</strong> {{ lab.location }}</div>
+                            <div><strong>Workstations:</strong> {{ lab.capacity }} Systems</div>
+                            <div><strong>Hardware Specs:</strong> Intel i7, 32GB RAM, Nvidia RTX GPU</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ================= SECTION 8: DEPARTMENT RESOURCES ================= -->
+        <div id="sec-resources" class="section-container">
+            <h2 class="section-title"><span>📂</span> Department Academic Resources</h2>
+            <div class="portal-card">
+                <p style="color: #cbd5e1; font-size: 0.9rem;">
+                    Institutional documents and reference schedules for <strong>{{ user.department }}</strong>:
+                </p>
+                <ul style="font-size: 0.88rem; color: #94a3b8; line-height: 2;">
+                    <li>📄 <strong style="color: #ffffff;">Academic Regulations &amp; Curriculum 2026:</strong> B.Tech CSE Syllabus Guidelines</li>
+                    <li>📊 <strong style="color: #ffffff;">Classroom Allocation Matrices:</strong> Ground Floor &amp; Main Block Seating Capacity Index</li>
+                    <li>🛡️ <strong style="color: #ffffff;">Examination Protocol &amp; Invigilation Guidelines:</strong> Anti-Malpractice Rules 2026</li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        function switchSection(secId, navElem) {
+            document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById('sec-' + secId);
+            if (target) target.classList.add('active');
+            if (navElem) navElem.classList.add('active');
+        }
+
+        async function handleAuditoriumSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = Object.fromEntries(new FormData(form).entries());
+            const successBox = document.getElementById('audAlertSuccess');
+            const errorBox = document.getElementById('audAlertError');
+
+            successBox.style.display = 'none';
+            errorBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/faculty/request-auditorium', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const res = await response.json();
+                if (res.success) {
+                    successBox.textContent = res.message;
+                    successBox.style.display = 'block';
+                    form.reset();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    errorBox.textContent = res.error || "Submission failed.";
+                    errorBox.style.display = 'block';
+                }
+            } catch (err) {
+                errorBox.textContent = "Error submitting auditorium request: " + err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+
+        async function handleMaintenanceSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = Object.fromEntries(new FormData(form).entries());
+            const successBox = document.getElementById('maintAlertSuccess');
+            const errorBox = document.getElementById('maintAlertError');
+
+            successBox.style.display = 'none';
+            errorBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/faculty/report-maintenance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const res = await response.json();
+                if (res.success) {
+                    successBox.textContent = res.message;
+                    successBox.style.display = 'block';
+                    form.reset();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    errorBox.textContent = res.error || "Submission failed.";
+                    errorBox.style.display = 'block';
+                }
+            } catch (err) {
+                errorBox.textContent = "Error submitting maintenance request: " + err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+
+        async function handleFindFreeRooms(event) {
+            event.preventDefault();
+            const day = document.getElementById('freeRoomDay').value;
+            const slot = document.getElementById('freeRoomSlot').value;
+            const container = document.getElementById('freeRoomsResults');
+            const tableBox = document.getElementById('freeRoomsTableContainer');
+
+            container.style.display = 'block';
+            tableBox.innerHTML = '<div style="color: #94a3b8; padding: 1rem;">Searching free classrooms...</div>';
+
+            try {
+                const response = await fetch(`/api/faculty/find-free-classrooms?day=${day}&slot=${slot}`);
+                const data = await response.json();
+                if (data.success && data.classrooms.length > 0) {
+                    let html = '<table class="custom-table"><thead><tr><th>Room ID</th><th>Block</th><th>Capacity</th><th>Type</th><th>Facilities</th></tr></thead><tbody>';
+                    data.classrooms.forEach(cr => {
+                        html += `<tr>
+                            <td><span class="badge-room">${cr.id}</span></td>
+                            <td>${cr.block} (Fl ${cr.floor})</td>
+                            <td><strong>${cr.seating_capacity}</strong> seats</td>
+                            <td>${cr.room_type}</td>
+                            <td>${cr.has_projector ? '📽️ Projector ' : ''}${cr.has_ac ? '❄️ AC' : ''}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    tableBox.innerHTML = html;
+                } else {
+                    tableBox.innerHTML = '<div style="color: #94a3b8; padding: 1rem;">No free classrooms found for this period.</div>';
+                }
+            } catch (err) {
+                tableBox.innerHTML = '<div style="color: #f87171; padding: 1rem;">Error querying free classrooms.</div>';
+            }
+        }
+    </script>
+</body>
+</html>

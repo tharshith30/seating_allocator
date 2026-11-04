@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Resource Management System — Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-student: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            --card-faculty: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            --card-admin: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+        }
+
+        body.landing-page {
+            min-height: 100vh;
+            background: radial-gradient(circle at 10% 20%, rgba(30, 58, 138, 0.45) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(15, 118, 110, 0.35) 0%, transparent 45%),
+                        #090d16;
+            color: #f1f5f9;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        .landing-header {
+            padding: 2.5rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+
+        .landing-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .landing-title {
+            font-size: clamp(2rem, 5vw, 3.25rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin: 0 0 0.85rem;
+            background: linear-gradient(180deg, #ffffff 30%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .landing-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            font-weight: 500;
+            color: #94a3b8;
+            max-width: 680px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .roles-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.75rem;
+            box-sizing: border-box;
+        }
+
+        .role-card {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            padding: 2.25rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            transition: height 0.25s ease;
+        }
+
+        .role-card.student::before { background: linear-gradient(90deg, #38bdf8, #0284c7); }
+        .role-card.faculty::before { background: linear-gradient(90deg, #818cf8, #4f46e5); }
+        .role-card.admin::before { background: linear-gradient(90deg, #2dd4bf, #0f766e); }
+
+        .role-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.15);
+        }
+
+        .role-card:hover::before {
+            height: 6px;
+        }
+
+        .role-icon-box {
+            width: 68px;
+            height: 68px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .role-card.student .role-icon-box { background: rgba(56, 189, 248, 0.12); color: #38bdf8; }
+        .role-card.faculty .role-icon-box { background: rgba(129, 140, 248, 0.12); color: #818cf8; }
+        .role-card.admin .role-icon-box { background: rgba(45, 212, 191, 0.12); color: #2dd4bf; }
+
+        .role-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 1rem;
+            width: fit-content;
+        }
+
+        .role-card.student .role-badge { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .role-card.faculty .role-badge { background: rgba(129, 140, 248, 0.15); color: #a5b4fc; border: 1px solid rgba(129, 140, 248, 0.3); }
+        .role-card.admin .role-badge { background: rgba(45, 212, 191, 0.15); color: #5eead4; border: 1px solid rgba(45, 212, 191, 0.3); }
+
+        .role-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .role-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            line-height: 1.55;
+            margin-bottom: 1.75rem;
+            min-height: 48px;
+        }
+
+        .role-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0.9rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .role-card.student .role-button { background: #0284c7; color: #ffffff; }
+        .role-card.student .role-button:hover { background: #0369a1; }
+        .role-card.faculty .role-button { background: #4f46e5; color: #ffffff; }
+        .role-card.faculty .role-button:hover { background: #4338ca; }
+        .role-card.admin .role-button { background: #0d9488; color: #ffffff; }
+        .role-card.admin .role-button:hover { background: #0f766e; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .auth-dialog {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 1.25rem;
+            max-width: 440px;
+            width: 100%;
+            padding: 2.25rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            position: relative;
+            animation: modalFadeIn 0.25s ease-out;
+            box-sizing: border-box;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 0.65rem;
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+
+        .demo-credentials-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 0.6rem;
+            padding: 0.6rem 0.85rem;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 1.25rem;
+            line-height: 1.4;
+        }
+
+        .demo-credentials-pill strong {
+            color: #e2e8f0;
+        }
+
+        .auth-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+            padding: 0.75rem 1rem;
+            border-radius: 0.65rem;
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            display: none;
+        }
+
+        .landing-footer {
+            margin-top: auto;
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.82rem;
+            color: #64748b;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="landing-page">
+
+    <header class="landing-header">
+        <div class="landing-badge">
+            <span>🏛️</span> Institutional Resource Portal
+        </div>
+        <h1 class="landing-title">SMART RESOURCE MANAGEMENT SYSTEM</h1>
+        <p class="landing-subtitle">Your Campus. Your Resources. One Intelligent Platform.</p>
+    </header>
+
+    <main class="roles-container">
+        <!-- CARD 1: STUDENT -->
+        <div class="role-card student" onclick="openLoginModal('student')">
+            <div>
+                <div class="role-icon-box">🎓</div>
+                <div class="role-badge">VIEW ONLY</div>
+                <h2 class="role-title">Student</h2>
+                <p class="role-desc">Access your academic timetable, exam seating allotments, library availability, and approved campus events.</p>
+            </div>
+            <button class="role-button" type="button">
+                <span>Enter Student Portal</span>
+                <span>→</span>
+            </button>
+        </div>
+
+        <!-- CARD 2: FACULTY -->
+        <div class="role-card faculty" onclick="openLoginModal('faculty')">
+            <div>
+                <div class="role-icon-box">👨‍🏫</div>
+                <div class="role-badge">AUTHORIZED ACCESS</div>
+                <h2 class="role-title">Faculty</h2>
+                <p class="role-desc">Access departmental resources, teaching schedules, empty room finder, auditorium requests, and facility maintenance reporting.</p>
+            </div>
+            <button class="role-button" type="button">
+                <span>Enter Faculty Portal</span>
+                <span>→</span>
+            </button>
+        </div>
+
+        <!-- CARD 3: ADMINISTRATION -->
+        <div class="role-card admin" onclick="openLoginModal('admin')">
+            <div>
+                <div class="role-icon-box">🏛️</div>
+                <div class="role-badge">FULL ADMINISTRATIVE ACCESS</div>
+                <h2 class="role-title">Administration</h2>
+                <p class="role-desc">Manage institutional resources, exam seating engines, lab analytics, library occupancy observations, auditoriums, and facilities.</p>
+            </div>
+            <button class="role-button" type="button">
+                <span>Enter Admin Console</span>
+                <span>→</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- AUTHENTICATION MODAL -->
+    <div id="authModal" class="modal-overlay" onclick="handleOverlayClick(event)">
+        <div class="auth-dialog">
+            <button class="close-btn" onclick="closeLoginModal()" title="Close">&times;</button>
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div id="modalIcon" style="font-size: 2.75rem; margin-bottom: 0.5rem;">🎓</div>
+                <h3 id="modalTitle" style="margin: 0 0 0.25rem; font-size: 1.4rem; color: #fff;">Student Access</h3>
+                <p id="modalDesc" style="margin: 0; font-size: 0.85rem; color: #94a3b8;">Enter your authorized campus credentials</p>
+            </div>
+
+            <div id="authError" class="auth-error"></div>
+
+            <div id="demoPill" class="demo-credentials-pill"></div>
+
+            <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+                <input type="hidden" id="authRole" name="role" value="student">
+
+                <div class="form-group">
+                    <label id="identifierLabel" class="form-label" for="authIdentifier">Student ID / Username</label>
+                    <input type="text" id="authIdentifier" name="identifier" class="form-input" required autocomplete="username" placeholder="e.g. 25A0001 or student">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="authPin">Security PIN</label>
+                    <input type="password" id="authPin" name="pin" class="form-input" required autocomplete="current-password" placeholder="••••" maxlength="8">
+                </div>
+
+                <button id="modalSubmitBtn" type="submit" class="role-button" style="margin-top: 1.25rem; justify-content: center; background: #0284c7;">
+                    <span id="submitBtnText">Authenticate &amp; Enter</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="landing-footer">
+        Smart Resource Management System &bull; Secure Institutional Infrastructure &bull; &copy; 2026
+    </footer>
+
+    <script>
+        const roleConfigs = {
+            student: {
+                title: "Student Portal",
+                icon: "🎓",
+                desc: "Strict view-only academic & campus resource portal",
+                label: "Student Roll No or Username",
+                placeholder: "e.g. 25A0001 or student",
+                btnColor: "#0284c7",
+                demo: "Demo Credentials: <strong>student</strong> (or Roll: <strong>25A0001</strong>) &bull; PIN: <strong>1111</strong>"
+            },
+            faculty: {
+                title: "Faculty Portal",
+                icon: "👨‍🏫",
+                desc: "Authorized departmental teaching & scheduling portal",
+                label: "Faculty ID or Username",
+                placeholder: "e.g. faculty or bharat.cse",
+                btnColor: "#4f46e5",
+                demo: "Demo Credentials: <strong>faculty</strong> &bull; PIN: <strong>2345</strong>"
+            },
+            admin: {
+                title: "Administration Console",
+                icon: "🏛️",
+                desc: "Master administrative operations & scheduling engines",
+                label: "Administrator Username",
+                placeholder: "e.g. admin",
+                btnColor: "#0d9488",
+                demo: "Demo Credentials: <strong>admin</strong> &bull; PIN: <strong>1234</strong>"
+            }
+        };
+
+        function openLoginModal(role) {
+            const cfg = roleConfigs[role] || roleConfigs.student;
+            document.getElementById('authRole').value = role;
+            document.getElementById('modalTitle').textContent = cfg.title;
+            document.getElementById('modalIcon').textContent = cfg.icon;
+            document.getElementById('modalDesc').textContent = cfg.desc;
+            document.getElementById('identifierLabel').textContent = cfg.label;
+            document.getElementById('authIdentifier').placeholder = cfg.placeholder;
+            document.getElementById('demoPill').innerHTML = cfg.demo;
+            
+            const submitBtn = document.getElementById('modalSubmitBtn');
+            submitBtn.style.background = cfg.btnColor;
+            
+            const errDiv = document.getElementById('authError');
+            errDiv.style.display = 'none';
+            errDiv.textContent = '';
+            
+            document.getElementById('authIdentifier').value = '';
+            document.getElementById('authPin').value = '';
+            
+            document.getElementById('authModal').classList.add('active');
+            setTimeout(() => document.getElementById('authIdentifier').focus(), 100);
+        }
+
+        function closeLoginModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function handleOverlayClick(event) {
+            if (event.target === document.getElementById('authModal')) {
+                closeLoginModal();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLoginModal();
+        });
+
+        async function handleLoginSubmit(event) {
+            event.preventDefault();
+            const errDiv = document.getElementById('authError');
+            const submitBtn = document.getElementById('modalSubmitBtn');
+            const submitText = document.getElementById('submitBtnText');
+
+            errDiv.style.display = 'none';
+            errDiv.textContent = '';
+
+            const identifier = document.getElementById('authIdentifier').value.trim();
+            const pin = document.getElementById('authPin').value.trim();
+            const role = document.getElementById('authRole').value;
+
+            if (!identifier || !pin) {
+                errDiv.textContent = "Please fill in all credentials.";
+                errDiv.style.display = 'block';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitText.textContent = "Authenticating...";
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier, pin, role })
+                });
+
+                const data = await response.json();
+                if (data.success && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    errDiv.textContent = data.error || "Authentication failed. Please verify credentials.";
+                    errDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitText.textContent = "Authenticate & Enter";
+                }
+            } catch (err) {
+                errDiv.textContent = "Network error connecting to campus authentication server.";
+                errDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitText.textContent = "Authenticate & Enter";
+            }
+        }
+    </script>
+</body>
+</html>

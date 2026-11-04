@@ -240,6 +240,45 @@ def init_db():
             );
         """)
 
+        # 11. Role-Based User Accounts
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                name TEXT NOT NULL,
+                email TEXT,
+                role TEXT NOT NULL,
+                department TEXT,
+                student_id TEXT,
+                section TEXT,
+                academic_year TEXT,
+                pin_hash TEXT NOT NULL,
+                failed_attempts INTEGER DEFAULT 0,
+                locked_until TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+
+        # 12. Student Examination Seating
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS student_exam_seating (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                roll_no TEXT NOT NULL,
+                student_name TEXT NOT NULL,
+                exam_id TEXT,
+                course_code TEXT NOT NULL,
+                course_name TEXT NOT NULL,
+                room_id TEXT NOT NULL,
+                seat_no INTEGER NOT NULL,
+                desk_set TEXT NOT NULL,
+                exam_date DATE DEFAULT '2026-11-25',
+                exam_session TEXT DEFAULT 'Morning (09:30 AM - 12:30 PM)',
+                building TEXT DEFAULT 'Main Academic Block',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_student_seating_roll ON student_exam_seating(roll_no);")
+
     conn.close()
     seed_initial_data()
 
@@ -368,5 +407,54 @@ def seed_initial_data():
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
             """, sample_pm)
         logger.info("Seeded %d preventive maintenance schedules.", len(sample_pm))
+
+    # 5. Seed Role-Based User Accounts
+    cursor.execute("SELECT COUNT(*) FROM users;")
+    if cursor.fetchone()[0] == 0:
+        from werkzeug.security import generate_password_hash
+        users_data = [
+            ("admin", "Dr. K. R. V. Prasad", "principal@college.edu", "admin", "College Administration", None, None, None, generate_password_hash("1234")),
+            ("faculty", "Dr. T. Bharat Kumar", "bharat.cse@college.edu", "faculty", "Computer Science & Engineering", None, None, None, generate_password_hash("2345")),
+            ("student", "Aditya Varma", "aditya.22cse@college.edu", "student", "Computer Science & Engineering", "25A0001", "A", "Second Year (B.Tech CSE)", generate_password_hash("1111")),
+            ("student2", "Sneha Reddy", "sneha.22cse@college.edu", "student", "Computer Science & Engineering", "25A0002", "A", "Second Year (B.Tech CSE)", generate_password_hash("1111")),
+            ("maintenance", "Ramesh Kumar", "ramesh.maint@college.edu", "maintenance", "Campus Maintenance Services", None, None, None, generate_password_hash("3456")),
+        ]
+        with conn:
+            conn.executemany("""
+                INSERT INTO users (username, name, email, role, department, student_id, section, academic_year, pin_hash)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """, users_data)
+        logger.info("Seeded %d default user accounts.", len(users_data))
+
+    # 6. Seed Student Exam Seating from outputs/seating_allotment.xlsx if available
+    cursor.execute("SELECT COUNT(*) FROM student_exam_seating;")
+    if cursor.fetchone()[0] == 0:
+        seating_xlsx = os.path.join(os.path.dirname(__file__), "..", "outputs", "seating_allotment.xlsx")
+        if os.path.exists(seating_xlsx):
+            try:
+                import pandas as pd
+                df_seating = pd.read_excel(seating_xlsx)
+                records = []
+                for _, row in df_seating.iterrows():
+                    room = str(row.get("Room", "")).strip()
+                    desk_set = str(row.get("Set", "")).strip()
+                    seat_no = int(row.get("Seat No", 0))
+                    exam_id = str(row.get("Exam ID", "")).strip()
+                    code = str(row.get("Course Code", "")).strip()
+                    cname = str(row.get("Course Name", "")).strip()
+                    roll = str(row.get("RollNo", "")).strip()
+                    sname = str(row.get("Name", "")).strip()
+                    if roll:
+                        bldg = "Ground Floor Wing A" if "G" in room.upper() else "Main Academic Block"
+                        records.append((roll, sname, exam_id, code, cname, room, seat_no, desk_set, "2026-11-25", "Morning (09:30 AM - 12:30 PM)", bldg))
+                if records:
+                    with conn:
+                        conn.executemany("""
+                            INSERT INTO student_exam_seating (roll_no, student_name, exam_id, course_code, course_name, room_id, seat_no, desk_set, exam_date, exam_session, building)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                        """, records)
+                    logger.info("Seeded %d student exam seating allocations from %s", len(records), seating_xlsx)
+            except Exception as e:
+                logger.warning("Could not pre-seed student exam seating from Excel: %s", e)
 
     conn.close()

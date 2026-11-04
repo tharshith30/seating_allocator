@@ -29,8 +29,16 @@ from campus import classroom_service
 from campus import auditorium_service
 from campus import facility_service
 
+# Role-Based Authentication & Portal Blueprints
+from auth.routes import auth_bp
+from auth.service import get_current_user
+from student.routes import student_bp
+from faculty.routes import faculty_bp
+from admin.routes import admin_bp
+
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "smart-campus-resource-2026-secure-session-key")
 
 ROOM_FILE = "data/roomCapacity_FST.xlsx"
 
@@ -41,9 +49,18 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 # =========================================================
 # REGISTER MODULE BLUEPRINTS
 # =========================================================
+# Auth routes (/api/auth/login, /logout, /api/auth/me)
+# Student portal (/student)
+# Faculty portal (/faculty, /api/faculty/*)
+# Admin portal (/admin, /api/admin/*)
 # Lab routes (/lab/*, /api/labs*, /api/week*, /api/book*)
 # Library routes (/library, /api/library/*, /download/library-report/*)
+# Campus routes (/classrooms, /auditoriums, /facilities, /api/campus/*)
 
+app.register_blueprint(auth_bp)
+app.register_blueprint(student_bp)
+app.register_blueprint(faculty_bp)
+app.register_blueprint(admin_bp)
 app.register_blueprint(lab_bp)
 app.register_blueprint(library_bp)
 app.register_blueprint(campus_bp)
@@ -57,6 +74,35 @@ with app.app_context():
 
 @app.route("/")
 def home():
+    """First Page — Role Selection Landing Page with automatic authenticated redirection."""
+    # If user wants to switch role or landing is explicitly requested
+    if request.args.get("landing") == "1":
+        return render_template("landing.html")
+
+    user = get_current_user()
+    if user:
+        role = (user.get("role") or "").lower()
+        if role == "student":
+            return redirect("/student")
+        elif role == "faculty":
+            return redirect("/faculty")
+        elif role == "admin":
+            return redirect("/admin")
+        elif role == "maintenance":
+            return redirect("/admin?tab=facility")
+
+    return render_template("landing.html")
+
+
+@app.route("/landing")
+def landing():
+    """Direct route to Role Selection Landing Page."""
+    return render_template("landing.html")
+
+
+@app.route("/legacy")
+def legacy_dashboard():
+    """Preserved legacy all-in-one console for backwards compatibility."""
     tab = request.args.get("tab", "seating")
     return render_template(
         "index.html",
@@ -225,6 +271,40 @@ def generate():
             allocation,
             pdf_file
         )
+
+        # =====================================================
+        # SYNCHRONIZE STUDENT EXAM SEATING (Real-time student portal sync)
+        # =====================================================
+        try:
+            conn = campus_db.get_db()
+            with conn:
+                conn.execute("DELETE FROM student_exam_seating;")
+                sync_records = []
+                for row in allocation:
+                    r_room = str(row.get("Room", "")).strip()
+                    r_bldg = "Ground Floor Wing A" if "G" in r_room.upper() else "Main Academic Block"
+                    sync_records.append((
+                        str(row.get("RollNo", "")).strip(),
+                        str(row.get("Name", "")).strip(),
+                        str(row.get("Exam ID", "")).strip(),
+                        str(row.get("Course Code", "")).strip(),
+                        str(row.get("Course Name", "")).strip(),
+                        r_room,
+                        int(row.get("Seat No", 0)),
+                        str(row.get("Set", "")).strip(),
+                        "2026-11-25",
+                        "Morning (09:30 AM - 12:30 PM)",
+                        r_bldg
+                    ))
+                if sync_records:
+                    conn.executemany("""
+                        INSERT INTO student_exam_seating 
+                        (roll_no, student_name, exam_id, course_code, course_name, room_id, seat_no, desk_set, exam_date, exam_session, building)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    """, sync_records)
+            conn.close()
+        except Exception as sync_err:
+            app.logger.warning("Could not sync student_exam_seating: %s", sync_err)
 
         # =====================================================
         # STATISTICS
