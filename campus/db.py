@@ -324,7 +324,7 @@ def seed_initial_data():
     cursor.execute("SELECT COUNT(*) FROM auditoriums;")
     if cursor.fetchone()[0] == 0:
         auditoriums_data = [
-            ("AUD-MAIN", "Central Campus Auditorium", "Central Administration Building", 800, "40ft x 25ft Elevated Teak Stage", "Dual 4K Laser Projectors, 32-Channel Dolby Surround, Wireless Collar & Podium Mics, Intelligent Stage Lighting", 1, "available"),
+            ("AUD-MAIN", "Central Campus Auditorium", "Central Administration Building", 200, "40ft x 25ft Elevated Teak Stage", "Dual 4K Laser Projectors, 32-Channel Dolby Surround, Wireless Collar & Podium Mics, Intelligent Stage Lighting", 1, "available"),
         ]
         with conn:
             conn.executemany("""
