@@ -16,18 +16,18 @@ echo        - Auditorium Event Scheduling & Readiness Checklists
 echo        - Facility Asset Tracking, Downtime Locks & PM Reminders
 echo.
 echo   Portals available once server starts:
-echo     - Unified Dashboard : http://127.0.0.1:5000/
-echo     - Campus Facilities : http://127.0.0.1:5000/campus
-echo     - Classrooms Portal : http://127.0.0.1:5000/classrooms
-echo     - Auditorium Portal : http://127.0.0.1:5000/auditoriums
-echo     - Facility Portal   : http://127.0.0.1:5000/facilities
-echo     - Library Analytics : http://127.0.0.1:5000/library
+echo     - Role Selection Portal : http://127.0.0.1:5000/
+echo     - Student Portal (View) : http://127.0.0.1:5000/student
+echo     - Faculty Portal        : http://127.0.0.1:5000/faculty
+echo     - Administration Console: http://127.0.0.1:5000/admin
+echo     - Legacy All-in-One     : http://127.0.0.1:5000/legacy
 echo.
 echo Starting local Flask server on http://127.0.0.1:5000 ...
 echo (Press Ctrl+C to stop the server at any time)
 echo =====================================================================
 echo.
 
+set "PYTHONPATH=%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\site-packages;%PYTHONPATH%"
 set "PY312=C:\Users\navya sri\AppData\Local\Programs\Python\Python312\python.exe"
 
 if exist "%PY312%" (
