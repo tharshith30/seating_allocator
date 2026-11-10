@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic Timetable Generator — ResourceHub Administration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --surface-bg: #090d16;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --lab-bg: rgba(56, 189, 248, 0.15);
+            --lab-border: rgba(56, 189, 248, 0.4);
+            --theory-bg: rgba(255, 255, 255, 0.03);
+            --lunch-bg: rgba(255, 255, 255, 0.06);
+        }
+
+        body {
+            background-color: var(--surface-bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .portal-sidebar {
+            width: 270px;
+            background: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .portal-brand {
+            padding: 1.5rem 1.25rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .portal-brand h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .portal-brand span.subtitle {
+            font-size: 0.72rem;
+            color: #38bdf8;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0.75rem;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 0.55rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.86rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+        }
+
+        .nav-item.active a {
+            background: rgba(2, 132, 199, 0.18);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .portal-main {
+            flex-grow: 1;
+            padding: 2rem 2.5rem;
+            overflow-y: auto;
+            max-width: 1400px;
+            box-sizing: border-box;
+        }
+
+        .top-banner {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 1rem;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .welcome-title { font-size: 1.45rem; font-weight: 800; margin: 0 0 0.3rem; color: #ffffff; }
+        .welcome-sub { font-size: 0.88rem; color: #94a3b8; margin: 0; }
+
+        .meta-pills { display: flex; gap: 0.65rem; flex-wrap: wrap; }
+        .meta-pill { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); padding: 0.4rem 0.85rem; border-radius: 0.5rem; font-size: 0.82rem; font-weight: 600; color: #cbd5e1; }
+        .meta-pill strong { color: #38bdf8; }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+
+        .portal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 0.95rem;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            margin-bottom: 1.5rem;
+        }
+
+        .portal-card h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 1rem; color: #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
+
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; font-size: 0.84rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.4rem; }
+        .form-input, .form-select {
+            width: 100%;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 0.55rem;
+            padding: 0.75rem 0.9rem;
+            color: #ffffff;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.55rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover { background: #0369a1; }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-secondary:hover { background: #334155; color: #ffffff; }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; text-align: left; }
+        .custom-table th { background: #1e293b; color: #cbd5e1; padding: 0.75rem 0.9rem; font-weight: 700; border-bottom: 1px solid #334155; white-space: nowrap; }
+        .custom-table td { padding: 0.75rem 0.9rem; border-bottom: 1px solid #1e293b; color: #f1f5f9; }
+
+        /* Timetable Matrix Grid Specifics */
+        .tt-grid-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 4px;
+            font-size: 0.82rem;
+            text-align: center;
+        }
+
+        .tt-grid-table th {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 0.6rem 0.5rem;
+            border-radius: 0.35rem;
+            font-weight: 700;
+            font-size: 0.78rem;
+        }
+
+        .tt-grid-table td {
+            background: var(--theory-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.45rem;
+            padding: 0.5rem;
+            vertical-align: middle;
+            min-height: 52px;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .tt-grid-table td.lunch-cell {
+            background: var(--lunch-bg);
+            color: #64748b;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+        }
+
+        .tt-grid-table td.lab-cell {
+            background: var(--lab-bg);
+            border-color: var(--lab-border);
+        }
+
+        .tt-grid-table td.day-cell {
+            background: #1e293b;
+            font-weight: 800;
+            color: #ffffff;
+            width: 65px;
+        }
+
+        .tt-cell-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .tt-subj-code { font-weight: 800; color: #38bdf8; font-size: 0.86rem; }
+        .tt-room-pill {
+            font-size: 0.7rem;
+            color: #cbd5e1;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.1rem 0.35rem;
+            border-radius: 0.25rem;
+            width: fit-content;
+            margin: 0 auto;
+        }
+        .tt-fac-name { font-size: 0.72rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .edit-hover-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(2, 132, 199, 0.8);
+            border: none;
+            color: white;
+            border-radius: 0.25rem;
+            font-size: 0.65rem;
+            padding: 0.15rem 0.3rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .tt-grid-table td:hover .edit-hover-btn {
+            display: block;
+        }
+
+        .status-pill { display: inline-block; font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; text-transform: uppercase; }
+        .status-pill.success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-pill.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-pill.danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .alert-box { padding: 0.85rem 1.15rem; border-radius: 0.65rem; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; }
+        .alert-success { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
+        .alert-error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-box {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 100%;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .pivot-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #1f2937;
+            padding-bottom: 0.75rem;
+        }
+
+        .pivot-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            padding: 0.45rem 0.85rem;
+            border-radius: 0.45rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .pivot-btn.active {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="portal-sidebar">
+        <div class="portal-brand">
+            <h2>📅 Timetable Engine</h2>
+            <span class="subtitle">Constraint Satisfaction Solver</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/admin"><span>🏛️</span> Admin Console</a>
+            </li>
+            <li class="nav-item active">
+                <a href="/admin/timetable"><span>⚡</span> Timetable Generator</a>
+            </li>
+            <li class="nav-item">
+                <a href="/classrooms"><span>🏛️</span> Classroom Space</a>
+            </li>
+            <li class="nav-item">
+                <a href="/auditoriums"><span>🎭</span> Central Auditorium</a>
+            </li>
+            <li class="nav-item">
+                <a href="/facilities"><span>🔧</span> Facility Management</a>
+            </li>
+            <li class="nav-item">
+                <a href="/library"><span>📚</span> Library Headcount</a>
+            </li>
+            <li class="nav-item">
+                <a href="/logout"><span>🚪</span> Log Out</a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="portal-main">
+
+        <div class="top-banner">
+            <div>
+                <h1 class="welcome-title">Automatic Academic Timetable Generator</h1>
+                <p class="welcome-sub">Constraint-based forward-checking engine &bull; Real institutional curriculum data</p>
+            </div>
+            <div class="meta-pills">
+                <div class="meta-pill">Academic Year: <strong>2026-2027</strong></div>
+                <div class="meta-pill">Engine: <strong>CSP Backtracking + MRV Heuristic</strong></div>
+                <div class="meta-pill">Status: <strong>
+                    {% if active_gen and active_gen.status == 'published' %}
+                        <span style="color: #4ade80;">Published</span>
+                    {% elif active_gen %}
+                        <span style="color: #fbbf24;">Draft (v1)</span>
+                    {% else %}
+                        Standby
+                    {% endif %}
+                </strong></div>
+            </div>
+        </div>
+
+        <div id="genAlertSuccess" class="alert-box alert-success"></div>
+        <div id="genAlertError" class="alert-box alert-error"></div>
+
+        <!-- GENERATOR CONTROLS CARD -->
+        <div class="portal-card">
+            <h3><span>🚀 Automatic Generation Parameters</span></h3>
+            <form id="generateTimetableForm" onsubmit="handleTriggerGeneration(event)">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Academic Year</label>
+                        <select id="genAcademicYear" class="form-select">
+                            {% for ay in meta.academic_years %}
+                                <option value="{{ ay.id }}">{{ ay.name }} ({{ ay.code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Academic Semester</label>
+                        <select id="genSemester" class="form-select">
+                            {% for sem in meta.semesters %}
+                                <option value="{{ sem.id }}">{{ sem.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Department / Branch</label>
+                        <select id="genDepartment" class="form-select">
+                            {% for dept in meta.departments %}
+                                <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Generation Scope</label>
+                        <select id="genScope" class="form-select" onchange="toggleScopeSelection(this.value)">
+                            <option value="semester" selected>All Sections of Semester</option>
+                            <option value="section">Specific Section</option>
+                            <option value="department">All Sections of Department</option>
+                            <option value="academic_year">Entire Academic Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 0.85rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.08);">
+                    <label class="form-label" style="margin-bottom: 0.5rem;">Target Sections to Include</label>
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                        {% for sec in meta.sections %}
+                            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; cursor: pointer;">
+                                <input type="checkbox" name="target_section" value="{{ sec.id }}" checked>
+                                <strong>{{ sec.display_name }}</strong> ({{ sec.student_count }} Students &bull; Pref: {{ sec.preferred_classroom_id }})
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="font-size: 0.82rem; color: #94a3b8;">
+                        Enforces 12 mandatory institutional constraints: zero collisions, room capacity, consecutive 2-hr practicals, lunch break exclusion.
+                    </div>
+                    <button id="genSubmitBtn" type="submit" class="btn-primary" style="padding: 0.85rem 1.75rem;">
+                        <span>🚀 Run Constraint-Based Generation</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- VALIDATION & GENERATION STATUS REPORT -->
+        {% if active_gen %}
+            <div class="portal-card" style="border-left: 4px solid {{ '#4ade80' if active_gen.conflict_count == 0 else '#f87171' }};">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+                            <span class="status-pill {{ 'success' if active_gen.status == 'published' else 'warning' }}">
+                                {{ active_gen.status.upper() }} (v1)
+                            </span>
+                            <strong style="color: #ffffff; font-size: 1.1rem;">
+                                Timetable Generation #{{ active_gen.id }} &bull; {{ active_gen.total_classes_scheduled }} Classes Scheduled
+                            </strong>
+                        </div>
+                        <div style="font-size: 0.84rem; color: #94a3b8;">
+                            Algorithm: <code>{{ active_gen.algorithm_used }}</code> &bull; Solved in: <strong>{{ active_gen.solve_time_seconds }}s</strong> &bull; Generated: {{ active_gen.generated_at }}
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.65rem;">
+                        {% if active_ver_id %}
+                            <a href="/download/timetable-excel/{{ active_ver_id }}" class="btn-secondary">📊 Export Excel Workbook</a>
+                        {% endif %}
+                        {% if active_gen.status != 'published' %}
+                            <button class="btn-primary" style="background: #16a34a;" onclick="handlePublishTimetable({{ active_gen.id }})">
+                                ✅ Publish Approved Timetable
+                            </button>
+                        {% else %}
+                            <span class="status-pill success" style="padding: 0.5rem 1rem;">Published to Student &amp; Faculty Portals</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if active_gen.validation_report %}
+                    <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: rgba(0,0,0,0.25); border-radius: 0.5rem; font-size: 0.84rem;">
+                        <span style="color: #4ade80; font-weight: 700;">Validation Pass Result:</span>
+                        {{ active_gen.validation_report.summary }} (Errors: {{ active_gen.validation_report.error_count }}, Warnings: {{ active_gen.validation_report.warning_count }})
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- INTERACTIVE TIMETABLE MATRIX INSPECTOR -->
+        <div class="portal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                <h3 style="margin: 0;"><span>📅 Interactive Timetable Schedule Inspector</span></h3>
+                
+                <!-- Target Selector -->
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <select id="matrixViewType" class="form-select" style="width: auto; padding: 0.45rem 0.85rem;" onchange="handleViewTypeChange(this.value)">
+                        <option value="section" selected>Section-wise View</option>
+                        <option value="faculty">Faculty-wise View</option>
+                        <option value="classroom">Classroom-wise View</option>
+                    </select>
+
+                    <select id="matrixTargetId" class="form-select" style="width: auto; padding: 0.45rem 0.85rem;" onchange="reloadMatrixView()">
+                        {% for sec in meta.sections %}
+                            <option value="{{ sec.id }}">{{ sec.display_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Weekly Matrix Grid -->
+            <div id="timetableGridContainer" class="table-responsive">
+                <table class="tt-grid-table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Slot 1<br><small style="color: #94a3b8; font-weight: normal;">09:00-09:50</small></th>
+                            <th>Slot 2<br><small style="color: #94a3b8; font-weight: normal;">09:50-10:40</small></th>
+                            <th>Slot 3<br><small style="color: #94a3b8; font-weight: normal;">10:50-11:40</small></th>
+                            <th>Slot 4<br><small style="color: #94a3b8; font-weight: normal;">11:40-12:30</small></th>
+                            <th>Lunch<br><small style="color: #94a3b8; font-weight: normal;">12:30-01:20</small></th>
+                            <th>Slot 6<br><small style="color: #94a3b8; font-weight: normal;">01:20-02:10</small></th>
+                            <th>Slot 7<br><small style="color: #94a3b8; font-weight: normal;">02:10-03:00</small></th>
+                            <th>Slot 8<br><small style="color: #94a3b8; font-weight: normal;">03:00-03:50</small></th>
+                            <th>Slot 9<br><small style="color: #94a3b8; font-weight: normal;">03:50-04:40</small></th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrixGridBody">
+                        {% if current_matrix %}
+                            {% for d in current_matrix.days %}
+                                <tr>
+                                    <td class="day-cell">{{ d }}</td>
+                                    {% for s in current_matrix.slots %}
+                                        {% set cell = current_matrix.grid[d].get(s) %}
+                                        {% if s == 5 %}
+                                            <td class="lunch-cell">LUNCH</td>
+                                        {% elif cell %}
+                                            <td class="{{ 'lab-cell' if cell.is_lab else '' }}">
+                                                <button class="edit-hover-btn" onclick="openManualAdjustModal({{ cell.id }}, '{{ cell.subject_code }}', '{{ cell.faculty_name }}', '{{ d }}', {{ s }}, '{{ cell.room_id }}')">✏️ Move</button>
+                                                <div class="tt-cell-content">
+                                                    <span class="tt-subj-code">{{ cell.subject_code }}</span>
+                                                    <span class="tt-room-pill">{{ cell.room_id }}</span>
+                                                    <span class="tt-fac-name">{{ cell.faculty_name }}</span>
+                                                </div>
+                                            </td>
+                                        {% else %}
+                                            <td><span style="color: #475569;">&mdash;</span></td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="10" style="padding: 2rem; color: #94a3b8;">No timetable generated yet. Click "Run Constraint-Based Generation" above.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MAINTENANCE RIPPLE IMPACT ANALYZER -->
+        <div class="portal-card">
+            <h3><span>🔧 Maintenance Downtime Ripple Impact Analyzer</span></h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                When a classroom or lab is blocked for repairs, inspect all affected academic sessions and find instant conflict-free replacement rooms.
+            </p>
+            <div style="display: flex; gap: 1rem; align-items: flex-end; margin-bottom: 1rem;">
+                <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
+                    <label class="form-label">Select Classroom / Lab</label>
+                    <select id="maintRoomSelect" class="form-select">
+                        <option value="G16">Classroom G16 (CSE A Preferred)</option>
+                        <option value="G04">Classroom G04 (CSE B Preferred)</option>
+                        <option value="LAB-1">Computer Laboratory 1</option>
+                        <option value="LAB-2">Computer Laboratory 2</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-secondary" onclick="checkMaintenanceImpact()">Inspect Affected Classes &amp; Substitutes</button>
+            </div>
+
+            <div id="maintImpactResults" style="display: none;">
+                <div id="maintImpactSummary" style="font-weight: 700; margin-bottom: 0.5rem; color: #ffffff;"></div>
+                <div id="maintImpactTableContainer" class="table-responsive"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MANUAL ADJUSTMENT MODAL -->
+    <div id="adjustModal" class="modal-overlay">
+        <div class="modal-box">
+            <button onclick="closeManualAdjustModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <h3 style="margin-top: 0; color: #ffffff;">✏️ Adjust Class Assignment</h3>
+            <div id="adjustSubjInfo" style="font-size: 0.9rem; color: #38bdf8; font-weight: 700; margin-bottom: 1rem;"></div>
+
+            <form id="adjustForm" onsubmit="submitManualAdjustment(event)">
+                <input type="hidden" id="adjustEntryId">
+
+                <div class="form-group">
+                    <label class="form-label">Target Day</label>
+                    <select id="adjustDay" class="form-select">
+                        <option value="Mon">Monday</option>
+                        <option value="Tue">Tuesday</option>
+                        <option value="Wed">Wednesday</option>
+                        <option value="Thu">Thursday</option>
+                        <option value="Fri">Friday</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Target Period / Slot (Excludes Slot 5 Lunch)</label>
+                    <select id="adjustSlot" class="form-select">
+                        <option value="1">Slot 1 (09:00 - 09:50)</option>
+                        <option value="2">Slot 2 (09:50 - 10:40)</option>
+                        <option value="3">Slot 3 (10:50 - 11:40)</option>
+                        <option value="4">Slot 4 (11:40 - 12:30)</option>
+                        <option value="6">Slot 6 (01:20 - 02:10)</option>
+                        <option value="7">Slot 7 (02:10 - 03:00)</option>
+                        <option value="8">Slot 8 (03:00 - 03:50)</option>
+                        <option value="9">Slot 9 (03:50 - 04:40)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Target Classroom / Lab</label>
+                    <input type="text" id="adjustRoom" class="form-input" required placeholder="e.g. G16, G04, LAB-1">
+                </div>
+
+                <div id="adjustErrorBox" class="alert-box alert-error"></div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
+                    Validate &amp; Save Adjustment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const activeVersionId = {{ active_ver_id or 1 }};
+        const sectionOptions = [
+            {% for s in meta.sections %}
+                { id: "{{ s.id }}", name: "{{ s.display_name }}" },
+            {% endfor %}
+        ];
+        const facultyOptions = [
+            {% set seen_fac = [] %}
+            {% for a in meta.assignments %}
+                {% if a.faculty_name not in seen_fac %}
+                    { id: "{{ a.faculty_name }}", name: "{{ a.faculty_name }}" },
+                    {% set _ = seen_fac.append(a.faculty_name) %}
+                {% endif %}
+            {% endfor %}
+        ];
+        const roomOptions = [
+            { id: "G16", name: "Classroom G16" },
+            { id: "G04", name: "Classroom G04" },
+            { id: "LAB-1", name: "Computer Lab 1" },
+            { id: "LAB-2", name: "Computer Lab 2" }
+        ];
+
+        function handleViewTypeChange(viewType) {
+            const select = document.getElementById("matrixTargetId");
+            select.innerHTML = "";
+            let opts = sectionOptions;
+            if (viewType === "faculty") opts = facultyOptions;
+            else if (viewType === "classroom") opts = roomOptions;
+
+            opts.forEach(o => {
+                const opt = document.createElement("option");
+                opt.value = o.id;
+                opt.textContent = o.name;
+                select.appendChild(opt);
+            });
+            reloadMatrixView();
+        }
+
+        async function reloadMatrixView() {
+            const viewType = document.getElementById("matrixViewType").value;
+            const targetId = document.getElementById("matrixTargetId").value;
+            const tbody = document.getElementById("matrixGridBody");
+
+            tbody.innerHTML = '<tr><td colspan="10" style="padding: 1.5rem; color: #94a3b8;">Loading timetable matrix...</td></tr>';
+
+            try {
+                const res = await fetch(`/api/timetable/matrix?version_id=${activeVersionId}&view_type=${viewType}&target_id=${encodeURIComponent(targetId)}`);
+                const data = await res.json();
+                if (data.success && data.matrix) {
+                    renderMatrixTable(data.matrix);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="10" style="padding: 1.5rem; color: #f87171;">${data.error || "No records found."}</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="10" style="padding: 1.5rem; color: #f87171;">Error fetching timetable data.</td></tr>';
+            }
+        }
+
+        function renderMatrixTable(matrix) {
+            const tbody = document.getElementById("matrixGridBody");
+            let html = "";
+
+            matrix.days.forEach(d => {
+                html += `<tr><td class="day-cell">${d}</td>`;
+                matrix.slots.forEach(s => {
+                    const cell = matrix.grid[d][s];
+                    if (s === 5) {
+                        html += `<td class="lunch-cell">LUNCH</td>`;
+                    } else if (cell) {
+                        const isLab = cell.is_lab ? "lab-cell" : "";
+                        html += `<td class="${isLab}">
+                            <button class="edit-hover-btn" onclick="openManualAdjustModal(${cell.id}, '${cell.subject_code}', '${cell.faculty_name}', '${d}', ${s}, '${cell.room_id}')">✏️ Move</button>
+                            <div class="tt-cell-content">
+                                <span class="tt-subj-code">${cell.subject_code}</span>
+                                <span class="tt-room-pill">${cell.room_id}</span>
+                                <span class="tt-fac-name">${cell.faculty_name}</span>
+                            </div>
+                        </td>`;
+                    } else {
+                        html += `<td><span style="color: #475569;">&mdash;</span></td>`;
+                    }
+                });
+                html += `</tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function handleTriggerGeneration(event) {
+            event.preventDefault();
+            const btn = document.getElementById("genSubmitBtn");
+            btn.disabled = true;
+            btn.innerHTML = "<span>⏳ Solving Constraints (CSP Engine)...</span>";
+
+            const checkboxes = document.querySelectorAll('input[name="target_section"]:checked');
+            const section_ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+            if (section_ids.length === 0) {
+                alert("Please select at least one section to schedule.");
+                btn.disabled = false;
+                btn.innerHTML = "<span>🚀 Run Constraint-Based Generation</span>";
+                return;
+            }
+
+            const payload = {
+                section_ids: section_ids,
+                scope: document.getElementById("genScope").value,
+                academic_year_id: parseInt(document.getElementById("genAcademicYear").value),
+                semester_id: parseInt(document.getElementById("genSemester").value),
+                department_id: document.getElementById("genDepartment").value
+            };
+
+            try {
+                const res = await fetch('/api/timetable/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert("Timetable generated successfully with 0 conflicts!");
+                    window.location.href = `/admin/timetable?gen_id=${data.generation_id}`;
+                } else {
+                    alert("Generation Failed: " + (data.error || "Unfeasible constraints"));
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>🚀 Run Constraint-Based Generation</span>";
+                }
+            } catch (err) {
+                alert("Network error: " + err.message);
+                btn.disabled = false;
+                btn.innerHTML = "<span>🚀 Run Constraint-Based Generation</span>";
+            }
+        }
+
+        async function handlePublishTimetable(genId) {
+            if (!confirm("Are you sure you want to publish this timetable? This will officially synchronize all classes to the Student and Faculty portals.")) return;
+
+            try {
+                const res = await fetch('/api/timetable/publish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ generation_id: genId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert("Publish failed: " + data.error);
+                }
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+
+        function openManualAdjustModal(entryId, subCode, faculty, day, slot, room) {
+            document.getElementById("adjustEntryId").value = entryId;
+            document.getElementById("adjustSubjInfo").textContent = `${subCode} taught by ${faculty}`;
+            document.getElementById("adjustDay").value = day;
+            document.getElementById("adjustSlot").value = slot;
+            document.getElementById("adjustRoom").value = room;
+            document.getElementById("adjustErrorBox").style.display = "none";
+            document.getElementById("adjustModal").style.display = "flex";
+        }
+
+        function closeManualAdjustModal() {
+            document.getElementById("adjustModal").style.display = "none";
+        }
+
+        async function submitManualAdjustment(event) {
+            event.preventDefault();
+            const entryId = document.getElementById("adjustEntryId").value;
+            const day = document.getElementById("adjustDay").value;
+            const slot = document.getElementById("adjustSlot").value;
+            const room_id = document.getElementById("adjustRoom").value.trim();
+            const errBox = document.getElementById("adjustErrorBox");
+
+            errBox.style.display = "none";
+
+            try {
+                const res = await fetch('/api/timetable/adjust', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ entry_id: entryId, day: day, slot: slot, room_id: room_id })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    closeManualAdjustModal();
+                    reloadMatrixView();
+                } else {
+                    errBox.textContent = data.error || "Conflict detected.";
+                    errBox.style.display = "block";
+                }
+            } catch (err) {
+                errBox.textContent = "Error: " + err.message;
+                errBox.style.display = "block";
+            }
+        }
+
+        async function checkMaintenanceImpact() {
+            const room = document.getElementById("maintRoomSelect").value;
+            const container = document.getElementById("maintImpactResults");
+            const summary = document.getElementById("maintImpactSummary");
+            const tableBox = document.getElementById("maintImpactTableContainer");
+
+            container.style.display = "block";
+            tableBox.innerHTML = '<div style="color: #94a3b8; padding: 1rem;">Analyzing published timetable impact...</div>';
+
+            try {
+                const res = await fetch(`/api/timetable/maintenance-impact?room_id=${encodeURIComponent(room)}`);
+                const data = await res.json();
+                if (data.success) {
+                    const impact = data.impact;
+                    summary.textContent = `Room ${room} has ${impact.affected_count} scheduled published classes affected by maintenance:`;
+                    
+                    if (impact.affected_count > 0) {
+                        let html = `<table class="custom-table">
+                            <thead><tr><th>Period / Day</th><th>Subject</th><th>Section</th><th>Faculty</th><th>Suggested Free Substitutes</th></tr></thead><tbody>`;
+                        impact.impact_schedule.forEach(item => {
+                            const subRooms = item.vacant_substitutes.map(r => `<span class="tt-room-pill" style="margin: 2px;">${r.id} (${r.seating_capacity} cap)</span>`).join(" ") || "None available";
+                            html += `<tr>
+                                <td><strong>${item.day} Slot ${item.slot}</strong><br><small style="color: #94a3b8;">${item.time_range}</small></td>
+                                <td>${item.subject}</td>
+                                <td>${item.section}</td>
+                                <td>${item.faculty}</td>
+                                <td>${subRooms}</td>
+                            </tr>`;
+                        });
+                        html += `</tbody></table>`;
+                        tableBox.innerHTML = html;
+                    } else {
+                        tableBox.innerHTML = `<div style="color: #4ade80; padding: 0.75rem;">✅ No scheduled classes are currently occupying ${room}. Maintenance can proceed immediately without disruptions.</div>`;
+                    }
+                }
+            } catch (err) {
+                tableBox.innerHTML = `<div style="color: #f87171; padding: 0.75rem;">Error querying maintenance impact.</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

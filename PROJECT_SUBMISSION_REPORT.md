@@ -177,6 +177,31 @@ flowchart LR
 - **Stale Observation Guard:** If the latest observation is older than 60 minutes, the portal displays a prominent warning: `⚠️ Information may be outdated` with the exact timestamp.
 - **Zero-PII Student Display:** The student dashboard displays purely capacity, occupied seats, and available study spots without disclosing student identities or administrative analytics.
 
+### Module 7: Automatic Academic Timetable Generation Engine (CSP Solver)
+- **Constraint Satisfaction Problem (CSP) Engine:** Native Python scheduling solver utilizing backtracking with Forward Checking, Most Constrained Variable (MRV) heuristic, and Least Constraining Value (LCV) soft optimization heuristics.
+- **12 Mandatory Hard Constraints (100% Enforced):**
+  1. *Section Clashes:* No section has overlapping classes across any period.
+  2. *Faculty Clashes:* No faculty member assigned to multiple classes simultaneously (shared professors across sections are strictly conflict-free).
+  3. *Room Collisions:* No classroom or laboratory hosts multiple sessions simultaneously.
+  4. *Room Capacity Assurance:* Classroom seating capacity $\ge$ section strength ($\ge 60$ students).
+  5. *Weekly Hours Requirement:* Satisfies exact required weekly lecture hours (3–4 hrs) and lab hours (2 hrs).
+  6. *Practical Lab Resources:* Practical sessions assigned strictly to verified computing laboratories (`L1`, `L2`, `L3`, `L4`, `LAB-1` through `LAB-4`).
+  7. *Consecutive Practical Blocks:* Multi-period labs scheduled in unbroken contiguous time blocks (2 periods).
+  8. *Institutional Lunch Protection:* Slot 5 (12:40 PM – 01:30 PM) is strictly preserved as lunch break; no academic instruction can be scheduled.
+  9. *Faculty Availability Overrides:* Respects faculty leave days and unavailable period configurations.
+  10. *Maintenance Downtime Locks:* Rooms flagged with critical maintenance downtime locks are excluded from generation.
+  11. *Departmental Scoping:* Respects academic year, semester, department, and section mappings.
+  12. *Referential Integrity:* Every generated entry contains valid subject, section, faculty, timeslot, and room references.
+- **Soft Optimization Preferences:**
+  - Uniform day distribution of subjects across the 5-day academic week (Mon–Fri).
+  - Compact faculty schedules minimizing idle gap periods.
+  - Balanced classroom load distribution.
+- **Independent Conflict Validation Pass:** 12-rule auditor verifies zero false positives and zero constraint breaches before persisting drafts.
+- **Interactive Multi-Pivot Inspection & Adjustment Matrix:** View timetables by Section, Faculty, Classroom, or Lab; interactive manual moves with on-the-fly constraint validation.
+- **One-Click Publishing & Campus Sync:** Atomically promotes `draft` to `published`, syncing directly into `classroom_schedules` to immediately update Student and Faculty dashboards and the Classroom Free Room Finder.
+- **Maintenance Ripple Impact Analyzer:** When a room requires maintenance, instantly maps affected published sessions and automatically suggests 3 vacant alternative rooms with matching capacity.
+- **OpenXML Multi-Sheet Excel Export:** Styled color-coded multi-tab workbook with dedicated tabs for Section Timetable, Faculty Master Schedule, and Room Occupancy Matrices.
+
 ---
 
 ## 6. Database Schema (Entity-Relationship Model)
@@ -287,6 +312,42 @@ erDiagram
     CLASSROOMS ||--o{ CLASSROOM_SCHEDULES : contains
     AUDITORIUMS ||--o{ AUDITORIUM_EVENTS : hosts
     FACILITY_ASSETS ||--o{ MAINTENANCE_REQUESTS : repairs
+
+    TIMETABLE_GENERATIONS {
+        int id PK
+        int academic_year_id FK
+        int semester_id FK
+        string department_id FK
+        string scope
+        string status
+        int total_classes_scheduled
+        int conflict_count
+        string diagnostic_message
+    }
+
+    TIMETABLE_VERSIONS {
+        int id PK
+        int generation_id FK
+        int version_number
+        boolean is_published
+        string remarks
+    }
+
+    TIMETABLE_ENTRIES {
+        int id PK
+        int generation_id FK
+        int version_id FK
+        int section_id FK
+        int subject_id FK
+        string faculty_name
+        string room_id FK
+        string day
+        int slot
+        boolean is_lab
+    }
+
+    TIMETABLE_GENERATIONS ||--o{ TIMETABLE_VERSIONS : creates
+    TIMETABLE_VERSIONS ||--o{ TIMETABLE_ENTRIES : contains
 ```
 
 ---
@@ -322,11 +383,20 @@ erDiagram
 - `POST /api/admin/unlock-user`: Unlocks an account locked due to excessive PIN failures.
 - `POST /api/admin/reset-pin`: Resets an institutional user's PIN.
 
+### 7.5 Automatic Timetable Generation Engine Endpoints
+- `GET /admin/timetable`: Administrative dashboard for CSP Timetable Generator with interactive multi-pivot inspection matrix.
+- `POST /api/timetable/generate`: Executes CSP generation engine for requested sections and produces a conflict-validated draft version.
+- `GET /api/timetable/matrix?version_id=<id>&view_type=<section|faculty|classroom>&target_id=<id>`: Retrieves 4-way pivot matrix JSON for interactive weekly grid display.
+- `POST /api/timetable/adjust`: Moves or reschedules an entry to a new day/slot/room with on-the-fly constraint validation.
+- `POST /api/timetable/publish`: Promotes draft version to published and automatically synchronizes active academic sessions into `classroom_schedules`.
+- `GET /api/timetable/maintenance-impact?room_id=<id>`: Identifies published sessions impacted by room maintenance and automatically recommends vacant substitute classrooms.
+- `GET /download/timetable-excel/<version_id>`: Exports multi-sheet OpenXML styled workbook (.xlsx).
+
 ---
 
 ## 8. Verification & Automated Test Suite Results
 
-The codebase includes an end-to-end automated test suite (`scratch/test_portal_integration.py` and `scratch/test_render_config.py`).
+The codebase includes an end-to-end automated test suite (`scratch/test_portal_integration.py`, `scratch/test_render_config.py`, and `scratch/test_timetable_integration.py`).
 
 ### Test Execution Summary
 - **Landing Page & Role Cards Test:** Passed (All 3 access cards verified).
@@ -335,6 +405,11 @@ The codebase includes an end-to-end automated test suite (`scratch/test_portal_i
 - **Exam Seating Isolation Test:** Passed (Student views only their designated seat; zero leakage of classmate records).
 - **Free Room Finder API Test:** Passed (Found 34 free rooms for Monday Slot 1).
 - **Auditorium Capacity Constraint Test:** Passed (Enforced $\le 200$ seats limit).
+- **CSP Timetable Solver Test:** Passed (46 periods across Sections A & B solved in 0.166 seconds with 0 conflicts).
+- **Timetable Hard Constraint Validation Test:** Passed (Lunch break slot 5 and overlapping bookings strictly rejected).
+- **Cross-Module Timetable Sync Test:** Passed (Published schedule immediately reflected in `classroom_schedules`, student, and faculty portals).
+- **Maintenance Ripple Impact Analyzer Test:** Passed (Identified 19 sessions for Room G16 and suggested 3 vacant alternatives).
+- **Multi-Sheet OpenXML Excel Export Test:** Passed (Exported complete styled workbook).
 - **Persistent Storage Routing Test:** Passed (Verified routing to `DATA_DIR` when configured).
 - **Test Pass Rate:** **100% (All assertions passed successfully)**.
 
@@ -379,3 +454,4 @@ The **Smart Resource Management System (ResourceHub)** provides an extensible, p
 - Maintains accurate library crowd metrics without violating student privacy.
 - Protects campus operations through automated maintenance downtime locks.
 - Guarantees data persistence across cloud container restarts with optimized storage routing.
+

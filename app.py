@@ -36,6 +36,10 @@ from student.routes import student_bp
 from faculty.routes import faculty_bp
 from admin.routes import admin_bp
 
+# Automatic Timetable Generation Engine Blueprint & DB
+from timetable.routes import timetable_bp
+from timetable.models import init_timetable_db
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "smart-campus-resource-2026-secure-session-key")
@@ -72,12 +76,14 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(lab_bp)
 app.register_blueprint(library_bp)
 app.register_blueprint(campus_bp)
+app.register_blueprint(timetable_bp)
 
 # Initialize SQLite DBs on startup (creates tables if missing)
 with app.app_context():
     bm.init_db()
     lib_occupancy.init_db()
     campus_db.init_db()
+    init_timetable_db()
 
 
 @app.route("/")
