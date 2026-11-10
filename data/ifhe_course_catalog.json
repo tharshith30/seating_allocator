@@ -1,0 +1,247 @@
+{
+  "institution": "ICFAI Foundation for Higher Education (IFHE)",
+  "programLevel": "B.Tech",
+  "description": "Department-wise course catalog grouped by academic year. Semester is included in each course record.",
+  "departments": [
+    { "id": "AIDS", "name": "Artificial Intelligence & Data Science", "code": "AIDS" },
+    { "id": "AIML", "name": "Artificial Intelligence & Machine Learning", "code": "AIML" },
+    { "id": "CSE", "name": "Computer Science & Engineering", "code": "CSE" }
+  ],
+  "years": [
+    {
+      "year": 1,
+      "departments": [
+        {
+          "department": "Artificial Intelligence & Data Science",
+          "departmentId": "AIDS",
+          "courses": [
+            { "semester": 1, "courseCode": "ES101", "courseName": "Computer Programming", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "ES104", "courseName": "Engineering Graphics", "L": 1, "T": 0, "P": 4, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS103", "courseName": "Linear Algebra and Ordinary Differential Equations", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "EG101", "courseName": "English Language Skills", "L": 2, "T": 0, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS102", "courseName": "Physics", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS101", "courseName": "Chemistry", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "HS101", "courseName": "Understanding India", "L": 0, "T": 0, "P": 0, "credits": 0, "courseType": "Audit", "isAudit": true },
+            { "semester": 2, "courseCode": "ES102", "courseName": "Data Structures", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES103", "courseName": "Introduction to DS and AI", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "BS104", "courseName": "Higher Calculus", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES107", "courseName": "Basic Electronics", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES105", "courseName": "Digital Fabrication", "L": 1, "T": 1, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES106", "courseName": "Environmental Sciences", "L": 2, "T": 0, "P": 0, "credits": 2, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "EG102", "courseName": "Professional Communication", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false }
+          ]
+        },
+        {
+          "department": "Artificial Intelligence & Machine Learning",
+          "departmentId": "AIML",
+          "courses": [
+            { "semester": 1, "courseCode": "ES101", "courseName": "Computer Programming", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "ES104", "courseName": "Engineering Graphics", "L": 1, "T": 0, "P": 4, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS103", "courseName": "Linear Algebra and Ordinary Differential Equations", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "EG101", "courseName": "English Language Skills", "L": 2, "T": 0, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS102", "courseName": "Physics", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS101", "courseName": "Chemistry", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "HS101", "courseName": "Understanding India", "L": 0, "T": 0, "P": 0, "credits": 0, "courseType": "Audit", "isAudit": true },
+            { "semester": 2, "courseCode": "ES102", "courseName": "Data Structures", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES103", "courseName": "Introduction to DS and AI", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "BS104", "courseName": "Higher Calculus", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES107", "courseName": "Basic Electronics", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES105", "courseName": "Digital Fabrication", "L": 1, "T": 1, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES106", "courseName": "Environmental Sciences", "L": 2, "T": 0, "P": 0, "credits": 2, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "EG102", "courseName": "Professional Communication", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false }
+          ]
+        },
+        {
+          "department": "Computer Science & Engineering",
+          "departmentId": "CSE",
+          "courses": [
+            { "semester": 1, "courseCode": "ES101", "courseName": "Computer Programming", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "ES104", "courseName": "Engineering Graphics", "L": 1, "T": 0, "P": 4, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS103", "courseName": "Linear Algebra and Ordinary Differential Equations", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "EG101", "courseName": "English Language Skills", "L": 2, "T": 0, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS102", "courseName": "Physics", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "BS101", "courseName": "Chemistry", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 1, "courseCode": "HS101", "courseName": "Understanding India", "L": 0, "T": 0, "P": 0, "credits": 0, "courseType": "Audit", "isAudit": true },
+            { "semester": 2, "courseCode": "ES102", "courseName": "Data Structures", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES103", "courseName": "Introduction to DS and AI", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "BS104", "courseName": "Higher Calculus", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES107", "courseName": "Basic Electronics", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES105", "courseName": "Digital Fabrication", "L": 1, "T": 1, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "ES106", "courseName": "Environmental Sciences", "L": 2, "T": 0, "P": 0, "credits": 2, "courseType": "Core", "isAudit": false },
+            { "semester": 2, "courseCode": "EG102", "courseName": "Professional Communication", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false }
+          ]
+        }
+      ]
+    },
+    {
+      "year": 2,
+      "departments": [
+        {
+          "department": "Artificial Intelligence & Data Science",
+          "departmentId": "AIDS",
+          "courses": [
+            { "semester": 3, "courseCode": "DS201", "courseName": "Introduction to IOT", "L": 2, "T": 0, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "DS202", "courseName": "Database Management Systems", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "DS203", "courseName": "Artificial Intelligence", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "DS204", "courseName": "Design and Analysis of Algorithms", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "ES201", "courseName": "Object Oriented Programming Concepts", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "BS105", "courseName": "Probability & Statistics", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "MG201", "courseName": "Engineering Economics and Management", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "CR201", "courseName": "Power Skills - I", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "DS205", "courseName": "Operating Systems", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "DS206", "courseName": "Computer Organization and Architecture", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "DS207", "courseName": "Discrete Mathematics", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "DS208", "courseName": "Web Enabled Technologies (WEB 3.0)", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "DS212", "courseName": "Machine Learning", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "ES202", "courseName": "Industry Coding Practices", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "HSXXX", "courseName": "Humanities Elective", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 4, "courseCode": "CR202", "courseName": "Power Skills - II", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "IP201", "courseName": "Internship Program - I", "L": 0, "T": 0, "P": 0, "credits": 5, "courseType": "Internship", "isAudit": false }
+          ]
+        },
+        {
+          "department": "Artificial Intelligence & Machine Learning",
+          "departmentId": "AIML",
+          "courses": [
+            { "semester": 3, "courseCode": "AIM201", "courseName": "Introduction to IOT", "L": 2, "T": 0, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "AIM202", "courseName": "Database Management Systems", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "AIM203", "courseName": "Artificial Intelligence", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "AIM204", "courseName": "Design and Analysis of Algorithms", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "ES201", "courseName": "Object Oriented Programming Concepts", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "BS105", "courseName": "Probability & Statistics", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "MG201", "courseName": "Engineering Economics and Management", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "CR201", "courseName": "Power Skills - I", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "AIM205", "courseName": "Operating Systems", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "AIM206", "courseName": "Computer Organization and Architecture", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "AIM207", "courseName": "Discrete Mathematics", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "AIM208", "courseName": "Web Enabled Technologies (WEB 3.0)", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "AIM212", "courseName": "Machine Learning", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "ES202", "courseName": "Industry Coding Practices", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "HSXXX", "courseName": "Humanities Elective", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 4, "courseCode": "CR202", "courseName": "Power Skills - II", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "IP201", "courseName": "Internship Program - I", "L": 0, "T": 0, "P": 0, "credits": 5, "courseType": "Internship", "isAudit": false }
+          ]
+        },
+        {
+          "department": "Computer Science & Engineering",
+          "departmentId": "CSE",
+          "courses": [
+            { "semester": 3, "courseCode": "CS201", "courseName": "Introduction to IOT", "L": 2, "T": 0, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "CS202", "courseName": "Database Management System", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "CS203", "courseName": "Artificial Intelligence", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "CS204", "courseName": "Design and Analysis of Algorithms", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "ES201", "courseName": "Object Oriented Programming Concepts", "L": 2, "T": 0, "P": 4, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "BS105", "courseName": "Probability & Statistics", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "MG201", "courseName": "Engineering Economics and Management", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 3, "courseCode": "CR201", "courseName": "Power Skills - I", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "CS205", "courseName": "Operating Systems", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "CS206", "courseName": "Computer Organization and Architecture", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "CS207", "courseName": "Discrete Mathematics", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "CS208", "courseName": "Web Enabled Technologies (WEB 3.0)", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "CS210", "courseName": "Theory of Computation", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "ES202", "courseName": "Industry Coding Practices", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "HSXXX", "courseName": "Humanities Elective", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 4, "courseCode": "CR202", "courseName": "Power Skills - II", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false },
+            { "semester": 4, "courseCode": "IP201", "courseName": "Internship Program - I", "L": 0, "T": 0, "P": 0, "credits": 5, "courseType": "Internship", "isAudit": false }
+          ]
+        }
+      ]
+    },
+    {
+      "year": 3,
+      "departments": [
+        {
+          "department": "Artificial Intelligence & Data Science",
+          "departmentId": "AIDS",
+          "courses": [
+            { "semester": 5, "courseCode": "DS301", "courseName": "Metaheuristic Optimization Techniques", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "DS302", "courseName": "Computer Networks", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "DS303", "courseName": "Blockchain Technology", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "DS305", "courseName": "Data Wrangling and Visualization", "L": 2, "T": 0, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "DS307", "courseName": "Computer Vision", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "PE1", "courseName": "Professional Elective - I", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 5, "courseCode": "HS301", "courseName": "Constitution of India", "L": 0, "T": 0, "P": 0, "credits": 0, "courseType": "Audit", "isAudit": true },
+            { "semester": 5, "courseCode": "CR301", "courseName": "Power Skills - III", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "DS308", "courseName": "Big Data Systems", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "DS310", "courseName": "Deep Learning", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "DS312", "courseName": "Reinforcement Learning", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "DS314", "courseName": "Fuzzy Logic and Rough Set Theory", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "PE2", "courseName": "Professional Elective - II", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 6, "courseCode": "SP301", "courseName": "Special Project", "L": 0, "T": 0, "P": 6, "credits": 3, "courseType": "Project", "isAudit": false },
+            { "semester": 6, "courseCode": "CR302", "courseName": "Power Skills - IV", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false }
+          ]
+        },
+        {
+          "department": "Artificial Intelligence & Machine Learning",
+          "departmentId": "AIML",
+          "courses": [
+            { "semester": 5, "courseCode": "AIM301", "courseName": "Soft Computing", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "AIM302", "courseName": "Computer Networks", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "AIM303", "courseName": "Blockchain Technology", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "AIM305", "courseName": "Data Wrangling and Visualization", "L": 2, "T": 0, "P": 2, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "AIM306", "courseName": "Natural Language Processing", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "PE1", "courseName": "Professional Elective - I", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 5, "courseCode": "HS301", "courseName": "Constitution of India", "L": 0, "T": 0, "P": 0, "credits": 0, "courseType": "Audit", "isAudit": true },
+            { "semester": 5, "courseCode": "CR301", "courseName": "Power Skills - III", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "AIM307", "courseName": "Computer Vision", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "AIM308", "courseName": "Big Data Systems", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "AIM310", "courseName": "Deep Learning", "L": 2, "T": 1, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "AIM313", "courseName": "Autonomous Vehicles", "L": 2, "T": 1, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "PE2", "courseName": "Professional Elective - II", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 6, "courseCode": "SP301", "courseName": "Special Project", "L": 0, "T": 0, "P": 6, "credits": 3, "courseType": "Project", "isAudit": false },
+            { "semester": 6, "courseCode": "CR302", "courseName": "Power Skills - IV", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false }
+          ]
+        },
+        {
+          "department": "Computer Science & Engineering",
+          "departmentId": "CSE",
+          "courses": [
+            { "semester": 5, "courseCode": "CS301", "courseName": "Principles of Cryptography", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "CS302", "courseName": "Computer Networks", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "CS303", "courseName": "Programming Language and Compiler Construction", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "CS304", "courseName": "Machine Learning", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "CS305", "courseName": "Software Engineering", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 5, "courseCode": "PE1", "courseName": "Professional Elective - I", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 5, "courseCode": "HS301", "courseName": "Constitution of India", "L": 0, "T": 0, "P": 0, "credits": 0, "courseType": "Audit", "isAudit": true },
+            { "semester": 6, "courseCode": "CS307", "courseName": "Computer Vision", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "CS308", "courseName": "Big Data Systems", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "CS309", "courseName": "Cloud Computing", "L": 3, "T": 0, "P": 2, "credits": 4, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "CS311", "courseName": "Software Testing", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Core", "isAudit": false },
+            { "semester": 6, "courseCode": "PE2", "courseName": "Professional Elective - II", "L": 3, "T": 0, "P": 0, "credits": 3, "courseType": "Elective", "isAudit": false },
+            { "semester": 6, "courseCode": "SP301", "courseName": "Special Project", "L": 0, "T": 0, "P": 6, "credits": 3, "courseType": "Project", "isAudit": false },
+            { "semester": 6, "courseCode": "CR302", "courseName": "Power Skills - IV", "L": 0, "T": 0, "P": 2, "credits": 1, "courseType": "Core", "isAudit": false }
+          ]
+        }
+      ]
+    },
+    {
+      "year": 4,
+      "departments": [
+        {
+          "department": "Artificial Intelligence & Data Science",
+          "departmentId": "AIDS",
+          "courses": [
+            { "semester": 7, "courseCode": "IP401", "courseName": "Internship Program or Thesis & Seminar", "L": 0, "T": 0, "P": 0, "credits": 15, "courseType": "Flexible Basket", "isAudit": false },
+            { "semester": 8, "courseCode": "TS401", "courseName": "Thesis & Seminar or Electives", "L": 0, "T": 0, "P": 0, "credits": 15, "courseType": "Flexible Basket", "isAudit": false }
+          ]
+        },
+        {
+          "department": "Artificial Intelligence & Machine Learning",
+          "departmentId": "AIML",
+          "courses": [
+            { "semester": 7, "courseCode": "IP401", "courseName": "Internship Program or Thesis & Seminar", "L": 0, "T": 0, "P": 0, "credits": 15, "courseType": "Flexible Basket", "isAudit": false },
+            { "semester": 8, "courseCode": "TS401", "courseName": "Thesis & Seminar or Electives", "L": 0, "T": 0, "P": 0, "credits": 15, "courseType": "Flexible Basket", "isAudit": false }
+          ]
+        },
+        {
+          "department": "Computer Science & Engineering",
+          "departmentId": "CSE",
+          "courses": [
+            { "semester": 7, "courseCode": "IP401", "courseName": "Internship Program or Thesis & Seminar", "L": 0, "T": 0, "P": 0, "credits": 15, "courseType": "Flexible Basket", "isAudit": false },
+            { "semester": 8, "courseCode": "TS401", "courseName": "Thesis & Seminar or Electives", "L": 0, "T": 0, "P": 0, "credits": 15, "courseType": "Flexible Basket", "isAudit": false }
+          ]
+        }
+      ]
+    }
+  ]
+}

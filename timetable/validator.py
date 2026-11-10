@@ -24,7 +24,7 @@ from campus import scheduling_service
 logger = logging.getLogger(__name__)
 
 
-def validate_timetable(entries: list[dict], sections: list[dict], subjects: list[dict], classrooms: list[dict]) -> dict:
+def validate_timetable(entries: list[dict], sections: list[dict], subjects: list[dict], classrooms: list[dict], assignments: list[dict] = None) -> dict:
     """
     Perform an exhaustive, independent validation pass on a proposed or edited timetable.
     Returns:
@@ -179,8 +179,29 @@ def validate_timetable(entries: list[dict], sections: list[dict], subjects: list
         hours_counter[h_key] = hours_counter.get(h_key, 0) + 1
 
     # Constraint 6: Check exact weekly subject hours satisfaction
+    # Only validate subjects assigned to each section (not unrelated subjects from other semesters)
+    assigned_sub_ids_per_sec = {}
+    if assignments is not None:
+        for asgn in assignments:
+            s_id = asgn.get("section_id")
+            sub_id = asgn.get("subject_id")
+            if s_id not in assigned_sub_ids_per_sec:
+                assigned_sub_ids_per_sec[s_id] = set()
+            assigned_sub_ids_per_sec[s_id].add(sub_id)
+    else:
+        for entry in entries:
+            s_id = entry.get("section_id")
+            sub_id = entry.get("subject_id")
+            if s_id not in assigned_sub_ids_per_sec:
+                assigned_sub_ids_per_sec[s_id] = set()
+            assigned_sub_ids_per_sec[s_id].add(sub_id)
+
     for sec_id, sec_info in sec_map.items():
-        for sub_id, sub_info in subj_map.items():
+        relevant_sub_ids = assigned_sub_ids_per_sec.get(sec_id, set())
+        for sub_id in relevant_sub_ids:
+            sub_info = subj_map.get(sub_id)
+            if not sub_info:
+                continue
             req_lec = sub_info.get("weekly_lecture_hours", 0)
             req_lab = sub_info.get("weekly_lab_hours", 0)
 
@@ -216,3 +237,4 @@ def validate_timetable(entries: list[dict], sections: list[dict], subjects: list
         "conflicts": conflicts,
         "summary": "Timetable passes all mandatory institutional constraints without conflicts." if error_count == 0 else f"Detected {error_count} constraint violations requiring resolution."
     }
+

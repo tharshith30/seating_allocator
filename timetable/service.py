@@ -16,8 +16,485 @@ from campus import scheduling_service
 from .models import STANDARD_WORKING_DAYS, STANDARD_SLOTS
 from .engine import generate_academic_timetable
 from .validator import validate_timetable
+from .pdf_export import generate_timetable_pdf
 
 logger = logging.getLogger(__name__)
+
+
+def get_wizard_init_data() -> dict:
+    """Retrieve all prerequisites for the Dynamic Timetable Generation Wizard."""
+    conn = campus_db.get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM academic_years ORDER BY is_current DESC, id DESC;")
+    ay_list = [dict(r) for r in cursor.fetchall()]
+
+    cursor.execute("SELECT * FROM departments ORDER BY name ASC;")
+    dept_list = [dict(r) for r in cursor.fetchall()]
+
+    cursor.execute("SELECT * FROM semesters ORDER BY number ASC;")
+    sem_list = [dict(r) for r in cursor.fetchall()]
+
+    cursor.execute("SELECT * FROM classrooms ORDER BY block, floor, id ASC;")
+    all_rooms = [dict(r) for r in cursor.fetchall()]
+
+    classrooms = []
+    labs = []
+    for r in all_rooms:
+        r_type = (r.get("room_type") or "").lower()
+        r_id = r["id"].upper()
+        if "lab" in r_type or r_id.startswith("L") or r_id.startswith("LAB"):
+            labs.append(r)
+        else:
+            classrooms.append(r)
+
+    # Distinct faculty list
+    cursor.execute("SELECT DISTINCT name FROM users WHERE role = 'faculty' AND name IS NOT NULL;")
+    f_users = [r[0] for r in cursor.fetchall()]
+    cursor.execute("SELECT DISTINCT faculty_name FROM faculty_subject_assignments WHERE faculty_name IS NOT NULL;")
+    f_asgns = [r[0] for r in cursor.fetchall()]
+    core_faculty = [
+        "Dr. T. Bharat Kumar", "Prof. P. Sunitha", "Dr. R. V. Sharma",
+        "Dr. K. Srinivas", "Prof. Anjali Nair", "Dr. Manoj Gupta", "Prof. K. Ramesh"
+    ]
+    faculty_list = sorted(list(set(f_users + f_asgns + core_faculty)))
+
+    conn.close()
+    return {
+        "academic_years": ay_list,
+        "departments": dept_list,
+        "semesters": sem_list,
+        "classrooms": classrooms,
+        "labs": labs,
+        "faculty": faculty_list,
+        "standard_days": STANDARD_WORKING_DAYS,
+        "standard_slots": STANDARD_SLOTS
+    }
+
+
+def load_preset_catalog(year: int = 2, semester: int = 3, department: str = "CSE") -> list[dict]:
+    """Load authentic IFHE B.Tech course catalog for selected year, semester, and department."""
+    catalog_path = os.path.join(os.path.dirname(__file__), "..", "data", "ifhe_course_catalog.json")
+    if not os.path.exists(catalog_path):
+        return []
+
+    try:
+        with open(catalog_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        dept_clean = (department or "CSE").strip().upper()
+        dept_name_map = {
+            "CSE": "Computer Science & Engineering",
+            "AIDS": "Artificial Intelligence & Data Science",
+            "AIML": "Artificial Intelligence & Machine Learning"
+        }
+        full_dept_name = dept_name_map.get(dept_clean, dept_clean)
+
+        matched_courses = []
+        for y_obj in data.get("years", []):
+            if year and y_obj.get("year") != int(year):
+                continue
+            for d_obj in y_obj.get("departments", []):
+                cur_dept = d_obj.get("department", "").strip()
+                cur_dept_id = d_obj.get("departmentId", "").strip().upper()
+                if dept_clean in (cur_dept_id, cur_dept.upper()) or full_dept_name.lower() in cur_dept.lower():
+                    for c in d_obj.get("courses", []):
+                        if str(c.get("semester")) == str(semester):
+                            l_hrs = int(c.get("L") or 0)
+                            t_hrs = int(c.get("T") or 0)
+                            p_hrs = int(c.get("P") or 0)
+                            lec_total = l_hrs + t_hrs
+                            cr = int(c.get("credits") or 0)
+                            is_audit = bool(c.get("isAudit", False))
+                            req_lab = (p_hrs > 0)
+                            c_slots = 2 if p_hrs >= 2 else (1 if p_hrs == 1 else 1)
+
+                            matched_courses.append({
+                                "code": c.get("courseCode"),
+                                "name": c.get("courseName"),
+                                "subject_type": c.get("courseType", "Core").lower(),
+                                "credits": cr,
+                                "weekly_lecture_hours": lec_total,
+                                "weekly_lab_hours": p_hrs,
+                                "consecutive_slots": c_slots,
+                                "requires_lab": req_lab,
+                                "is_audit": is_audit,
+                                "status": "valid"
+                            })
+        return matched_courses
+    except Exception as e:
+        logger.error("Failed to load preset course catalog: %s", e)
+        return []
+
+
+def detect_column_mapping(headers: list[str]) -> dict:
+    """Intelligently map file headers to standard system fields."""
+    mapping = {
+        "code_col": "",
+        "name_col": "",
+        "type_col": "",
+        "credits_col": "",
+        "lecture_col": "",
+        "tutorial_col": "",
+        "lab_col": "",
+        "faculty_col": ""
+    }
+    for h in headers:
+        hl = h.lower().replace("_", " ").replace("-", " ").strip()
+        if not mapping["code_col"] and any(k in hl for k in ["code", "subject code", "course code", "sub code", "id"]):
+            mapping["code_col"] = h
+        elif not mapping["name_col"] and any(k in hl for k in ["name", "title", "subject name", "course name"]):
+            mapping["name_col"] = h
+        elif not mapping["type_col"] and any(k in hl for k in ["type", "category", "subject type", "course type"]):
+            mapping["type_col"] = h
+        elif not mapping["credits_col"] and any(k in hl for k in ["credit", "credits", "cr"]):
+            mapping["credits_col"] = h
+        elif not mapping["lecture_col"] and hl in ("l", "lec", "lecture", "lectures", "lecture hours", "weekly lecture"):
+            mapping["lecture_col"] = h
+        elif not mapping["tutorial_col"] and hl in ("t", "tut", "tutorial", "tutorials", "tutorial hours"):
+            mapping["tutorial_col"] = h
+        elif not mapping["lab_col"] and hl in ("p", "prac", "practical", "practicals", "lab", "lab hours", "weekly lab"):
+            mapping["lab_col"] = h
+        elif not mapping["faculty_col"] and any(k in hl for k in ["faculty", "teacher", "instructor", "professor", "in charge"]):
+            mapping["faculty_col"] = h
+    return mapping
+
+
+def convert_rows_to_subjects(raw_rows: list[dict], mapping: dict) -> list[dict]:
+    """Standardize extracted rows into validated subject dictionaries."""
+    subjects = []
+    seen_codes = set()
+
+    for idx, r in enumerate(raw_rows):
+        code_key = mapping.get("code_col")
+        name_key = mapping.get("name_col")
+        type_key = mapping.get("type_col")
+        cr_key = mapping.get("credits_col")
+        lec_key = mapping.get("lecture_col")
+        tut_key = mapping.get("tutorial_col")
+        lab_key = mapping.get("lab_col")
+        fac_key = mapping.get("faculty_col")
+
+        code = str(r.get(code_key, "")).strip().upper() if code_key else ""
+        name = str(r.get(name_key, "")).strip() if name_key else ""
+        stype = str(r.get(type_key, "theory")).strip().lower() if type_key else "theory"
+
+        def _to_int(val, default=0):
+            try:
+                if val is None or str(val).strip() == "":
+                    return default
+                return int(float(str(val).strip()))
+            except Exception:
+                return default
+
+        l_val = _to_int(r.get(lec_key), 0) if lec_key else 0
+        t_val = _to_int(r.get(tut_key), 0) if tut_key else 0
+        p_val = _to_int(r.get(lab_key), 0) if lab_key else 0
+        cr_val = _to_int(r.get(cr_key), 3) if cr_key else 3
+        fac_val = str(r.get(fac_key, "")).strip() if fac_key else ""
+
+        # Auto-heuristics if L and P both 0
+        if l_val == 0 and p_val == 0:
+            if "lab" in stype or "practical" in stype:
+                p_val = 2
+            else:
+                l_val = 3
+
+        weekly_lec = l_val + t_val
+        weekly_lab = p_val
+        req_lab = (weekly_lab > 0 or "lab" in stype or "practical" in stype)
+        c_slots = 2 if weekly_lab >= 2 else 1
+
+        # Validation status
+        status = "valid"
+        issues = []
+
+        if not code:
+            status = "error"
+            issues.append("Missing course code")
+        elif code in seen_codes:
+            status = "error"
+            issues.append(f"Duplicate course code '{code}'")
+        else:
+            seen_codes.add(code)
+
+        if not name:
+            status = "error"
+            issues.append("Missing course name")
+
+        if (weekly_lec + weekly_lab) <= 0:
+            status = "error"
+            issues.append("Zero weekly hours")
+
+        subjects.append({
+            "id": idx + 1,
+            "code": code,
+            "name": name,
+            "subject_type": stype,
+            "credits": cr_val,
+            "weekly_lecture_hours": weekly_lec,
+            "weekly_lab_hours": weekly_lab,
+            "consecutive_slots": c_slots,
+            "requires_lab": req_lab,
+            "faculty_name": fac_val,
+            "status": status,
+            "issues": issues
+        })
+
+    return subjects
+
+
+def parse_course_catalog_file(file_storage) -> dict:
+    """Parse uploaded Excel, CSV, or JSON course details file."""
+    filename = (file_storage.filename or "").lower()
+    df = None
+
+    if filename.endswith(".xlsx") or filename.endswith(".xls"):
+        df = pd.read_excel(file_storage)
+    elif filename.endswith(".csv"):
+        df = pd.read_csv(file_storage)
+    elif filename.endswith(".json"):
+        content = json.load(file_storage)
+        if isinstance(content, dict) and "courses" in content:
+            df = pd.DataFrame(content["courses"])
+        elif isinstance(content, list):
+            df = pd.DataFrame(content)
+        else:
+            raise ValueError("Unsupported JSON format. Expected list of courses.")
+    else:
+        raise ValueError("Unsupported file format. Please upload .xlsx, .xls, .csv, or .json")
+
+    df = df.dropna(how="all")
+    headers = [str(c).strip() for c in df.columns]
+    raw_rows = df.fillna("").to_dict(orient="records")
+
+    mapping = detect_column_mapping(headers)
+    parsed_subjects = convert_rows_to_subjects(raw_rows, mapping)
+
+    return {
+        "headers": headers,
+        "suggested_mapping": mapping,
+        "raw_rows": raw_rows[:100], # preview sample
+        "parsed_subjects": parsed_subjects,
+        "total_extracted": len(parsed_subjects)
+    }
+
+
+def execute_dynamic_wizard_generation(payload: dict, user_name: str = "Administrator") -> dict:
+    """
+    Execute full constraint satisfaction generation from the 5-step dynamic wizard.
+    Dynamically creates/updates sections, subjects, faculty mappings, room selections,
+    and runs global multi-section CSP solver.
+    """
+    academic_year_id = int(payload.get("academic_year_id", 1))
+    semester_id = int(payload.get("semester_id", 1))
+    department_id = str(payload.get("department_id", "CSE")).strip().upper()
+
+    sections_data = payload.get("sections", [])
+    if not sections_data:
+        sections_data = [
+            {"name": "A", "display_name": f"{department_id} Section A", "student_count": 60},
+            {"name": "B", "display_name": f"{department_id} Section B", "student_count": 60}
+        ]
+
+    subjects_data = payload.get("subjects", [])
+    if not subjects_data:
+        # Fallback to loading preset catalog for this department/semester
+        subjects_data = load_preset_catalog(year=2, semester=semester_id, department=department_id)
+        if not subjects_data:
+            return {"success": False, "error": "No course catalog provided or available for this semester."}
+
+    working_days = payload.get("working_days") or STANDARD_WORKING_DAYS
+    num_periods = int(payload.get("num_periods", 9))
+    lunch_slot = int(payload.get("lunch_slot", 5))
+
+    prefs = payload.get("preferences", {})
+    max_daily = int(prefs.get("max_daily_periods", 7))
+    max_consec = int(prefs.get("max_consecutive_periods", 3))
+    is_provisional = bool(prefs.get("is_provisional", False))
+
+    selected_rooms = payload.get("selected_rooms")
+    selected_labs = payload.get("selected_labs")
+    faculty_assignments = payload.get("faculty_assignments", [])
+
+    conn = campus_db.get_db()
+    cursor = conn.cursor()
+
+    sec_ids = []
+    sec_name_to_id = {}
+
+    with conn:
+        # 1. Sync dynamic sections
+        for s in sections_data:
+            s_name = str(s.get("name", "A")).strip().upper()
+            s_disp = str(s.get("display_name", f"Section {s_name}")).strip()
+            s_cnt = int(s.get("student_count", 60))
+
+            cursor.execute("""
+                INSERT INTO sections (department_id, semester_id, name, display_name, student_count)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(department_id, semester_id, name) DO UPDATE SET
+                    display_name = excluded.display_name,
+                    student_count = excluded.student_count;
+            """, (department_id, semester_id, s_name, s_disp, s_cnt))
+            cursor.execute("SELECT id FROM sections WHERE department_id = ? AND semester_id = ? AND name = ?;",
+                           (department_id, semester_id, s_name))
+            sec_id = cursor.fetchone()[0]
+            sec_ids.append(sec_id)
+            sec_name_to_id[s_name] = sec_id
+
+        # 2. Sync subjects
+        subj_code_to_id = {}
+        for sub in subjects_data:
+            code = str(sub.get("code")).strip().upper()
+            name = str(sub.get("name")).strip()
+            stype = str(sub.get("subject_type", "theory")).strip().lower()
+            cr = int(sub.get("credits", 3))
+            l_hrs = int(sub.get("weekly_lecture_hours", 3))
+            p_hrs = int(sub.get("weekly_lab_hours", 0))
+            c_slots = int(sub.get("consecutive_slots", 2 if p_hrs >= 2 else 1))
+            req_lab = "computer_lab" if (p_hrs > 0 or sub.get("requires_lab")) else None
+            is_audit = int(bool(sub.get("is_audit", False)))
+
+            cursor.execute("""
+                INSERT INTO subjects (code, name, department_id, subject_type, weekly_lecture_hours, weekly_lab_hours, consecutive_slots, requires_lab_type, credits, is_audit)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(code) DO UPDATE SET
+                    name = excluded.name,
+                    subject_type = excluded.subject_type,
+                    weekly_lecture_hours = excluded.weekly_lecture_hours,
+                    weekly_lab_hours = excluded.weekly_lab_hours,
+                    consecutive_slots = excluded.consecutive_slots,
+                    requires_lab_type = excluded.requires_lab_type,
+                    credits = excluded.credits,
+                    is_audit = excluded.is_audit;
+            """, (code, name, department_id, stype, l_hrs, p_hrs, c_slots, req_lab, cr, is_audit))
+            cursor.execute("SELECT id FROM subjects WHERE code = ?;", (code,))
+            sub_id = cursor.fetchone()[0]
+            subj_code_to_id[code] = sub_id
+
+            cursor.execute("""
+                INSERT OR IGNORE INTO subject_semester_mapping (subject_id, semester_id, is_elective)
+                VALUES (?, ?, ?);
+            """, (sub_id, semester_id, 1 if "elective" in stype else 0))
+
+        # 3. Sync Faculty Assignments
+        for sec_id in sec_ids:
+            cursor.execute("DELETE FROM faculty_subject_assignments WHERE section_id = ?;", (sec_id,))
+
+        for fa in faculty_assignments:
+            code = str(fa.get("subject_code", "")).strip().upper()
+            sub_id = subj_code_to_id.get(code)
+            if not sub_id:
+                continue
+
+            fac_name = str(fa.get("faculty_name", "")).strip()
+            if not fac_name:
+                fac_name = "Provisional Faculty" if is_provisional else f"Faculty - {code}"
+
+            assigned_secs = fa.get("sections", [])
+            if not assigned_secs or "ALL" in [s.upper() for s in assigned_secs]:
+                target_s_ids = sec_ids
+            else:
+                target_s_ids = [sec_name_to_id[s.upper()] for s in assigned_secs if s.upper() in sec_name_to_id]
+                if not target_s_ids:
+                    target_s_ids = sec_ids
+
+            for s_id in target_s_ids:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO faculty_subject_assignments (faculty_name, subject_id, section_id, is_primary)
+                    VALUES (?, ?, ?, 1);
+                """, (fac_name, sub_id, s_id))
+
+        # Ensure all subjects have at least one faculty assignment in each section
+        for s_id in sec_ids:
+            for code, sub_id in subj_code_to_id.items():
+                cursor.execute("SELECT COUNT(*) FROM faculty_subject_assignments WHERE section_id = ? AND subject_id = ?;", (s_id, sub_id))
+                if cursor.fetchone()[0] == 0:
+                    default_fac = "Provisional Faculty" if is_provisional else f"Faculty - {code}"
+                    cursor.execute("""
+                        INSERT INTO faculty_subject_assignments (faculty_name, subject_id, section_id, is_primary)
+                        VALUES (?, ?, ?, 1);
+                    """, (default_fac, sub_id, s_id))
+
+        # 4. Save Faculty Unavailability overrides
+        for un in payload.get("faculty_unavailability", []):
+            f_name = un.get("faculty_name", "").strip()
+            u_day = un.get("day")
+            u_slot = int(un.get("slot", 1))
+            if f_name and u_day:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO faculty_availability (faculty_name, day, slot, is_available, reason)
+                    VALUES (?, ?, ?, 0, 'Configured in wizard');
+                """, (f_name, u_day, u_slot))
+
+    conn.close()
+
+    # 5. Run Global CSP Scheduling Engine across all sections
+    gen_result = generate_academic_timetable(
+        section_ids=sec_ids,
+        working_days=working_days,
+        num_periods=num_periods,
+        lunch_slot=lunch_slot,
+        max_daily_periods=max_daily,
+        max_consecutive_periods=max_consec,
+        allowed_room_ids=selected_rooms,
+        allowed_lab_ids=selected_labs,
+        is_provisional=is_provisional
+    )
+
+    if not gen_result["success"]:
+        return gen_result
+
+    entries = gen_result["entries"]
+    val_report = gen_result["validation"]
+
+    conn = campus_db.get_db()
+    cursor = conn.cursor()
+
+    with conn:
+        # Create Timetable Generation Record
+        cursor.execute("""
+            INSERT INTO timetable_generations 
+            (academic_year_id, semester_id, department_id, scope, target_section_ids, status,
+             algorithm_used, total_classes_scheduled, total_slots_requested, conflict_count,
+             validation_report, diagnostic_message, config_json)
+            VALUES (?, ?, ?, ?, ?, 'draft', 'CSP-Backtracking-MRV', ?, ?, ?, ?, ?, ?);
+        """, (
+            academic_year_id, semester_id, department_id, "dynamic_wizard",
+            json.dumps(sec_ids), len(entries), len(entries),
+            val_report.get("conflict_count", 0),
+            json.dumps(val_report), gen_result.get("message", "Generated successfully via Dynamic Wizard"),
+            json.dumps(payload)
+        ))
+        gen_id = cursor.lastrowid
+
+        # Create Initial Version
+        ver_remarks = "Provisional automated generation" if is_provisional else "Automated CSP generation via Dynamic Wizard"
+        cursor.execute("""
+            INSERT INTO timetable_versions (generation_id, version_number, is_published, created_by, remarks)
+            VALUES (?, 1, 0, ?, ?);
+        """, (gen_id, user_name, ver_remarks))
+        ver_id = cursor.lastrowid
+
+        # Insert Entries
+        entry_rows = [
+            (gen_id, ver_id, e["section_id"], e["subject_id"], e["faculty_name"],
+             e["room_id"], e["day"], e["slot"], e["is_lab"], "ALL", "valid", 0, int(is_provisional))
+            for e in entries
+        ]
+        cursor.executemany("""
+            INSERT INTO timetable_entries 
+            (generation_id, version_id, section_id, subject_id, faculty_name, room_id, day, slot, is_lab, lab_group, status, is_manually_adjusted, is_provisional)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        """, entry_rows)
+
+    conn.close()
+
+    gen_result["generation_id"] = gen_id
+    gen_result["version_id"] = ver_id
+    gen_result["sections_created"] = len(sec_ids)
+    return gen_result
 
 
 def list_academic_metadata() -> dict:
@@ -173,10 +650,47 @@ def list_generations() -> list[dict]:
 
 def get_timetable_matrix(version_id: int, view_type: str = "section", target_id: str = None) -> dict:
     """
-    Format timetable entries into a weekly matrix (Mon-Fri x Slots 1-9) for a section, faculty, or room.
+    Format timetable entries into a weekly matrix (Mon-Fri x Slots 1-9) for a section, faculty, room, or all sections.
     """
     conn = campus_db.get_db()
     cursor = conn.cursor()
+
+    # Dynamic section tabs available for this version
+    cursor.execute("""
+        SELECT DISTINCT sec.id, sec.name, sec.display_name
+        FROM timetable_entries te
+        JOIN sections sec ON te.section_id = sec.id
+        WHERE te.version_id = ?
+        ORDER BY sec.name ASC;
+    """, (version_id,))
+    sec_tabs = [dict(r) for r in cursor.fetchall()]
+
+    # Faculty tabs available
+    cursor.execute("""
+        SELECT DISTINCT te.faculty_name
+        FROM timetable_entries te
+        WHERE te.version_id = ? AND te.faculty_name IS NOT NULL
+        ORDER BY te.faculty_name ASC;
+    """, (version_id,))
+    faculty_tabs = [r[0] for r in cursor.fetchall()]
+
+    # Classroom tabs available
+    cursor.execute("""
+        SELECT DISTINCT te.room_id
+        FROM timetable_entries te
+        WHERE te.version_id = ? AND te.room_id IS NOT NULL AND te.is_lab = 0
+        ORDER BY te.room_id ASC;
+    """, (version_id,))
+    room_tabs = [r[0] for r in cursor.fetchall()]
+
+    # Lab tabs available
+    cursor.execute("""
+        SELECT DISTINCT te.room_id
+        FROM timetable_entries te
+        WHERE te.version_id = ? AND te.is_lab = 1
+        ORDER BY te.room_id ASC;
+    """, (version_id,))
+    lab_tabs = [r[0] for r in cursor.fetchall()]
 
     query = """
         SELECT te.*, s.code as subject_code, s.name as subject_name,
@@ -196,11 +710,11 @@ def get_timetable_matrix(version_id: int, view_type: str = "section", target_id:
     elif view_type == "faculty" and target_id:
         query += " AND LOWER(te.faculty_name) = LOWER(?)"
         params.append(target_id.strip())
-    elif view_type == "classroom" and target_id:
+    elif (view_type == "classroom" or view_type == "lab") and target_id:
         query += " AND LOWER(te.room_id) = LOWER(?)"
         params.append(target_id.strip())
 
-    query += " ORDER BY te.day, te.slot ASC;"
+    query += " ORDER BY te.day, te.slot, sec.name ASC;"
     cursor.execute(query, params)
     rows = cursor.fetchall()
     conn.close()
@@ -215,13 +729,28 @@ def get_timetable_matrix(version_id: int, view_type: str = "section", target_id:
         grid[d][5] = {"is_lunch": True, "subject_code": "LUNCH", "subject_name": "Lunch Break"}
 
     entries_list = []
+    all_sections_grid = {d: {s: [] for s in slots} for d in days}
+
     for r in rows:
         item = dict(r)
         d = item["day"]
         s = item["slot"]
-        if d in grid and s in grid[d]:
-            grid[d][s] = item
         entries_list.append(item)
+
+        if d in all_sections_grid and s in all_sections_grid[d]:
+            all_sections_grid[d][s].append(item)
+
+        if view_type != "all_sections":
+            if d in grid and s in grid[d]:
+                grid[d][s] = item
+
+    if view_type == "all_sections":
+        for d in days:
+            for s in slots:
+                if s == 5:
+                    grid[d][s] = {"is_lunch": True, "subject_code": "LUNCH", "subject_name": "Lunch Break"}
+                else:
+                    grid[d][s] = all_sections_grid[d][s]
 
     return {
         "view_type": view_type,
@@ -230,7 +759,11 @@ def get_timetable_matrix(version_id: int, view_type: str = "section", target_id:
         "slots": slots,
         "grid": grid,
         "entries": entries_list,
-        "slot_times": STANDARD_SLOTS
+        "slot_times": STANDARD_SLOTS,
+        "sec_tabs": sec_tabs,
+        "faculty_tabs": faculty_tabs,
+        "room_tabs": room_tabs,
+        "lab_tabs": lab_tabs
     }
 
 

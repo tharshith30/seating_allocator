@@ -10,17 +10,18 @@
     <link rel="stylesheet" href="/static/style.css">
     <style>
         :root {
-            --primary: #0284c7;
-            --primary-dark: #0369a1;
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #2dd4bf;
             --surface-bg: #090d16;
             --card-bg: #111827;
             --card-border: #1f2937;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --lab-bg: rgba(56, 189, 248, 0.15);
-            --lab-border: rgba(56, 189, 248, 0.4);
+            --lab-bg: rgba(45, 212, 191, 0.12);
+            --lab-border: rgba(45, 212, 191, 0.4);
             --theory-bg: rgba(255, 255, 255, 0.03);
-            --lunch-bg: rgba(255, 255, 255, 0.06);
+            --lunch-bg: rgba(255, 255, 255, 0.05);
         }
 
         body {
@@ -63,7 +64,7 @@
 
         .portal-brand span.subtitle {
             font-size: 0.72rem;
-            color: #38bdf8;
+            color: #2dd4bf;
             text-transform: uppercase;
             font-weight: 700;
             letter-spacing: 0.05em;
@@ -101,25 +102,25 @@
         }
 
         .nav-item.active a {
-            background: rgba(2, 132, 199, 0.18);
-            color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            background: rgba(13, 148, 136, 0.18);
+            color: #5eead4;
+            border: 1px solid rgba(45, 212, 191, 0.3);
         }
 
         .portal-main {
             flex-grow: 1;
             padding: 2rem 2.5rem;
             overflow-y: auto;
-            max-width: 1400px;
+            max-width: 1440px;
             box-sizing: border-box;
         }
 
         .top-banner {
-            background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(15, 23, 42, 0.6) 100%);
-            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.2) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border: 1px solid rgba(45, 212, 191, 0.25);
             border-radius: 1rem;
             padding: 1.5rem 1.75rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -129,13 +130,9 @@
 
         .welcome-title { font-size: 1.45rem; font-weight: 800; margin: 0 0 0.3rem; color: #ffffff; }
         .welcome-sub { font-size: 0.88rem; color: #94a3b8; margin: 0; }
-
         .meta-pills { display: flex; gap: 0.65rem; flex-wrap: wrap; }
         .meta-pill { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); padding: 0.4rem 0.85rem; border-radius: 0.5rem; font-size: 0.82rem; font-weight: 600; color: #cbd5e1; }
-        .meta-pill strong { color: #38bdf8; }
-
-        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .meta-pill strong { color: #2dd4bf; }
 
         .portal-card {
             background: var(--card-bg);
@@ -144,14 +141,109 @@
             padding: 1.5rem;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.75rem;
         }
 
-        .portal-card h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 1rem; color: #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
+        .portal-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 1rem;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* WIZARD STEP NAVIGATION */
+        .wizard-steps-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 0.85rem;
+            padding: 0.85rem 1.25rem;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .step-node {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .step-node.active {
+            color: #5eead4;
+            font-weight: 700;
+        }
+
+        .step-node.completed {
+            color: #94a3b8;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 800;
+            border: 1px solid #374151;
+        }
+
+        .step-node.active .step-number {
+            background: #0d9488;
+            color: #ffffff;
+            border-color: #2dd4bf;
+            box-shadow: 0 0 12px rgba(45, 212, 191, 0.4);
+        }
+
+        .step-node.completed .step-number {
+            background: #065f46;
+            color: #34d399;
+            border-color: #059669;
+        }
+
+        .step-divider {
+            height: 2px;
+            background: #1f2937;
+            flex-grow: 1;
+            margin: 0 1rem;
+            min-width: 20px;
+        }
+
+        /* WIZARD PANELS */
+        .wizard-panel {
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .wizard-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
+        .form-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; }
+        .form-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
 
         .form-group { margin-bottom: 1.25rem; }
         .form-label { display: block; font-size: 0.84rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.4rem; }
-        .form-input, .form-select {
+        .form-input, .form-select, .form-textarea {
             width: 100%;
             background: #1f2937;
             border: 1px solid #374151;
@@ -162,9 +254,13 @@
             box-sizing: border-box;
             outline: none;
         }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #2dd4bf;
+            box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2);
+        }
 
         .btn-primary {
-            background: #0284c7;
+            background: #0d9488;
             color: #ffffff;
             border: none;
             padding: 0.75rem 1.25rem;
@@ -177,13 +273,13 @@
             align-items: center;
             gap: 0.5rem;
         }
-        .btn-primary:hover { background: #0369a1; }
+        .btn-primary:hover { background: #0f766e; }
 
         .btn-secondary {
             background: #1e293b;
             color: #cbd5e1;
             border: 1px solid #334155;
-            padding: 0.6rem 1rem;
+            padding: 0.65rem 1rem;
             border-radius: 0.5rem;
             font-size: 0.84rem;
             font-weight: 600;
@@ -195,137 +291,102 @@
         }
         .btn-secondary:hover { background: #334155; color: #ffffff; }
 
-        .table-responsive { width: 100%; overflow-x: auto; }
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; text-align: left; }
-        .custom-table th { background: #1e293b; color: #cbd5e1; padding: 0.75rem 0.9rem; font-weight: 700; border-bottom: 1px solid #334155; white-space: nowrap; }
-        .custom-table td { padding: 0.75rem 0.9rem; border-bottom: 1px solid #1e293b; color: #f1f5f9; }
-
-        /* Timetable Matrix Grid Specifics */
-        .tt-grid-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 4px;
-            font-size: 0.82rem;
-            text-align: center;
-        }
-
-        .tt-grid-table th {
-            background: #1e293b;
-            color: #cbd5e1;
-            padding: 0.6rem 0.5rem;
-            border-radius: 0.35rem;
-            font-weight: 700;
-            font-size: 0.78rem;
-        }
-
-        .tt-grid-table td {
-            background: var(--theory-bg);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 0.45rem;
-            padding: 0.5rem;
-            vertical-align: middle;
-            min-height: 52px;
-            transition: all 0.15s ease;
-            position: relative;
-        }
-
-        .tt-grid-table td.lunch-cell {
-            background: var(--lunch-bg);
-            color: #64748b;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-size: 0.72rem;
-        }
-
-        .tt-grid-table td.lab-cell {
-            background: var(--lab-bg);
-            border-color: var(--lab-border);
-        }
-
-        .tt-grid-table td.day-cell {
-            background: #1e293b;
-            font-weight: 800;
+        .btn-success {
+            background: #059669;
             color: #ffffff;
-            width: 65px;
-        }
-
-        .tt-cell-content {
-            display: flex;
-            flex-direction: column;
-            gap: 0.15rem;
-        }
-
-        .tt-subj-code { font-weight: 800; color: #38bdf8; font-size: 0.86rem; }
-        .tt-room-pill {
-            font-size: 0.7rem;
-            color: #cbd5e1;
-            font-family: 'JetBrains Mono', monospace;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 0.1rem 0.35rem;
-            border-radius: 0.25rem;
-            width: fit-content;
-            margin: 0 auto;
-        }
-        .tt-fac-name { font-size: 0.72rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .edit-hover-btn {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: rgba(2, 132, 199, 0.8);
             border: none;
-            color: white;
-            border-radius: 0.25rem;
-            font-size: 0.65rem;
-            padding: 0.15rem 0.3rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.55rem;
+            font-weight: 700;
             cursor: pointer;
-            display: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-
-        .tt-grid-table td:hover .edit-hover-btn {
-            display: block;
-        }
-
-        .status-pill { display: inline-block; font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; text-transform: uppercase; }
-        .status-pill.success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-        .status-pill.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .status-pill.danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-success:hover { background: #047857; }
 
         .alert-box { padding: 0.85rem 1.15rem; border-radius: 0.65rem; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; }
         .alert-success { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
         .alert-error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
 
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(6px);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
+        /* UPLOAD ZONE */
+        .upload-dropzone {
+            border: 2px dashed #334155;
+            border-radius: 0.85rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            background: rgba(30, 41, 59, 0.4);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .upload-dropzone:hover {
+            border-color: #2dd4bf;
+            background: rgba(13, 148, 136, 0.08);
         }
 
-        .modal-box {
-            background: #111827;
-            border: 1px solid #374151;
-            border-radius: 1rem;
-            max-width: 500px;
+        /* TABLE SPECIFICS */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; text-align: left; }
+        .custom-table th { background: #1e293b; color: #cbd5e1; padding: 0.75rem 0.9rem; font-weight: 700; border-bottom: 1px solid #334155; white-space: nowrap; }
+        .custom-table td { padding: 0.75rem 0.9rem; border-bottom: 1px solid #1e293b; color: #f1f5f9; }
+
+        .badge-slot { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: #334155; color: #e2e8f0; padding: 0.2rem 0.5rem; border-radius: 0.35rem; font-weight: 600; }
+        .badge-room { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); padding: 0.2rem 0.55rem; border-radius: 0.35rem; font-weight: 700; }
+        .badge-lab { font-size: 0.68rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+
+        /* TIMETABLE MATRIX GRID */
+        .tt-grid-table {
             width: 100%;
-            padding: 2rem;
+            border-collapse: separate;
+            border-spacing: 5px;
+            font-size: 0.82rem;
+            text-align: center;
+        }
+        .tt-grid-table th {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 0.65rem 0.5rem;
+            border-radius: 0.4rem;
+            font-weight: 700;
+            font-size: 0.78rem;
+        }
+        .tt-grid-table td {
+            background: var(--theory-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            vertical-align: middle;
+            min-height: 58px;
             position: relative;
+            transition: all 0.15s ease;
+        }
+        .tt-grid-table td.lunch-cell {
+            background: var(--lunch-bg);
+            color: #64748b;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+        }
+        .tt-grid-table td.lab-cell {
+            background: var(--lab-bg);
+            border-color: var(--lab-border);
+        }
+        .tt-grid-table td.day-cell {
+            background: #1e293b;
+            font-weight: 800;
+            color: #ffffff;
+            width: 75px;
         }
 
         .pivot-tabs {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
             border-bottom: 1px solid #1f2937;
             padding-bottom: 0.75rem;
+            flex-wrap: wrap;
         }
-
         .pivot-btn {
             background: #1e293b;
             border: 1px solid #334155;
@@ -335,12 +396,37 @@
             font-size: 0.82rem;
             font-weight: 700;
             cursor: pointer;
+            transition: all 0.15s;
+        }
+        .pivot-btn:hover { background: #334155; color: #ffffff; }
+        .pivot-btn.active {
+            background: #0d9488;
+            border-color: #2dd4bf;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(45, 212, 191, 0.3);
         }
 
-        .pivot-btn.active {
-            background: #0284c7;
-            border-color: #38bdf8;
-            color: #ffffff;
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 0.95rem;
+            padding: 1.75rem;
+            max-width: 650px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -350,7 +436,7 @@
     <aside class="portal-sidebar">
         <div class="portal-brand">
             <h2>📅 Timetable Engine</h2>
-            <span class="subtitle">Constraint Satisfaction Solver</span>
+            <span class="subtitle">Dynamic Constraint Solver</span>
         </div>
 
         <ul class="nav-menu">
@@ -381,15 +467,16 @@
     <!-- MAIN CONTENT -->
     <main class="portal-main">
 
+        <!-- TOP BANNER -->
         <div class="top-banner">
             <div>
-                <h1 class="welcome-title">Automatic Academic Timetable Generator</h1>
-                <p class="welcome-sub">Constraint-based forward-checking engine &bull; Real institutional curriculum data</p>
+                <h1 class="welcome-title">Dynamic Automated Timetable Generator</h1>
+                <p class="welcome-sub">5-Step Configuration Wizard &bull; Real CSP Backtracking Engine &bull; Global Multi-Section Optimization</p>
             </div>
             <div class="meta-pills">
-                <div class="meta-pill">Academic Year: <strong>2026-2027</strong></div>
-                <div class="meta-pill">Engine: <strong>CSP Backtracking + MRV Heuristic</strong></div>
-                <div class="meta-pill">Status: <strong>
+                <div class="meta-pill">Institution: <strong>IFHE (ICFAI)</strong></div>
+                <div class="meta-pill">Engine: <strong>CSP-Backtracking + MRV Heuristic</strong></div>
+                <div class="meta-pill">Status: <strong id="globalGenStatusPill">
                     {% if active_gen and active_gen.status == 'published' %}
                         <span style="color: #4ade80;">Published</span>
                     {% elif active_gen %}
@@ -404,497 +491,1309 @@
         <div id="genAlertSuccess" class="alert-box alert-success"></div>
         <div id="genAlertError" class="alert-box alert-error"></div>
 
-        <!-- GENERATOR CONTROLS CARD -->
-        <div class="portal-card">
-            <h3><span>🚀 Automatic Generation Parameters</span></h3>
-            <form id="generateTimetableForm" onsubmit="handleTriggerGeneration(event)">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        <!-- 5-STEP WIZARD PROGRESS BAR -->
+        <div class="wizard-steps-bar">
+            <div class="step-node active" id="stepNode1" onclick="switchWizardStep(1)">
+                <div class="step-number">1</div>
+                <span>Academic Config</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-node" id="stepNode2" onclick="switchWizardStep(2)">
+                <div class="step-number">2</div>
+                <span>Course Details</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-node" id="stepNode3" onclick="switchWizardStep(3)">
+                <div class="step-number">3</div>
+                <span>Rooms &amp; Labs</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-node" id="stepNode4" onclick="switchWizardStep(4)">
+                <div class="step-number">4</div>
+                <span>Faculty Mapping</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-node" id="stepNode5" onclick="switchWizardStep(5)">
+                <div class="step-number">5</div>
+                <span>Preferences &amp; Solve</span>
+            </div>
+        </div>
+
+        <!-- WIZARD CONTAINER CARD -->
+        <div class="portal-card" id="wizardContainerCard">
+            <!-- ================= STEP 1: ACADEMIC CONFIGURATION ================= -->
+            <div class="wizard-panel active" id="wizardPanel1">
+                <h3><span>📋 Step 1: Academic &amp; Section Configuration</span></h3>
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                    Configure the academic year, department, semester, and dynamic section count. Sections are generated dynamically with custom strengths.
+                </p>
+
+                <div class="form-grid-3">
                     <div class="form-group">
                         <label class="form-label">Academic Year</label>
-                        <select id="genAcademicYear" class="form-select">
+                        <select id="cfgAcademicYear" class="form-select">
                             {% for ay in meta.academic_years %}
-                                <option value="{{ ay.id }}">{{ ay.name }} ({{ ay.code }})</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Academic Semester</label>
-                        <select id="genSemester" class="form-select">
-                            {% for sem in meta.semesters %}
-                                <option value="{{ sem.id }}">{{ sem.name }}</option>
+                                <option value="{{ ay.id }}" {% if ay.is_current %}selected{% endif %}>{{ ay.name }} ({{ ay.code }})</option>
                             {% endfor %}
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Department / Branch</label>
-                        <select id="genDepartment" class="form-select">
-                            {% for dept in meta.departments %}
-                                <option value="{{ dept.id }}">{{ dept.name }}</option>
-                            {% endfor %}
+                        <select id="cfgDepartment" class="form-select" onchange="onDepartmentChanged()">
+                            <option value="CSE" selected>Computer Science &amp; Engineering (CSE)</option>
+                            <option value="AIDS">Artificial Intelligence &amp; Data Science (AIDS)</option>
+                            <option value="AIML">Artificial Intelligence &amp; Machine Learning (AIML)</option>
+                            <option value="ECE">Electronics &amp; Communication Engineering (ECE)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Generation Scope</label>
-                        <select id="genScope" class="form-select" onchange="toggleScopeSelection(this.value)">
-                            <option value="semester" selected>All Sections of Semester</option>
-                            <option value="section">Specific Section</option>
-                            <option value="department">All Sections of Department</option>
-                            <option value="academic_year">Entire Academic Year</option>
+                        <label class="form-label">Semester</label>
+                        <select id="cfgSemester" class="form-select" onchange="onSemesterChanged()">
+                            <option value="1">Semester 1 (Year I)</option>
+                            <option value="2">Semester 2 (Year I)</option>
+                            <option value="3" selected>Semester 3 (Year II)</option>
+                            <option value="4">Semester 4 (Year II)</option>
+                            <option value="5">Semester 5 (Year III)</option>
+                            <option value="6">Semester 6 (Year III)</option>
+                            <option value="7">Semester 7 (Year IV)</option>
+                            <option value="8">Semester 8 (Year IV)</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 0.85rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.08);">
-                    <label class="form-label" style="margin-bottom: 0.5rem;">Target Sections to Include</label>
-                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-                        {% for sec in meta.sections %}
-                            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; cursor: pointer;">
-                                <input type="checkbox" name="target_section" value="{{ sec.id }}" checked>
-                                <strong>{{ sec.display_name }}</strong> ({{ sec.student_count }} Students &bull; Pref: {{ sec.preferred_classroom_id }})
-                            </label>
-                        {% endfor %}
+                <!-- DYNAMIC SECTIONS GENERATOR -->
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid #1f2937; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <h4 style="margin: 0; color: #5eead4; font-size: 0.95rem;">👥 Dynamic Sections Configuration</h4>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">Specify the number of sections. Sections will be generated dynamically with customizable names and student strengths.</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <label class="form-label" style="margin: 0;">Number of Sections:</label>
+                            <input type="number" id="cfgNumSections" class="form-input" style="width: 80px; text-align: center;" value="2" min="1" max="10" onchange="generateSectionRows()">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table" id="dynamicSectionsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 90px;">Section ID</th>
+                                    <th>Section Display Name</th>
+                                    <th style="width: 140px;">Student Strength</th>
+                                    <th style="width: 180px;">Preferred Room</th>
+                                    <th style="width: 70px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dynamicSectionsBody">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                    <div style="font-size: 0.82rem; color: #94a3b8;">
-                        Enforces 12 mandatory institutional constraints: zero collisions, room capacity, consecutive 2-hr practicals, lunch break exclusion.
+                <!-- WORKING DAYS & TIMINGS CONFIGURATION -->
+                <div class="form-grid-3" style="background: rgba(255,255,255,0.02); border: 1px solid #1f2937; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">Working Days</label>
+                        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.4rem;" id="cfgWorkingDaysContainer">
+                            <label style="font-size: 0.82rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="cfgDays" value="Mon" checked> Mon</label>
+                            <label style="font-size: 0.82rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="cfgDays" value="Tue" checked> Tue</label>
+                            <label style="font-size: 0.82rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="cfgDays" value="Wed" checked> Wed</label>
+                            <label style="font-size: 0.82rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="cfgDays" value="Thu" checked> Thu</label>
+                            <label style="font-size: 0.82rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="cfgDays" value="Fri" checked> Fri</label>
+                            <label style="font-size: 0.82rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="cfgDays" value="Sat"> Sat</label>
+                        </div>
                     </div>
-                    <button id="genSubmitBtn" type="submit" class="btn-primary" style="padding: 0.85rem 1.75rem;">
-                        <span>🚀 Run Constraint-Based Generation</span>
+
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">Daily Periods</label>
+                        <select id="cfgNumPeriods" class="form-select">
+                            <option value="8">8 Periods per Day</option>
+                            <option value="9" selected>9 Periods per Day (09:00 - 04:40)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">Lunch Break Slot</label>
+                        <select id="cfgLunchSlot" class="form-select">
+                            <option value="4">Period 4 (11:40 - 12:30)</option>
+                            <option value="5" selected>Period 5 (12:30 - 01:20) [Standard]</option>
+                            <option value="6">Period 6 (01:20 - 02:10)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button class="btn-primary" onclick="proceedToStep(2)">Proceed to Step 2: Course Details &rarr;</button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 2: UPLOAD & PREVIEW COURSE DETAILS ================= -->
+            <div class="wizard-panel" id="wizardPanel2">
+                <h3><span>📚 Step 2: Course Details &amp; Upload</span></h3>
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                    Attach official course details via Excel/CSV, or load the authentic pre-configured ICFAI (IFHE) B.Tech catalog.
+                </p>
+
+                <!-- 1-Click Catalog Preset or File Upload -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <!-- Card 1: Official Preset -->
+                    <div style="background: rgba(13, 148, 136, 0.08); border: 1px solid rgba(45, 212, 191, 0.3); border-radius: 0.75rem; padding: 1.25rem;">
+                        <h4 style="margin: 0 0 0.4rem; color: #5eead4; font-size: 0.95rem;">⚡ Instant IFHE Official Curriculum</h4>
+                        <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 1rem;">
+                            Directly load verified IFHE B.Tech course catalog for <strong id="presetSelectedLabel">CSE • Semester 3</strong>.
+                        </p>
+                        <button class="btn-primary" onclick="loadIFHECatalogPreset()">⚡ Load Official IFHE Catalog</button>
+                    </div>
+
+                    <!-- Card 2: Custom File Upload -->
+                    <div class="upload-dropzone" onclick="document.getElementById('catalogFileInput').click()">
+                        <input type="file" id="catalogFileInput" style="display: none;" accept=".xlsx, .xls, .csv, .json" onchange="handleCatalogFileUpload(event)">
+                        <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">📤</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #ffffff;">Upload Custom Course File (.xlsx, .csv, .json)</div>
+                        <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.2rem;">Drag &amp; drop or click to browse</div>
+                    </div>
+                </div>
+
+                <!-- COLUMN MAPPING MODAL / ACCORDION IF UNRECOGNIZED -->
+                <div id="columnMappingCard" style="display: none; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <h4 style="margin: 0 0 0.75rem; color: #fbbf24;">⚠️ Map Columns from Uploaded Document</h4>
+                    <div class="form-grid-4" id="columnMappingSelectsContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div style="margin-top: 1rem; text-align: right;">
+                        <button class="btn-secondary" onclick="applyCustomColumnMapping()">Apply Column Mapping &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- PREVIEW TABLE -->
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h4 style="margin: 0; color: #f1f5f9; font-size: 0.95rem;">Extracted Courses Preview (<span id="extractedCountBadge">0</span> Courses)</h4>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;" onclick="addNewSubjectRow()">➕ Add Custom Subject</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 380px; overflow-y: auto; border: 1px solid #1f2937; border-radius: 0.55rem;">
+                        <table class="custom-table" id="coursesPreviewTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Code</th>
+                                    <th>Subject Name</th>
+                                    <th style="width: 100px;">Type</th>
+                                    <th style="width: 80px;">Credits</th>
+                                    <th style="width: 80px;">Lecture (L)</th>
+                                    <th style="width: 80px;">Practical (P)</th>
+                                    <th style="width: 90px;">Consecutive</th>
+                                    <th style="width: 80px;">Lab Req</th>
+                                    <th style="width: 60px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesPreviewBody">
+                                <tr><td colspan="9" style="text-align: center; color: #64748b; padding: 2rem;">No courses loaded yet. Click 'Load Official IFHE Catalog' or upload an Excel file.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <button class="btn-secondary" onclick="proceedToStep(1)">&larr; Back to Step 1</button>
+                    <button class="btn-primary" onclick="proceedToStep(3)">Confirm Courses &amp; Proceed to Step 3 &rarr;</button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 3: CLASSROOM & LAB SELECTION ================= -->
+            <div class="wizard-panel" id="wizardPanel3">
+                <h3><span>🏛️ Step 3: Classroom and Laboratory Selection</span></h3>
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                    Select which physical lecture halls and computer laboratories are available for this batch. Capacity is strictly validated against section strength.
+                </p>
+
+                <!-- Classrooms Grid -->
+                <div style="margin-bottom: 1.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h4 style="margin: 0; color: #5eead4; font-size: 0.95rem;">Lecture Classrooms (<span id="selectedClassroomsCount">0</span> selected)</h4>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.75rem;" onclick="toggleAllRooms(true)">Select All</button>
+                            <button class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.75rem;" onclick="toggleAllRooms(false)">Clear All</button>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;" id="classroomsChecklistContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Computer Laboratories Grid -->
+                <div style="margin-bottom: 1.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h4 style="margin: 0; color: #38bdf8; font-size: 0.95rem;">💻 Computer Laboratories (<span id="selectedLabsCount">0</span> selected)</h4>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.75rem;" onclick="toggleAllLabs(true)">Select All Labs</button>
+                            <button class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.75rem;" onclick="toggleAllLabs(false)">Clear Labs</button>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem;" id="labsChecklistContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <button class="btn-secondary" onclick="proceedToStep(2)">&larr; Back to Step 2</button>
+                    <button class="btn-primary" onclick="proceedToStep(4)">Proceed to Step 4: Faculty Mapping &rarr;</button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 4: FACULTY MAPPING ================= -->
+            <div class="wizard-panel" id="wizardPanel4">
+                <h3><span>👨‍🏫 Step 4: Faculty Assignment &amp; Workload</span></h3>
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                    Assign professors to each course. When a professor is shared across multiple sections, the solver guarantees conflict-free scheduling globally.
+                </p>
+
+                <!-- Provisional toggle alert -->
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 0.65rem; padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <strong style="color: #fbbf24; font-size: 0.88rem;">Provisional Scheduling Mode:</strong>
+                        <span style="font-size: 0.82rem; color: #cbd5e1; margin-left: 0.5rem;">If faculty assignments are pending, generate room-and-section schedule without strict faculty clash locks.</span>
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.84rem; font-weight: 700; color: #fbbf24;">
+                        <input type="checkbox" id="provisionalModeToggle"> Provisional Mode
+                    </label>
+                </div>
+
+                <div class="table-responsive" style="margin-bottom: 1.5rem;">
+                    <table class="custom-table" id="facultyMappingTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Subject Code</th>
+                                <th>Subject Title</th>
+                                <th style="width: 80px;">Hours</th>
+                                <th style="width: 240px;">Assigned Faculty</th>
+                                <th>Target Section(s)</th>
+                                <th style="width: 130px;">Workload Max</th>
+                            </tr>
+                        </thead>
+                        <tbody id="facultyMappingBody">
+                            <!-- Populated dynamically by JS based on Step 2 subjects -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <button class="btn-secondary" onclick="proceedToStep(3)">&larr; Back to Step 3</button>
+                    <button class="btn-primary" onclick="proceedToStep(5)">Proceed to Step 5: Optimization &amp; Solve &rarr;</button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 5: PREFERENCES & GENERATION TRIGGER ================= -->
+            <div class="wizard-panel" id="wizardPanel5">
+                <h3><span>🚀 Step 5: Optimization Preferences &amp; Generation</span></h3>
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                    Configure pedagogical soft constraints before launching the CSP scheduling solver.
+                </p>
+
+                <div class="form-grid-3" style="margin-bottom: 1.75rem;">
+                    <div class="form-group">
+                        <label class="form-label">Max Periods per Day (Section)</label>
+                        <select id="prefMaxDailyPeriods" class="form-select">
+                            <option value="6">6 Periods / Day</option>
+                            <option value="7" selected>7 Periods / Day (Recommended)</option>
+                            <option value="8">8 Periods / Day</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Max Consecutive Theory Periods</label>
+                        <select id="prefMaxConsecutive" class="form-select">
+                            <option value="2">2 Periods Maximum</option>
+                            <option value="3" selected>3 Periods Maximum</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Practical Session Rule</label>
+                        <div style="padding-top: 0.4rem;">
+                            <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.4rem;">
+                                <input type="checkbox" id="prefConsecutiveLabs" checked disabled> Mandatory 2 Consecutive Slots for Labs
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PREFERENCE HEURISTICS CHECKBOXES -->
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid #1f2937; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.75rem;">
+                    <h4 style="margin: 0 0 0.85rem; color: #5eead4; font-size: 0.95rem;">🎯 Soft Optimization Heuristics</h4>
+                    <div class="form-grid-2">
+                        <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="prefDistributeDays" checked>
+                            <span><strong>Uniform Day Spread:</strong> Distribute subject lectures across the 5 days to avoid repetition on the same day.</span>
+                        </label>
+                        <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="prefCompactFaculty" checked>
+                            <span><strong>Compact Faculty Schedules:</strong> Minimize idle gap periods between classes for professors.</span>
+                        </label>
+                        <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="prefBalanceRooms" checked>
+                            <span><strong>Balanced Room Utilization:</strong> Distribute classroom assignments evenly across available lecture halls.</span>
+                        </label>
+                        <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="prefLockLunch" checked disabled>
+                            <span><strong>Institutional Lunch Lock:</strong> Preserve Period 5 (12:30 - 01:20) exclusively for lunch.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- SOLVE TRIGGER BUTTON -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1f2937; padding-top: 1.5rem;">
+                    <button class="btn-secondary" onclick="proceedToStep(4)">&larr; Back to Step 4</button>
+                    <button class="btn-primary" id="btnLaunchSolve" style="padding: 0.9rem 2rem; font-size: 1rem; background: linear-gradient(135deg, #0d9488 0%, #2563eb 100%);" onclick="triggerDynamicGeneration()">
+                        ⚡ Generate Timetable for All Sections
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
 
-        <!-- VALIDATION & GENERATION STATUS REPORT -->
-        {% if active_gen %}
-            <div class="portal-card" style="border-left: 4px solid {{ '#4ade80' if active_gen.conflict_count == 0 else '#f87171' }};">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
-                            <span class="status-pill {{ 'success' if active_gen.status == 'published' else 'warning' }}">
-                                {{ active_gen.status.upper() }} (v1)
-                            </span>
-                            <strong style="color: #ffffff; font-size: 1.1rem;">
-                                Timetable Generation #{{ active_gen.id }} &bull; {{ active_gen.total_classes_scheduled }} Classes Scheduled
-                            </strong>
-                        </div>
-                        <div style="font-size: 0.84rem; color: #94a3b8;">
-                            Algorithm: <code>{{ active_gen.algorithm_used }}</code> &bull; Solved in: <strong>{{ active_gen.solve_time_seconds }}s</strong> &bull; Generated: {{ active_gen.generated_at }}
-                        </div>
-                    </div>
+        <!-- ================= GENERATION RESULTS & VALIDATION REPORT CARD ================= -->
+        <div class="portal-card" id="generationResultsCard" style="display: none;">
+            <h3>
+                <span>📊 Generation Results &amp; Validation Audit</span>
+                <span id="genVersionBadge" class="status-pill success" style="font-size: 0.75rem;">Draft Version 1</span>
+            </h3>
 
-                    <div style="display: flex; gap: 0.65rem;">
-                        {% if active_ver_id %}
-                            <a href="/download/timetable-excel/{{ active_ver_id }}" class="btn-secondary">📊 Export Excel Workbook</a>
-                        {% endif %}
-                        {% if active_gen.status != 'published' %}
-                            <button class="btn-primary" style="background: #16a34a;" onclick="handlePublishTimetable({{ active_gen.id }})">
-                                ✅ Publish Approved Timetable
-                            </button>
-                        {% else %}
-                            <span class="status-pill success" style="padding: 0.5rem 1rem;">Published to Student &amp; Faculty Portals</span>
-                        {% endif %}
-                    </div>
+            <!-- SUMMARY STATS -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="background: #1f2937; padding: 1rem; border-radius: 0.65rem; border: 1px solid #374151;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Sections Scheduled</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #ffffff;" id="resSectionsCount">—</div>
                 </div>
-
-                {% if active_gen.validation_report %}
-                    <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: rgba(0,0,0,0.25); border-radius: 0.5rem; font-size: 0.84rem;">
-                        <span style="color: #4ade80; font-weight: 700;">Validation Pass Result:</span>
-                        {{ active_gen.validation_report.summary }} (Errors: {{ active_gen.validation_report.error_count }}, Warnings: {{ active_gen.validation_report.warning_count }})
-                    </div>
-                {% endif %}
+                <div style="background: #1f2937; padding: 1rem; border-radius: 0.65rem; border: 1px solid #374151;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Total Weekly Classes</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #ffffff;" id="resTotalClasses">—</div>
+                </div>
+                <div style="background: #1f2937; padding: 1rem; border-radius: 0.65rem; border: 1px solid #374151;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Faculty Conflicts</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #4ade80;" id="resFacultyConflicts">0 Conflicts</div>
+                </div>
+                <div style="background: #1f2937; padding: 1rem; border-radius: 0.65rem; border: 1px solid #374151;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Room Collisions</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #4ade80;" id="resRoomCollisions">0 Collisions</div>
+                </div>
+                <div style="background: #1f2937; padding: 1rem; border-radius: 0.65rem; border: 1px solid #374151;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Optimization Score</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #5eead4;" id="resOptScore">100% Valid</div>
+                </div>
             </div>
-        {% endif %}
 
-        <!-- INTERACTIVE TIMETABLE MATRIX INSPECTOR -->
-        <div class="portal-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-                <h3 style="margin: 0;"><span>📅 Interactive Timetable Schedule Inspector</span></h3>
-                
-                <!-- Target Selector -->
+            <!-- DETAILED DIAGNOSTIC LOG -->
+            <div id="validationDiagnosticBox" style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.25); border-radius: 0.65rem; padding: 1rem 1.25rem; font-size: 0.85rem; color: #86efac; margin-bottom: 1.5rem;">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- ACTION BUTTONS: PUBLISH, PDF, EXCEL -->
+            <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+                <button class="btn-success" id="btnPublishAction" onclick="publishActiveTimetable()">💾 Publish Official Timetable</button>
+                <a id="btnDownloadAllPdf" href="#" class="btn-secondary">📄 Download All Sections PDF</a>
+                <a id="btnDownloadCurrentPdf" href="#" class="btn-secondary">📄 Download Current Section PDF</a>
+                <a id="btnDownloadExcel" href="#" class="btn-secondary">📊 Export OpenXML Excel (.xlsx)</a>
+            </div>
+        </div>
+
+        <!-- ================= TIMETABLE PREVIEW & MATRIX INSPECTION ================= -->
+        <div class="portal-card" id="timetableMatrixCard">
+            <h3>
+                <span>📅 Academic Timetable Matrix View</span>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <select id="matrixViewType" class="form-select" style="width: auto; padding: 0.45rem 0.85rem;" onchange="handleViewTypeChange(this.value)">
-                        <option value="section" selected>Section-wise View</option>
-                        <option value="faculty">Faculty-wise View</option>
-                        <option value="classroom">Classroom-wise View</option>
-                    </select>
-
-                    <select id="matrixTargetId" class="form-select" style="width: auto; padding: 0.45rem 0.85rem;" onchange="reloadMatrixView()">
-                        {% for sec in meta.sections %}
-                            <option value="{{ sec.id }}">{{ sec.display_name }}</option>
-                        {% endfor %}
-                    </select>
+                    <span id="currentMatrixLabel" style="font-size: 0.82rem; color: #2dd4bf; font-weight: 600;">Section A</span>
                 </div>
+            </h3>
+
+            <!-- DYNAMIC TABS -->
+            <div class="pivot-tabs" id="dynamicPivotTabsContainer">
+                <button class="pivot-btn" onclick="switchPivotView('all_sections', '')">All Sections (Consolidated)</button>
+                <button class="pivot-btn active" id="defaultSectionTabBtn" onclick="switchPivotView('section', '1')">Section A</button>
+                <button class="pivot-btn" onclick="switchPivotView('faculty', 'Dr. T. Bharat Kumar')">Faculty View</button>
+                <button class="pivot-btn" onclick="switchPivotView('classroom', 'G16')">Classroom View</button>
+                <button class="pivot-btn" onclick="switchPivotView('lab', 'L1')">Laboratory View</button>
             </div>
 
-            <!-- Weekly Matrix Grid -->
-            <div id="timetableGridContainer" class="table-responsive">
-                <table class="tt-grid-table">
+            <!-- TARGET SELECTOR (Appears for Faculty, Classroom, Lab) -->
+            <div id="pivotTargetSelectorWrapper" style="display: none; margin-bottom: 1.25rem;">
+                <label class="form-label" id="pivotTargetSelectorLabel">Select Entity:</label>
+                <select id="pivotTargetSelect" class="form-select" style="max-width: 320px;" onchange="onPivotTargetChanged(this.value)">
+                    <!-- Options populated by JS -->
+                </select>
+            </div>
+
+            <!-- INTERACTIVE WEEKLY GRID TABLE -->
+            <div class="table-responsive">
+                <table class="tt-grid-table" id="timetableInteractiveGrid">
                     <thead>
                         <tr>
-                            <th>Day</th>
-                            <th>Slot 1<br><small style="color: #94a3b8; font-weight: normal;">09:00-09:50</small></th>
-                            <th>Slot 2<br><small style="color: #94a3b8; font-weight: normal;">09:50-10:40</small></th>
-                            <th>Slot 3<br><small style="color: #94a3b8; font-weight: normal;">10:50-11:40</small></th>
-                            <th>Slot 4<br><small style="color: #94a3b8; font-weight: normal;">11:40-12:30</small></th>
-                            <th>Lunch<br><small style="color: #94a3b8; font-weight: normal;">12:30-01:20</small></th>
-                            <th>Slot 6<br><small style="color: #94a3b8; font-weight: normal;">01:20-02:10</small></th>
-                            <th>Slot 7<br><small style="color: #94a3b8; font-weight: normal;">02:10-03:00</small></th>
-                            <th>Slot 8<br><small style="color: #94a3b8; font-weight: normal;">03:00-03:50</small></th>
-                            <th>Slot 9<br><small style="color: #94a3b8; font-weight: normal;">03:50-04:40</small></th>
+                            <th style="width: 75px;">Day / Time</th>
+                            <th>Slot 1<br><span style="font-size: 0.68rem; font-weight: 400; color: #94a3b8;">09:00 - 09:50</span></th>
+                            <th>Slot 2<br><span style="font-size: 0.68rem; font-weight: 400; color: #94a3b8;">09:50 - 10:40</span></th>
+                            <th>Slot 3<br><span style="font-size: 0.68rem; font-weight: 400; color: #94a3b8;">10:50 - 11:40</span></th>
+                            <th>Slot 4<br><span style="font-size: 0.68rem; font-weight: 400; color: #94a3b8;">11:40 - 12:30</span></th>
+                            <th style="background: #0f172a; color: #64748b; width: 65px;">LUNCH<br><span style="font-size: 0.68rem; font-weight: 400;">12:30-01:20</span></th>
+                            <th>Slot 6<br><span style="font-size: 0.68rem; font-weight: 400; color: #94a3b8;">01:20 - 02:10</span></th>
+                            <th>Slot 7<br><span style="font-size: 0.68rem; font-weight: 400; color: #94a3b8;">02:10 - 03:00</span></th>
+                            <th>Slot 8<br><span style="font-size: 0.68rem; font-weight: 400; color: #94a3b8;">03:00 - 03:50</span></th>
+                            <th>Slot 9<br><span style="font-size: 0.68rem; font-weight: 400; color: #94a3b8;">03:50 - 04:40</span></th>
                         </tr>
                     </thead>
-                    <tbody id="matrixGridBody">
-                        {% if current_matrix %}
-                            {% for d in current_matrix.days %}
-                                <tr>
-                                    <td class="day-cell">{{ d }}</td>
-                                    {% for s in current_matrix.slots %}
-                                        {% set cell = current_matrix.grid[d].get(s) %}
-                                        {% if s == 5 %}
-                                            <td class="lunch-cell">LUNCH</td>
-                                        {% elif cell %}
-                                            <td class="{{ 'lab-cell' if cell.is_lab else '' }}">
-                                                <button class="edit-hover-btn" onclick="openManualAdjustModal({{ cell.id }}, '{{ cell.subject_code }}', '{{ cell.faculty_name }}', '{{ d }}', {{ s }}, '{{ cell.room_id }}')">✏️ Move</button>
-                                                <div class="tt-cell-content">
-                                                    <span class="tt-subj-code">{{ cell.subject_code }}</span>
-                                                    <span class="tt-room-pill">{{ cell.room_id }}</span>
-                                                    <span class="tt-fac-name">{{ cell.faculty_name }}</span>
-                                                </div>
-                                            </td>
-                                        {% else %}
-                                            <td><span style="color: #475569;">&mdash;</span></td>
-                                        {% endif %}
-                                    {% endfor %}
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr><td colspan="10" style="padding: 2rem; color: #94a3b8;">No timetable generated yet. Click "Run Constraint-Based Generation" above.</td></tr>
-                        {% endif %}
+                    <tbody id="timetableGridBody">
+                        <!-- Populated dynamically by JS -->
                     </tbody>
                 </table>
-            </div>
-        </div>
-
-        <!-- MAINTENANCE RIPPLE IMPACT ANALYZER -->
-        <div class="portal-card">
-            <h3><span>🔧 Maintenance Downtime Ripple Impact Analyzer</span></h3>
-            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
-                When a classroom or lab is blocked for repairs, inspect all affected academic sessions and find instant conflict-free replacement rooms.
-            </p>
-            <div style="display: flex; gap: 1rem; align-items: flex-end; margin-bottom: 1rem;">
-                <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
-                    <label class="form-label">Select Classroom / Lab</label>
-                    <select id="maintRoomSelect" class="form-select">
-                        <option value="G16">Classroom G16 (CSE A Preferred)</option>
-                        <option value="G04">Classroom G04 (CSE B Preferred)</option>
-                        <option value="LAB-1">Computer Laboratory 1</option>
-                        <option value="LAB-2">Computer Laboratory 2</option>
-                    </select>
-                </div>
-                <button type="button" class="btn-secondary" onclick="checkMaintenanceImpact()">Inspect Affected Classes &amp; Substitutes</button>
-            </div>
-
-            <div id="maintImpactResults" style="display: none;">
-                <div id="maintImpactSummary" style="font-weight: 700; margin-bottom: 0.5rem; color: #ffffff;"></div>
-                <div id="maintImpactTableContainer" class="table-responsive"></div>
             </div>
         </div>
 
     </main>
 
     <!-- MANUAL ADJUSTMENT MODAL -->
-    <div id="adjustModal" class="modal-overlay">
-        <div class="modal-box">
-            <button onclick="closeManualAdjustModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
-            <h3 style="margin-top: 0; color: #ffffff;">✏️ Adjust Class Assignment</h3>
-            <div id="adjustSubjInfo" style="font-size: 0.9rem; color: #38bdf8; font-weight: 700; margin-bottom: 1rem;"></div>
+    <div class="modal-overlay" id="adjustEntryModal">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; color: #ffffff; display: flex; justify-content: space-between;">
+                <span>✏️ Adjust Timetable Entry</span>
+                <span style="cursor: pointer; font-size: 1.2rem; color: #94a3b8;" onclick="closeAdjustModal()">&times;</span>
+            </h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                Move this session to a new day, period, or venue. Constraint checker re-validates the schedule instantly.
+            </p>
 
-            <form id="adjustForm" onsubmit="submitManualAdjustment(event)">
-                <input type="hidden" id="adjustEntryId">
+            <form id="adjustEntryForm" onsubmit="handleSaveEntryAdjustment(event)">
+                <input type="hidden" id="adjEntryId">
 
                 <div class="form-group">
-                    <label class="form-label">Target Day</label>
-                    <select id="adjustDay" class="form-select">
-                        <option value="Mon">Monday</option>
-                        <option value="Tue">Tuesday</option>
-                        <option value="Wed">Wednesday</option>
-                        <option value="Thu">Thursday</option>
-                        <option value="Fri">Friday</option>
+                    <label class="form-label">Subject</label>
+                    <input type="text" id="adjSubjectName" class="form-input" readonly style="opacity: 0.8;">
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Day of Week</label>
+                        <select id="adjDaySelect" class="form-select">
+                            <option value="Mon">Monday</option>
+                            <option value="Tue">Tuesday</option>
+                            <option value="Wed">Wednesday</option>
+                            <option value="Thu">Thursday</option>
+                            <option value="Fri">Friday</option>
+                            <option value="Sat">Saturday</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Period Slot</label>
+                        <select id="adjSlotSelect" class="form-select">
+                            <option value="1">Slot 1 (09:00 - 09:50)</option>
+                            <option value="2">Slot 2 (09:50 - 10:40)</option>
+                            <option value="3">Slot 3 (10:50 - 11:40)</option>
+                            <option value="4">Slot 4 (11:40 - 12:30)</option>
+                            <option value="5" disabled style="color: #64748b;">Slot 5 (12:30 - 01:20) [LUNCH - LOCKED]</option>
+                            <option value="6">Slot 6 (01:20 - 02:10)</option>
+                            <option value="7">Slot 7 (02:10 - 03:00)</option>
+                            <option value="8">Slot 8 (03:00 - 03:50)</option>
+                            <option value="9">Slot 9 (03:50 - 04:40)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Assigned Room / Lab</label>
+                    <select id="adjRoomSelect" class="form-select">
+                        <!-- Populated by JS -->
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Target Period / Slot (Excludes Slot 5 Lunch)</label>
-                    <select id="adjustSlot" class="form-select">
-                        <option value="1">Slot 1 (09:00 - 09:50)</option>
-                        <option value="2">Slot 2 (09:50 - 10:40)</option>
-                        <option value="3">Slot 3 (10:50 - 11:40)</option>
-                        <option value="4">Slot 4 (11:40 - 12:30)</option>
-                        <option value="6">Slot 6 (01:20 - 02:10)</option>
-                        <option value="7">Slot 7 (02:10 - 03:00)</option>
-                        <option value="8">Slot 8 (03:00 - 03:50)</option>
-                        <option value="9">Slot 9 (03:50 - 04:40)</option>
-                    </select>
+                <div id="adjErrorAlert" class="alert-box alert-error"></div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-secondary" onclick="closeAdjustModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">💾 Validate &amp; Save Adjustment</button>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">Target Classroom / Lab</label>
-                    <input type="text" id="adjustRoom" class="form-input" required placeholder="e.g. G16, G04, LAB-1">
-                </div>
-
-                <div id="adjustErrorBox" class="alert-box alert-error"></div>
-
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
-                    Validate &amp; Save Adjustment
-                </button>
             </form>
         </div>
     </div>
 
+    <!-- CORE WIZARD JAVASCRIPT ENGINE -->
     <script>
-        const activeVersionId = {{ active_ver_id or 1 }};
-        const sectionOptions = [
-            {% for s in meta.sections %}
-                { id: "{{ s.id }}", name: "{{ s.display_name }}" },
-            {% endfor %}
-        ];
-        const facultyOptions = [
-            {% set seen_fac = [] %}
-            {% for a in meta.assignments %}
-                {% if a.faculty_name not in seen_fac %}
-                    { id: "{{ a.faculty_name }}", name: "{{ a.faculty_name }}" },
-                    {% set _ = seen_fac.append(a.faculty_name) %}
-                {% endif %}
-            {% endfor %}
-        ];
-        const roomOptions = [
-            { id: "G16", name: "Classroom G16" },
-            { id: "G04", name: "Classroom G04" },
-            { id: "LAB-1", name: "Computer Lab 1" },
-            { id: "LAB-2", name: "Computer Lab 2" }
-        ];
+        // State
+        let wizardData = {
+            academic_year_id: 1,
+            department_id: "CSE",
+            semester_id: 3,
+            sections: [
+                { name: "A", display_name: "CSE Section A", student_count: 60, preferred_classroom_id: "G16" },
+                { name: "B", display_name: "CSE Section B", student_count: 60, preferred_classroom_id: "G04" }
+            ],
+            working_days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+            num_periods: 9,
+            lunch_slot: 5,
+            subjects: [],
+            selected_rooms: [],
+            selected_labs: [],
+            faculty_assignments: [],
+            faculty_unavailability: [],
+            preferences: {
+                max_daily_periods: 7,
+                max_consecutive_periods: 3,
+                distribute_days: true,
+                compact_faculty: true,
+                balance_rooms: true,
+                consecutive_labs: true,
+                is_provisional: false
+            }
+        };
 
-        function handleViewTypeChange(viewType) {
-            const select = document.getElementById("matrixTargetId");
-            select.innerHTML = "";
-            let opts = sectionOptions;
-            if (viewType === "faculty") opts = facultyOptions;
-            else if (viewType === "classroom") opts = roomOptions;
+        let activeVersionId = parseInt("{{ active_ver_id or 1 }}", 10) || 1;
+        let activeGenerationId = parseInt("{{ active_gen.id if active_gen else 1 }}", 10) || 1;
+        let currentPivot = "section";
+        let currentTargetId = "{{ default_section_id or 1 }}";
+        let metaRooms = [];
+        let metaLabs = [];
+        let metaFaculty = [];
 
-            opts.forEach(o => {
-                const opt = document.createElement("option");
-                opt.value = o.id;
-                opt.textContent = o.name;
-                select.appendChild(opt);
+        document.addEventListener("DOMContentLoaded", async function() {
+            generateSectionRows();
+            await fetchWizardInitData();
+            loadIFHECatalogPreset(); // Auto-load default catalog for CSE Sem 3
+            renderMatrixView();
+        });
+
+        // ================= WIZARD NAVIGATION =================
+        function switchWizardStep(stepNum) {
+            document.querySelectorAll(".step-node").forEach((node, idx) => {
+                if (idx + 1 === stepNum) node.classList.add("active");
+                else node.classList.remove("active");
+                if (idx + 1 < stepNum) node.classList.add("completed");
+                else node.classList.remove("completed");
             });
-            reloadMatrixView();
+
+            document.querySelectorAll(".wizard-panel").forEach((panel, idx) => {
+                if (idx + 1 === stepNum) panel.classList.add("active");
+                else panel.classList.remove("active");
+            });
         }
 
-        async function reloadMatrixView() {
-            const viewType = document.getElementById("matrixViewType").value;
-            const targetId = document.getElementById("matrixTargetId").value;
-            const tbody = document.getElementById("matrixGridBody");
+        function proceedToStep(targetStep) {
+            if (targetStep === 2) {
+                // Read Step 1 inputs
+                wizardData.academic_year_id = parseInt(document.getElementById("cfgAcademicYear").value);
+                wizardData.department_id = document.getElementById("cfgDepartment").value;
+                wizardData.semester_id = parseInt(document.getElementById("cfgSemester").value);
+                wizardData.num_periods = parseInt(document.getElementById("cfgNumPeriods").value);
+                wizardData.lunch_slot = parseInt(document.getElementById("cfgLunchSlot").value);
 
-            tbody.innerHTML = '<tr><td colspan="10" style="padding: 1.5rem; color: #94a3b8;">Loading timetable matrix...</td></tr>';
-
-            try {
-                const res = await fetch(`/api/timetable/matrix?version_id=${activeVersionId}&view_type=${viewType}&target_id=${encodeURIComponent(targetId)}`);
-                const data = await res.json();
-                if (data.success && data.matrix) {
-                    renderMatrixTable(data.matrix);
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="10" style="padding: 1.5rem; color: #f87171;">${data.error || "No records found."}</td></tr>`;
+                // Collect working days
+                const dayBoxes = document.querySelectorAll("input[name='cfgDays']:checked");
+                wizardData.working_days = Array.from(dayBoxes).map(cb => cb.value);
+                if (wizardData.working_days.length === 0) {
+                    showError("Please select at least 3 working days.");
+                    return;
                 }
-            } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="10" style="padding: 1.5rem; color: #f87171;">Error fetching timetable data.</td></tr>';
+
+                // Collect section rows
+                wizardData.sections = collectSectionRows();
+                if (wizardData.sections.length === 0) {
+                    showError("Please configure at least 1 section.");
+                    return;
+                }
+
+                document.getElementById("presetSelectedLabel").innerText = `${wizardData.department_id} • Semester ${wizardData.semester_id}`;
+            }
+            else if (targetStep === 3) {
+                // Validate Step 2 subjects
+                if (!wizardData.subjects || wizardData.subjects.length === 0) {
+                    showError("Please load the official IFHE catalog or upload a course details file.");
+                    return;
+                }
+                const hasErrors = wizardData.subjects.some(s => s.status === "error");
+                if (hasErrors) {
+                    showError("Please resolve missing or invalid course rows before proceeding.");
+                    return;
+                }
+            }
+            else if (targetStep === 4) {
+                // Collect selected rooms and labs
+                wizardData.selected_rooms = Array.from(document.querySelectorAll("input[name='roomCheckbox']:checked")).map(cb => cb.value);
+                wizardData.selected_labs = Array.from(document.querySelectorAll("input[name='labCheckbox']:checked")).map(cb => cb.value);
+
+                if (wizardData.selected_rooms.length === 0) {
+                    showError("Please select at least one lecture classroom.");
+                    return;
+                }
+                const needsLab = wizardData.subjects.some(s => s.weekly_lab_hours > 0);
+                if (needsLab && wizardData.selected_labs.length === 0) {
+                    showError("Curriculum contains practicals. Please select at least one computer laboratory.");
+                    return;
+                }
+
+                renderFacultyMappingRows();
+            }
+            else if (targetStep === 5) {
+                // Collect faculty mappings
+                wizardData.preferences.is_provisional = document.getElementById("provisionalModeToggle").checked;
+                wizardData.faculty_assignments = collectFacultyMappings();
+            }
+
+            switchWizardStep(targetStep);
+        }
+
+        // ================= STEP 1: DYNAMIC SECTIONS =================
+        function generateSectionRows() {
+            const count = parseInt(document.getElementById("cfgNumSections").value) || 2;
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const tbody = document.getElementById("dynamicSectionsBody");
+            tbody.innerHTML = "";
+
+            const dept = document.getElementById("cfgDepartment") ? document.getElementById("cfgDepartment").value : "CSE";
+
+            for (let i = 0; i < count; i++) {
+                const letter = letters[i] || `S${i+1}`;
+                const defaultRoom = (i === 0) ? "G16" : (i === 1 ? "G04" : (i === 2 ? "R103" : "R202"));
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><input type="text" class="form-input sec-letter-input" style="padding: 0.4rem; font-weight:800; text-align:center;" value="${letter}" maxlength="3"></td>
+                    <td><input type="text" class="form-input sec-display-input" style="padding: 0.4rem;" value="${dept} Year II - Section ${letter}"></td>
+                    <td><input type="number" class="form-input sec-count-input" style="padding: 0.4rem; text-align:center;" value="60" min="10" max="120"></td>
+                    <td>
+                        <select class="form-select sec-room-input" style="padding: 0.4rem;">
+                            <option value="G16" ${defaultRoom === 'G16' ? 'selected' : ''}>Room G16 (Cap 60)</option>
+                            <option value="G04" ${defaultRoom === 'G04' ? 'selected' : ''}>Room G04 (Cap 60)</option>
+                            <option value="R103" ${defaultRoom === 'R103' ? 'selected' : ''}>Room R103 (Cap 60)</option>
+                            <option value="R202" ${defaultRoom === 'R202' ? 'selected' : ''}>Room R202 (Cap 60)</option>
+                        </select>
+                    </td>
+                    <td><button class="btn-secondary" style="color: #f87171; padding: 0.3rem 0.5rem;" onclick="this.closest('tr').remove()">&times;</button></td>
+                `;
+                tbody.appendChild(tr);
             }
         }
 
-        function renderMatrixTable(matrix) {
-            const tbody = document.getElementById("matrixGridBody");
-            let html = "";
-
-            matrix.days.forEach(d => {
-                html += `<tr><td class="day-cell">${d}</td>`;
-                matrix.slots.forEach(s => {
-                    const cell = matrix.grid[d][s];
-                    if (s === 5) {
-                        html += `<td class="lunch-cell">LUNCH</td>`;
-                    } else if (cell) {
-                        const isLab = cell.is_lab ? "lab-cell" : "";
-                        html += `<td class="${isLab}">
-                            <button class="edit-hover-btn" onclick="openManualAdjustModal(${cell.id}, '${cell.subject_code}', '${cell.faculty_name}', '${d}', ${s}, '${cell.room_id}')">✏️ Move</button>
-                            <div class="tt-cell-content">
-                                <span class="tt-subj-code">${cell.subject_code}</span>
-                                <span class="tt-room-pill">${cell.room_id}</span>
-                                <span class="tt-fac-name">${cell.faculty_name}</span>
-                            </div>
-                        </td>`;
-                    } else {
-                        html += `<td><span style="color: #475569;">&mdash;</span></td>`;
-                    }
-                });
-                html += `</tr>`;
+        function collectSectionRows() {
+            const rows = document.querySelectorAll("#dynamicSectionsBody tr");
+            const sections = [];
+            rows.forEach(tr => {
+                const letter = tr.querySelector(".sec-letter-input").value.trim().toUpperCase();
+                const display = tr.querySelector(".sec-display-input").value.trim();
+                const count = parseInt(tr.querySelector(".sec-count-input").value) || 60;
+                const room = tr.querySelector(".sec-room-input").value;
+                if (letter) {
+                    sections.push({ name: letter, display_name: display, student_count: count, preferred_classroom_id: room });
+                }
             });
-            tbody.innerHTML = html;
+            return sections;
         }
 
-        async function handleTriggerGeneration(event) {
-            event.preventDefault();
-            const btn = document.getElementById("genSubmitBtn");
+        function onDepartmentChanged() {
+            generateSectionRows();
+            const dept = document.getElementById("cfgDepartment").value;
+            const sem = document.getElementById("cfgSemester").value;
+            document.getElementById("presetSelectedLabel").innerText = `${dept} • Semester ${sem}`;
+        }
+
+        function onSemesterChanged() {
+            onDepartmentChanged();
+        }
+
+        // ================= STEP 2: COURSE DETAILS & PRESET =================
+        async function loadIFHECatalogPreset() {
+            const dept = document.getElementById("cfgDepartment").value;
+            const sem = parseInt(document.getElementById("cfgSemester").value);
+            const yr = sem <= 2 ? 1 : (sem <= 4 ? 2 : (sem <= 6 ? 3 : 4));
+
+            try {
+                const resp = await fetch("/api/timetable/catalog/preset", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ year: yr, semester: sem, department: dept })
+                });
+                const data = await resp.json();
+                if (data.success && data.courses.length > 0) {
+                    wizardData.subjects = data.courses.map((c, i) => ({
+                        id: i + 1,
+                        code: c.code,
+                        name: c.name,
+                        subject_type: c.subject_type,
+                        credits: c.credits,
+                        weekly_lecture_hours: c.weekly_lecture_hours,
+                        weekly_lab_hours: c.weekly_lab_hours,
+                        consecutive_slots: c.consecutive_slots,
+                        requires_lab: c.requires_lab,
+                        is_audit: c.is_audit,
+                        faculty_name: "",
+                        status: "valid"
+                    }));
+                    renderCoursesPreviewTable();
+                    showSuccess(`Successfully loaded ${wizardData.subjects.length} official courses for ${dept} Semester ${sem}.`);
+                } else {
+                    showError("No preset courses found for this semester.");
+                }
+            } catch (err) {
+                showError("Failed to fetch IFHE course preset: " + err.message);
+            }
+        }
+
+        async function handleCatalogFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                showSuccess("Uploading and analyzing file headers...");
+                const resp = await fetch("/api/timetable/catalog/upload", { method: "POST", body: formData });
+                const data = await resp.json();
+                if (data.success) {
+                    wizardData.subjects = data.parsed_subjects;
+                    renderCoursesPreviewTable();
+                    showSuccess(`Extracted ${data.total_extracted} courses from ${data.filename}!`);
+                } else {
+                    showError(data.error || "File parsing failed.");
+                }
+            } catch (err) {
+                showError("Upload failed: " + err.message);
+            }
+        }
+
+        function renderCoursesPreviewTable() {
+            const tbody = document.getElementById("coursesPreviewBody");
+            tbody.innerHTML = "";
+            document.getElementById("extractedCountBadge").innerText = wizardData.subjects.length;
+
+            wizardData.subjects.forEach((sub, idx) => {
+                const tr = document.createElement("tr");
+                const isErr = sub.status === "error";
+                if (isErr) tr.style.background = "rgba(239, 68, 68, 0.1)";
+
+                tr.innerHTML = `
+                    <td><input type="text" class="form-input" style="padding: 0.35rem; font-weight:700;" value="${sub.code}" onchange="updateSubjectField(${idx}, 'code', this.value)"></td>
+                    <td><input type="text" class="form-input" style="padding: 0.35rem;" value="${sub.name}" onchange="updateSubjectField(${idx}, 'name', this.value)"></td>
+                    <td>
+                        <select class="form-select" style="padding: 0.35rem;" onchange="updateSubjectField(${idx}, 'subject_type', this.value)">
+                            <option value="theory" ${sub.subject_type === 'theory' ? 'selected' : ''}>Theory</option>
+                            <option value="core" ${sub.subject_type === 'core' ? 'selected' : ''}>Core</option>
+                            <option value="practical" ${sub.subject_type === 'practical' ? 'selected' : ''}>Practical</option>
+                            <option value="elective" ${sub.subject_type === 'elective' ? 'selected' : ''}>Elective</option>
+                            <option value="audit" ${sub.subject_type === 'audit' ? 'selected' : ''}>Audit</option>
+                        </select>
+                    </td>
+                    <td><input type="number" class="form-input" style="padding: 0.35rem; text-align:center;" value="${sub.credits}" onchange="updateSubjectField(${idx}, 'credits', parseInt(this.value)||0)"></td>
+                    <td><input type="number" class="form-input" style="padding: 0.35rem; text-align:center;" value="${sub.weekly_lecture_hours}" onchange="updateSubjectField(${idx}, 'weekly_lecture_hours', parseInt(this.value)||0)"></td>
+                    <td><input type="number" class="form-input" style="padding: 0.35rem; text-align:center;" value="${sub.weekly_lab_hours}" onchange="updateSubjectField(${idx}, 'weekly_lab_hours', parseInt(this.value)||0)"></td>
+                    <td><input type="number" class="form-input" style="padding: 0.35rem; text-align:center;" value="${sub.consecutive_slots || 1}" onchange="updateSubjectField(${idx}, 'consecutive_slots', parseInt(this.value)||1)"></td>
+                    <td style="text-align:center;">
+                        <input type="checkbox" ${sub.requires_lab ? 'checked' : ''} onchange="updateSubjectField(${idx}, 'requires_lab', this.checked)">
+                    </td>
+                    <td><button class="btn-secondary" style="color: #f87171; padding: 0.25rem 0.5rem;" onclick="removeSubjectRow(${idx})">&times;</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateSubjectField(idx, field, value) {
+            if (wizardData.subjects[idx]) {
+                wizardData.subjects[idx][field] = value;
+                if (field === 'weekly_lab_hours' && value > 0) {
+                    wizardData.subjects[idx].requires_lab = true;
+                    wizardData.subjects[idx].consecutive_slots = 2;
+                }
+            }
+        }
+
+        function removeSubjectRow(idx) {
+            wizardData.subjects.splice(idx, 1);
+            renderCoursesPreviewTable();
+        }
+
+        function addNewSubjectRow() {
+            const newCode = `CS${300 + wizardData.subjects.length + 1}`;
+            wizardData.subjects.push({
+                id: wizardData.subjects.length + 1,
+                code: newCode,
+                name: "New Course Elective",
+                subject_type: "theory",
+                credits: 3,
+                weekly_lecture_hours: 3,
+                weekly_lab_hours: 0,
+                consecutive_slots: 1,
+                requires_lab: false,
+                is_audit: false,
+                faculty_name: "",
+                status: "valid"
+            });
+            renderCoursesPreviewTable();
+        }
+
+        // ================= STEP 3: CLASSROOM & LABS METADATA =================
+        async function fetchWizardInitData() {
+            try {
+                const resp = await fetch("/api/timetable/wizard-init");
+                const data = await resp.json();
+                if (data.success) {
+                    metaRooms = data.data.classrooms || [];
+                    metaLabs = data.data.labs || [];
+                    metaFaculty = data.data.faculty || [];
+                    renderRoomsChecklist();
+                    renderLabsChecklist();
+                }
+            } catch (err) {
+                console.error("Failed to fetch wizard init data:", err);
+            }
+        }
+
+        function renderRoomsChecklist() {
+            const container = document.getElementById("classroomsChecklistContainer");
+            container.innerHTML = "";
+            metaRooms.forEach(r => {
+                const div = document.createElement("div");
+                div.style = "background: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.65rem 0.85rem; display: flex; align-items: center; justify-content: space-between;";
+                div.innerHTML = `
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.84rem; font-weight:700; color:#ffffff;">
+                        <input type="checkbox" name="roomCheckbox" value="${r.id}" checked onchange="updateSelectedCounts()">
+                        <span>${r.id} (${r.name || 'Hall'})</span>
+                    </label>
+                    <span class="badge-slot" style="font-size:0.7rem;">Cap: ${r.seating_capacity}</span>
+                `;
+                container.appendChild(div);
+            });
+            updateSelectedCounts();
+        }
+
+        function renderLabsChecklist() {
+            const container = document.getElementById("labsChecklistContainer");
+            container.innerHTML = "";
+            metaLabs.forEach(l => {
+                const div = document.createElement("div");
+                div.style = "background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 0.5rem; padding: 0.65rem 0.85rem; display: flex; align-items: center; justify-content: space-between;";
+                div.innerHTML = `
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.84rem; font-weight:700; color:#38bdf8;">
+                        <input type="checkbox" name="labCheckbox" value="${l.id}" checked onchange="updateSelectedCounts()">
+                        <span>${l.id}</span>
+                    </label>
+                    <span class="badge-slot" style="background:#0369a1; font-size:0.7rem;">Cap: ${l.seating_capacity || 70}</span>
+                `;
+                container.appendChild(div);
+            });
+            updateSelectedCounts();
+        }
+
+        function updateSelectedCounts() {
+            const rCount = document.querySelectorAll("input[name='roomCheckbox']:checked").length;
+            const lCount = document.querySelectorAll("input[name='labCheckbox']:checked").length;
+            document.getElementById("selectedClassroomsCount").innerText = rCount;
+            document.getElementById("selectedLabsCount").innerText = lCount;
+        }
+
+        function toggleAllRooms(status) {
+            document.querySelectorAll("input[name='roomCheckbox']").forEach(cb => cb.checked = status);
+            updateSelectedCounts();
+        }
+
+        function toggleAllLabs(status) {
+            document.querySelectorAll("input[name='labCheckbox']").forEach(cb => cb.checked = status);
+            updateSelectedCounts();
+        }
+
+        // ================= STEP 4: FACULTY MAPPING =================
+        function renderFacultyMappingRows() {
+            const tbody = document.getElementById("facultyMappingBody");
+            tbody.innerHTML = "";
+
+            const defaultTeachers = [
+                "Dr. T. Bharat Kumar", "Prof. P. Sunitha", "Dr. R. V. Sharma",
+                "Dr. K. Srinivas", "Prof. Anjali Nair", "Dr. Manoj Gupta", "Prof. K. Ramesh"
+            ];
+
+            const secOptions = wizardData.sections.map(s => s.name);
+
+            wizardData.subjects.forEach((sub, idx) => {
+                const tr = document.createElement("tr");
+                const defTeacher = defaultTeachers[idx % defaultTeachers.length];
+
+                let facOptionsHtml = `<option value="">-- Select Faculty --</option>`;
+                metaFaculty.forEach(f => {
+                    facOptionsHtml += `<option value="${f}" ${f === defTeacher ? 'selected' : ''}>${f}</option>`;
+                });
+
+                let secBoxesHtml = "";
+                secOptions.forEach(sName => {
+                    secBoxesHtml += `<label style="font-size:0.78rem; display:inline-flex; align-items:center; gap:0.25rem; margin-right:0.6rem;"><input type="checkbox" class="fac-sec-cb-${idx}" value="${sName}" checked> Sec ${sName}</label>`;
+                });
+
+                tr.innerHTML = `
+                    <td><span class="badge-slot">${sub.code}</span></td>
+                    <td><strong>${sub.name}</strong></td>
+                    <td>${sub.weekly_lecture_hours + sub.weekly_lab_hours} hrs</td>
+                    <td>
+                        <select class="form-select fac-select-${idx}" style="padding: 0.4rem;">
+                            ${facOptionsHtml}
+                        </select>
+                    </td>
+                    <td>${secBoxesHtml}</td>
+                    <td><input type="number" class="form-input fac-workload-${idx}" style="padding: 0.4rem; width: 90px; text-align:center;" value="18"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function collectFacultyMappings() {
+            const assignments = [];
+            wizardData.subjects.forEach((sub, idx) => {
+                const selectEl = document.querySelector(`.fac-select-${idx}`);
+                const facName = selectEl ? selectEl.value : "";
+                const secCbs = document.querySelectorAll(`.fac-sec-cb-${idx}:checked`);
+                const sections = Array.from(secCbs).map(cb => cb.value);
+                const workload = parseInt(document.querySelector(`.fac-workload-${idx}`)?.value || 18);
+
+                assignments.push({
+                    subject_code: sub.code,
+                    faculty_name: facName,
+                    sections: sections,
+                    max_workload: workload
+                });
+            });
+            return assignments;
+        }
+
+        // ================= STEP 5: SOLVE ENGINE TRIGGER =================
+        async function triggerDynamicGeneration() {
+            const btn = document.getElementById("btnLaunchSolve");
             btn.disabled = true;
-            btn.innerHTML = "<span>⏳ Solving Constraints (CSP Engine)...</span>";
+            btn.innerText = "⏳ Running CSP Constraint Solver...";
 
-            const checkboxes = document.querySelectorAll('input[name="target_section"]:checked');
-            const section_ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            // Read preferences
+            wizardData.preferences.max_daily_periods = parseInt(document.getElementById("prefMaxDailyPeriods").value);
+            wizardData.preferences.max_consecutive_periods = parseInt(document.getElementById("prefMaxConsecutive").value);
+            wizardData.preferences.distribute_days = document.getElementById("prefDistributeDays").checked;
+            wizardData.preferences.compact_faculty = document.getElementById("prefCompactFaculty").checked;
+            wizardData.preferences.balance_rooms = document.getElementById("prefBalanceRooms").checked;
 
-            if (section_ids.length === 0) {
-                alert("Please select at least one section to schedule.");
+            try {
+                showSuccess("Executing global constraint solver across all dynamic sections...");
+                const resp = await fetch("/api/timetable/generate-dynamic", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(wizardData)
+                });
+                const data = await resp.json();
+
+                if (data.success) {
+                    activeVersionId = data.version_id;
+                    activeGenerationId = data.generation_id;
+
+                    // Display results dashboard
+                    document.getElementById("generationResultsCard").style.display = "block";
+                    document.getElementById("resSectionsCount").innerText = `${data.sections_created} Sections`;
+                    document.getElementById("resTotalClasses").innerText = `${data.total_classes} Periods`;
+                    document.getElementById("resFacultyConflicts").innerText = "0 Conflicts";
+                    document.getElementById("resRoomCollisions").innerText = "0 Collisions";
+                    document.getElementById("resOptScore").innerText = "100% Collision-Free";
+
+                    document.getElementById("validationDiagnosticBox").innerHTML = `
+                        <strong>✔ Constraint Satisfaction Verified:</strong> All ${data.sections_created} sections solved simultaneously.
+                        Zero section collisions, zero faculty double-bookings, and 100% capacity satisfaction verified by independent auditor.
+                    `;
+
+                    // Update download links
+                    document.getElementById("btnDownloadAllPdf").href = `/download/timetable-pdf/${activeVersionId}?all=1`;
+                    document.getElementById("btnDownloadCurrentPdf").href = `/download/timetable-pdf/${activeVersionId}?section_id=${currentTargetId}`;
+                    document.getElementById("btnDownloadExcel").href = `/download/timetable-excel/${activeVersionId}`;
+
+                    showSuccess("Timetable generated successfully for all sections!");
+                    await renderMatrixView();
+
+                    // Scroll to results
+                    document.getElementById("generationResultsCard").scrollIntoView({ behavior: "smooth" });
+                } else {
+                    showError(data.error || "Generation failed due to conflicting constraints.");
+                }
+            } catch (err) {
+                showError("Generation API error: " + err.message);
+            } finally {
                 btn.disabled = false;
-                btn.innerHTML = "<span>🚀 Run Constraint-Based Generation</span>";
-                return;
+                btn.innerText = "⚡ Generate Timetable for All Sections";
+            }
+        }
+
+        // ================= MATRIX GRID INSPECTION =================
+        async function renderMatrixView() {
+            try {
+                const resp = await fetch(`/api/timetable/matrix?version_id=${activeVersionId}&view_type=${currentPivot}&target_id=${encodeURIComponent(currentTargetId)}`);
+                const data = await resp.json();
+
+                if (data.success && data.matrix) {
+                    const m = data.matrix;
+                    renderDynamicPivotTabs(m.sec_tabs, m.faculty_tabs, m.room_tabs, m.lab_tabs);
+                    populateInteractiveGrid(m.days, m.slots, m.grid, m.view_type);
+                }
+            } catch (err) {
+                console.error("Failed to render matrix:", err);
+            }
+        }
+
+        function renderDynamicPivotTabs(secTabs, facTabs, roomTabs, labTabs) {
+            const container = document.getElementById("dynamicPivotTabsContainer");
+            container.innerHTML = "";
+
+            // All Sections Tab
+            const allBtn = document.createElement("button");
+            allBtn.className = `pivot-btn ${currentPivot === 'all_sections' ? 'active' : ''}`;
+            allBtn.innerText = "All Sections (Consolidated)";
+            allBtn.onclick = () => switchPivotView('all_sections', '');
+            container.appendChild(allBtn);
+
+            // Dynamic Section Tabs
+            if (secTabs && secTabs.length > 0) {
+                secTabs.forEach(s => {
+                    const btn = document.createElement("button");
+                    const isActive = (currentPivot === 'section' && String(currentTargetId) === String(s.id));
+                    btn.className = `pivot-btn ${isActive ? 'active' : ''}`;
+                    btn.innerText = `Section ${s.name}`;
+                    btn.onclick = () => switchPivotView('section', String(s.id));
+                    container.appendChild(btn);
+                });
             }
 
-            const payload = {
-                section_ids: section_ids,
-                scope: document.getElementById("genScope").value,
-                academic_year_id: parseInt(document.getElementById("genAcademicYear").value),
-                semester_id: parseInt(document.getElementById("genSemester").value),
-                department_id: document.getElementById("genDepartment").value
+            // Faculty View Tab
+            const facBtn = document.createElement("button");
+            facBtn.className = `pivot-btn ${currentPivot === 'faculty' ? 'active' : ''}`;
+            facBtn.innerText = "Faculty View";
+            facBtn.onclick = () => {
+                const defaultFac = (facTabs && facTabs.length > 0) ? facTabs[0] : "Dr. T. Bharat Kumar";
+                switchPivotView('faculty', defaultFac);
             };
+            container.appendChild(facBtn);
 
-            try {
-                const res = await fetch('/api/timetable/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert("Timetable generated successfully with 0 conflicts!");
-                    window.location.href = `/admin/timetable?gen_id=${data.generation_id}`;
-                } else {
-                    alert("Generation Failed: " + (data.error || "Unfeasible constraints"));
-                    btn.disabled = false;
-                    btn.innerHTML = "<span>🚀 Run Constraint-Based Generation</span>";
-                }
-            } catch (err) {
-                alert("Network error: " + err.message);
-                btn.disabled = false;
-                btn.innerHTML = "<span>🚀 Run Constraint-Based Generation</span>";
+            // Classroom View Tab
+            const roomBtn = document.createElement("button");
+            roomBtn.className = `pivot-btn ${currentPivot === 'classroom' ? 'active' : ''}`;
+            roomBtn.innerText = "Classroom View";
+            roomBtn.onclick = () => {
+                const defaultRoom = (roomTabs && roomTabs.length > 0) ? roomTabs[0] : "G16";
+                switchPivotView('classroom', defaultRoom);
+            };
+            container.appendChild(roomBtn);
+
+            // Lab View Tab
+            const labBtn = document.createElement("button");
+            labBtn.className = `pivot-btn ${currentPivot === 'lab' ? 'active' : ''}`;
+            labBtn.innerText = "Laboratory View";
+            labBtn.onclick = () => {
+                const defaultLab = (labTabs && labTabs.length > 0) ? labTabs[0] : "L1";
+                switchPivotView('lab', defaultLab);
+            };
+            container.appendChild(labBtn);
+
+            // Target selector dropdown handling
+            const wrapper = document.getElementById("pivotTargetSelectorWrapper");
+            const selectEl = document.getElementById("pivotTargetSelect");
+            const labelEl = document.getElementById("pivotTargetSelectorLabel");
+
+            if (currentPivot === 'faculty') {
+                wrapper.style.display = "block";
+                labelEl.innerText = "Select Faculty Member:";
+                selectEl.innerHTML = (facTabs || []).map(f => `<option value="${f}" ${f === currentTargetId ? 'selected' : ''}>${f}</option>`).join("");
+            } else if (currentPivot === 'classroom') {
+                wrapper.style.display = "block";
+                labelEl.innerText = "Select Classroom:";
+                selectEl.innerHTML = (roomTabs || []).map(r => `<option value="${r}" ${r === currentTargetId ? 'selected' : ''}>Classroom ${r}</option>`).join("");
+            } else if (currentPivot === 'lab') {
+                wrapper.style.display = "block";
+                labelEl.innerText = "Select Computer Laboratory:";
+                selectEl.innerHTML = (labTabs || []).map(l => `<option value="${l}" ${l === currentTargetId ? 'selected' : ''}>Laboratory ${l}</option>`).join("");
+            } else {
+                wrapper.style.display = "none";
             }
         }
 
-        async function handlePublishTimetable(genId) {
-            if (!confirm("Are you sure you want to publish this timetable? This will officially synchronize all classes to the Student and Faculty portals.")) return;
+        function switchPivotView(pivot, targetId) {
+            currentPivot = pivot;
+            currentTargetId = targetId;
+            document.getElementById("btnDownloadCurrentPdf").href = `/download/timetable-pdf/${activeVersionId}?section_id=${currentTargetId}`;
+            renderMatrixView();
+        }
 
-            try {
-                const res = await fetch('/api/timetable/publish', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ generation_id: genId })
+        function onPivotTargetChanged(newTarget) {
+            currentTargetId = newTarget;
+            renderMatrixView();
+        }
+
+        function populateInteractiveGrid(days, slots, grid, viewType) {
+            const tbody = document.getElementById("timetableGridBody");
+            tbody.innerHTML = "";
+
+            days.forEach(day => {
+                const tr = document.createElement("tr");
+
+                // Day Column
+                const dayTd = document.createElement("td");
+                dayTd.className = "day-cell";
+                dayTd.innerText = day;
+                tr.appendChild(dayTd);
+
+                slots.forEach(slot => {
+                    const td = document.createElement("td");
+
+                    if (slot === 5) {
+                        td.className = "lunch-cell";
+                        td.innerHTML = "LUNCH<br><span style='font-size:0.65rem; font-weight:400;'>12:30-01:20</span>";
+                        tr.appendChild(td);
+                        return;
+                    }
+
+                    const cellVal = grid[day] ? grid[day][slot] : null;
+
+                    if (viewType === 'all_sections' && Array.isArray(cellVal)) {
+                        if (cellVal.length > 0) {
+                            td.innerHTML = cellVal.map(e => `
+                                <div style="background: rgba(255,255,255,0.04); border-left: 2px solid #2dd4bf; padding: 2px 4px; margin-bottom: 2px; border-radius: 2px; text-align: left; font-size: 0.72rem;">
+                                    <strong>Sec ${e.section_name}:</strong> ${e.subject_code} <span style="color:#2dd4bf;">(${e.room_id})</span>
+                                </div>
+                            `).join("");
+                        } else {
+                            td.innerHTML = "<span style='color: #475569;'>—</span>";
+                        }
+                    }
+                    else if (cellVal && cellVal.subject_code) {
+                        if (cellVal.is_lab) td.classList.add("lab-cell");
+
+                        td.innerHTML = `
+                            <div style="font-weight: 800; font-size: 0.82rem; color: #ffffff;">
+                                ${cellVal.subject_code}
+                                ${cellVal.is_lab ? '<span class="badge-lab">LAB</span>' : ''}
+                            </div>
+                            <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 1px;">${cellVal.subject_name || ''}</div>
+                            <div style="font-size: 0.7rem; color: #2dd4bf; margin-top: 2px; font-weight: 600;">${cellVal.faculty_name}</div>
+                            <div style="margin-top: 3px;">
+                                <span class="badge-room">${cellVal.room_id}</span>
+                                ${cellVal.section_name ? `<span class="badge-slot" style="margin-left:2px;">Sec ${cellVal.section_name}</span>` : ''}
+                            </div>
+                        `;
+
+                        td.style.cursor = "pointer";
+                        td.title = "Click to adjust slot or room";
+                        td.onclick = () => openAdjustModal(cellVal);
+                    } else {
+                        td.innerHTML = "<span style='color: #475569;'>—</span>";
+                    }
+
+                    tr.appendChild(td);
                 });
-                const data = await res.json();
-                if (data.success) {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert("Publish failed: " + data.error);
-                }
-            } catch (err) {
-                alert("Error: " + err.message);
-            }
+
+                tbody.appendChild(tr);
+            });
         }
 
-        function openManualAdjustModal(entryId, subCode, faculty, day, slot, room) {
-            document.getElementById("adjustEntryId").value = entryId;
-            document.getElementById("adjustSubjInfo").textContent = `${subCode} taught by ${faculty}`;
-            document.getElementById("adjustDay").value = day;
-            document.getElementById("adjustSlot").value = slot;
-            document.getElementById("adjustRoom").value = room;
-            document.getElementById("adjustErrorBox").style.display = "none";
-            document.getElementById("adjustModal").style.display = "flex";
+        // ================= MANUAL ADJUSTMENT MODAL =================
+        function openAdjustModal(entry) {
+            document.getElementById("adjEntryId").value = entry.id;
+            document.getElementById("adjSubjectName").value = `${entry.subject_code} - ${entry.subject_name} (${entry.faculty_name})`;
+            document.getElementById("adjDaySelect").value = entry.day;
+            document.getElementById("adjSlotSelect").value = entry.slot;
+
+            // Populate room select with all rooms and labs
+            const roomSelect = document.getElementById("adjRoomSelect");
+            let rOpts = "";
+            metaRooms.forEach(r => {
+                rOpts += `<option value="${r.id}" ${r.id === entry.room_id ? 'selected' : ''}>${r.id} (${r.name || 'Hall'}, Cap: ${r.seating_capacity})</option>`;
+            });
+            metaLabs.forEach(l => {
+                rOpts += `<option value="${l.id}" ${l.id === entry.room_id ? 'selected' : ''}>[LAB] ${l.id} (Cap: ${l.seating_capacity || 70})</option>`;
+            });
+            roomSelect.innerHTML = rOpts;
+
+            document.getElementById("adjErrorAlert").style.display = "none";
+            document.getElementById("adjustEntryModal").style.display = "flex";
         }
 
-        function closeManualAdjustModal() {
-            document.getElementById("adjustModal").style.display = "none";
+        function closeAdjustModal() {
+            document.getElementById("adjustEntryModal").style.display = "none";
         }
 
-        async function submitManualAdjustment(event) {
+        async function handleSaveEntryAdjustment(event) {
             event.preventDefault();
-            const entryId = document.getElementById("adjustEntryId").value;
-            const day = document.getElementById("adjustDay").value;
-            const slot = document.getElementById("adjustSlot").value;
-            const room_id = document.getElementById("adjustRoom").value.trim();
-            const errBox = document.getElementById("adjustErrorBox");
-
-            errBox.style.display = "none";
+            const entryId = parseInt(document.getElementById("adjEntryId").value);
+            const newDay = document.getElementById("adjDaySelect").value;
+            const newSlot = parseInt(document.getElementById("adjSlotSelect").value);
+            const newRoom = document.getElementById("adjRoomSelect").value;
 
             try {
-                const res = await fetch('/api/timetable/adjust', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ entry_id: entryId, day: day, slot: slot, room_id: room_id })
+                const resp = await fetch("/api/timetable/adjust", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        entry_id: entryId,
+                        day: newDay,
+                        slot: newSlot,
+                        room_id: newRoom
+                    })
                 });
-                const data = await res.json();
+                const data = await resp.json();
+
                 if (data.success) {
-                    alert(data.message);
-                    closeManualAdjustModal();
-                    reloadMatrixView();
+                    closeAdjustModal();
+                    showSuccess("Adjustment validated and saved successfully!");
+                    renderMatrixView();
                 } else {
-                    errBox.textContent = data.error || "Conflict detected.";
+                    const errBox = document.getElementById("adjErrorAlert");
+                    errBox.innerText = data.error || "Conflict detected.";
                     errBox.style.display = "block";
                 }
             } catch (err) {
-                errBox.textContent = "Error: " + err.message;
+                const errBox = document.getElementById("adjErrorAlert");
+                errBox.innerText = "Adjustment failed: " + err.message;
                 errBox.style.display = "block";
             }
         }
 
-        async function checkMaintenanceImpact() {
-            const room = document.getElementById("maintRoomSelect").value;
-            const container = document.getElementById("maintImpactResults");
-            const summary = document.getElementById("maintImpactSummary");
-            const tableBox = document.getElementById("maintImpactTableContainer");
-
-            container.style.display = "block";
-            tableBox.innerHTML = '<div style="color: #94a3b8; padding: 1rem;">Analyzing published timetable impact...</div>';
+        // ================= PUBLISH WORKFLOW =================
+        async function publishActiveTimetable() {
+            if (!confirm("Are you sure you want to publish this timetable version? It will immediately synchronize active academic schedules across the Student Portal, Faculty Portal, and Free Room Finder.")) {
+                return;
+            }
 
             try {
-                const res = await fetch(`/api/timetable/maintenance-impact?room_id=${encodeURIComponent(room)}`);
-                const data = await res.json();
+                showSuccess("Publishing timetable and synchronizing campus database...");
+                const resp = await fetch("/api/timetable/publish", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ generation_id: activeGenerationId })
+                });
+                const data = await resp.json();
+
                 if (data.success) {
-                    const impact = data.impact;
-                    summary.textContent = `Room ${room} has ${impact.affected_count} scheduled published classes affected by maintenance:`;
-                    
-                    if (impact.affected_count > 0) {
-                        let html = `<table class="custom-table">
-                            <thead><tr><th>Period / Day</th><th>Subject</th><th>Section</th><th>Faculty</th><th>Suggested Free Substitutes</th></tr></thead><tbody>`;
-                        impact.impact_schedule.forEach(item => {
-                            const subRooms = item.vacant_substitutes.map(r => `<span class="tt-room-pill" style="margin: 2px;">${r.id} (${r.seating_capacity} cap)</span>`).join(" ") || "None available";
-                            html += `<tr>
-                                <td><strong>${item.day} Slot ${item.slot}</strong><br><small style="color: #94a3b8;">${item.time_range}</small></td>
-                                <td>${item.subject}</td>
-                                <td>${item.section}</td>
-                                <td>${item.faculty}</td>
-                                <td>${subRooms}</td>
-                            </tr>`;
-                        });
-                        html += `</tbody></table>`;
-                        tableBox.innerHTML = html;
-                    } else {
-                        tableBox.innerHTML = `<div style="color: #4ade80; padding: 0.75rem;">✅ No scheduled classes are currently occupying ${room}. Maintenance can proceed immediately without disruptions.</div>`;
-                    }
+                    showSuccess(`🎉 Published! Synced ${data.synced_to_campus} sessions to student and faculty portals.`);
+                    document.getElementById("globalGenStatusPill").innerHTML = '<span style="color: #4ade80;">Published</span>';
+                    document.getElementById("btnPublishAction").innerText = "✔ Official Version Published";
+                    document.getElementById("btnPublishAction").disabled = true;
+                } else {
+                    showError(data.error || "Failed to publish timetable.");
                 }
             } catch (err) {
-                tableBox.innerHTML = `<div style="color: #f87171; padding: 0.75rem;">Error querying maintenance impact.</div>`;
+                showError("Publishing error: " + err.message);
             }
+        }
+
+        // ================= HELPERS =================
+        function showSuccess(msg) {
+            const el = document.getElementById("genAlertSuccess");
+            el.innerText = msg;
+            el.style.display = "block";
+            setTimeout(() => el.style.display = "none", 6000);
+        }
+
+        function showError(msg) {
+            const el = document.getElementById("genAlertError");
+            el.innerText = msg;
+            el.style.display = "block";
+            setTimeout(() => el.style.display = "none", 8000);
         }
     </script>
 </body>

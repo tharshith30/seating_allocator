@@ -16,3 +16,9 @@ venv/
 .idea/
 scratch/
 
+# Generated exports
+outputs/
+*.xlsx
+*.pdf
+
+

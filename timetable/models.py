@@ -232,6 +232,52 @@ def init_timetable_db():
             );
         """)
 
+    # Column migrations for existing databases
+    with conn:
+        # Check subjects columns
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(subjects);")
+        sub_cols = [r["name"] for r in cursor.fetchall()]
+        if "credits" not in sub_cols:
+            conn.execute("ALTER TABLE subjects ADD COLUMN credits INTEGER DEFAULT 3;")
+        if "is_audit" not in sub_cols:
+            conn.execute("ALTER TABLE subjects ADD COLUMN is_audit BOOLEAN DEFAULT 0;")
+
+        # Check timetable_generations columns
+        cursor.execute("PRAGMA table_info(timetable_generations);")
+        gen_cols = [r["name"] for r in cursor.fetchall()]
+        if "config_json" not in gen_cols:
+            conn.execute("ALTER TABLE timetable_generations ADD COLUMN config_json TEXT;")
+
+        # Check timetable_entries columns
+        cursor.execute("PRAGMA table_info(timetable_entries);")
+        entry_cols = [r["name"] for r in cursor.fetchall()]
+        if "is_provisional" not in entry_cols:
+            conn.execute("ALTER TABLE timetable_entries ADD COLUMN is_provisional BOOLEAN DEFAULT 0;")
+
+        # Ensure institutional departments are registered
+        depts = [
+            ('CSE', 'Computer Science & Engineering', 'CSE'),
+            ('AIDS', 'Artificial Intelligence & Data Science', 'AIDS'),
+            ('AIML', 'Artificial Intelligence & Machine Learning', 'AIML'),
+            ('ECE', 'Electronics & Communication Engineering', 'ECE')
+        ]
+        for d_id, d_name, d_code in depts:
+            conn.execute("INSERT OR IGNORE INTO departments (id, name, code) VALUES (?, ?, ?);", (d_id, d_name, d_code))
+
+        # Ensure semesters 1 to 8 exist
+        cursor.execute("SELECT id FROM academic_years WHERE is_current = 1 LIMIT 1;")
+        ay_row = cursor.fetchone()
+        if ay_row:
+            cur_ay_id = ay_row[0]
+            for num in range(1, 9):
+                sem_code = f"SEM-{num}"
+                sem_name = f"Semester {num}"
+                conn.execute("""
+                    INSERT OR IGNORE INTO semesters (academic_year_id, code, number, name, is_active)
+                    VALUES (?, ?, ?, ?, 1);
+                """, (cur_ay_id, sem_code, num, sem_name))
+
     # Ensure institutional computer labs are registered in classrooms inventory
     lab_rooms = [
         ('L1', 'Computer Lab L1 (LIVIA)', 'Block-G', 1, 35, 70, 'Computer Lab'),

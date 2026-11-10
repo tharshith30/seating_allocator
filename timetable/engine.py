@@ -54,14 +54,29 @@ class TimetableTask:
 class CSPSchedulingEngine:
     """Backtracking Constraint Satisfaction Problem (CSP) engine with MRV & Forward Checking."""
 
-    def __init__(self, section_ids: list[int], working_days: list[str] = None):
+    def __init__(self, section_ids: list[int], working_days: list[str] = None,
+                 num_periods: int = 9, lunch_slot: int = 5,
+                 max_daily_periods: int = 7, max_consecutive_periods: int = 3,
+                 allowed_room_ids: list[str] = None, allowed_lab_ids: list[str] = None,
+                 is_provisional: bool = False):
         self.section_ids = section_ids
         self.working_days = working_days or STANDARD_WORKING_DAYS
-        self.valid_single_slots = [1, 2, 3, 4, 6, 7, 8, 9]  # Excludes Slot 5 (Lunch)
-        
+        self.num_periods = int(num_periods or 9)
+        self.lunch_slot = int(lunch_slot if lunch_slot is not None else 5)
+        self.max_daily_periods = int(max_daily_periods or 7)
+        self.max_consecutive_periods = int(max_consecutive_periods or 3)
+        self.allowed_room_ids = [r.strip().upper() for r in allowed_room_ids if r] if allowed_room_ids else None
+        self.allowed_lab_ids = [r.strip().upper() for r in allowed_lab_ids if r] if allowed_lab_ids else None
+        self.is_provisional = bool(is_provisional)
+
+        all_slots = list(range(1, self.num_periods + 1))
+        self.valid_single_slots = [s for s in all_slots if s != self.lunch_slot]
+
         # Valid starting slots for 2-hour consecutive lab blocks on same day
-        # (1,2) -> 09:00-10:40 | (3,4) -> 10:50-12:30 | (6,7) -> 01:20-03:00 | (7,8) -> 02:10-03:50 | (8,9) -> 03:00-04:40
-        self.valid_lab_start_slots_2 = [1, 3, 6, 7, 8]
+        self.valid_lab_start_slots_2 = [
+            s for s in self.valid_single_slots
+            if (s + 1) in self.valid_single_slots and (s + 1) <= self.num_periods
+        ]
 
         # Lookup caches loaded from DB
         self.sections = []
@@ -197,33 +212,40 @@ class CSPSchedulingEngine:
         eligible_rooms = []
 
         if task.is_lab:
-            # Labs require designated lab rooms or seminar halls with lab facilities
+            # Labs require designated lab rooms
             lab_candidates = ["L1", "L2", "L3", "L4", "LAB-1", "LAB-2", "LAB-3", "LAB-4"]
-            # Also check classrooms table for rooms marked as lab
-            for cr in self.classrooms:
-                r_id = cr["id"]
-                r_type = (cr.get("room_type") or "").lower()
-                cap = cr.get("seating_capacity", 0)
-                if ("lab" in r_type or "lab" in r_id.lower()) and cap >= students:
-                    if r_id not in lab_candidates:
-                        lab_candidates.append(r_id)
-            # Filter out maintenance blocked rooms
+            if self.allowed_lab_ids:
+                lab_candidates = [r for r in self.allowed_lab_ids]
+            else:
+                for cr in self.classrooms:
+                    r_id = cr["id"]
+                    r_type = (cr.get("room_type") or "").lower()
+                    cap = cr.get("seating_capacity", 0)
+                    if ("lab" in r_type or "lab" in r_id.lower()) and cap >= students:
+                        if r_id not in lab_candidates:
+                            lab_candidates.append(r_id)
             eligible_rooms = [r for r in lab_candidates if r.upper() not in self.maintenance_blocks]
             if not eligible_rooms:
                 eligible_rooms = ["LAB-1", "LAB-2"]  # Fallback to standard lab
         else:
             # Theory classes: Room must be available, not blocked, and capacity >= section strength
-            for cr in self.classrooms:
+            target_pool = self.classrooms
+            if self.allowed_room_ids:
+                target_pool = [cr for cr in self.classrooms if cr["id"].upper() in self.allowed_room_ids]
+
+            for cr in target_pool:
                 r_id = cr["id"]
                 if r_id.upper() in self.maintenance_blocks:
                     continue
                 if cr.get("seating_capacity", 0) >= students:
                     eligible_rooms.append(r_id)
 
-            # Prioritize preferred classroom at top
+            # Prioritize preferred classroom at top and keep candidate set compact
             if task.preferred_room_id and task.preferred_room_id in eligible_rooms:
-                eligible_rooms.remove(task.preferred_room_id)
-                eligible_rooms.insert(0, task.preferred_room_id)
+                other_rooms = [r for r in eligible_rooms if r != task.preferred_room_id]
+                eligible_rooms = [task.preferred_room_id] + other_rooms[:2]
+            else:
+                eligible_rooms = eligible_rooms[:3]
 
         return eligible_rooms
 
@@ -232,31 +254,45 @@ class CSPSchedulingEngine:
         fac_clean = task.faculty_name.strip().lower()
         r_clean = room_id.strip().upper()
 
+        # Daily period count check
+        current_daily_slots = sum(
+            1 for s in range(1, self.num_periods + 1)
+            if (task.section_id, day, s) in self.section_occ
+        )
+        if current_daily_slots + task.duration > self.max_daily_periods:
+            return False
+
         for slot_offset in range(task.duration):
             cur_slot = start_slot + slot_offset
 
             # Lunch break constraint
-            if cur_slot == 5:
+            if self.lunch_slot and cur_slot == self.lunch_slot:
                 return False
 
             # Section collision
             if (task.section_id, day, cur_slot) in self.section_occ:
                 return False
 
-            # Faculty collision
-            if (fac_clean, day, cur_slot) in self.faculty_occ:
-                return False
+            # Faculty collision (skip if provisional and unassigned)
+            is_unassigned = ("provisional" in fac_clean) or ("pending" in fac_clean) or not fac_clean
+            if not (self.is_provisional and is_unassigned):
+                if (fac_clean, day, cur_slot) in self.faculty_occ:
+                    return False
 
             # Room collision
             if (r_clean, day, cur_slot) in self.room_occ:
                 return False
 
-            # Faculty unavailability
-            if (fac_clean, day, cur_slot) in self.faculty_unavail:
+            # Room availability override constraint
+            if (r_clean, day, cur_slot) in self.room_unavail:
                 return False
 
-            # Room unavailability
-            if (r_clean, day, cur_slot) in self.room_unavail:
+            # Faculty unavailability constraint
+            if not is_unassigned and (fac_clean, day, cur_slot) in self.faculty_unavail:
+                return False
+
+            # Maintenance downtime block
+            if r_clean in self.maintenance_blocks:
                 return False
 
         return True
@@ -354,7 +390,8 @@ class CSPSchedulingEngine:
         Execute constraint satisfaction backtracking search with MRV and LCV.
         Returns: (success: bool, entries: list[dict], diagnostic_message: str)
         """
-        start_time = time.time()
+        self.start_time = time.time()
+        self.backtrack_count = 0
         self.load_institutional_data()
         tasks = self.build_tasks()
 
@@ -395,7 +432,7 @@ class CSPSchedulingEngine:
         logger.info("Starting CSP Backtracking solve for %d tasks across %d sections...", len(tasks), len(self.sections))
 
         success = self._backtrack(tasks, 0)
-        elapsed = round(time.time() - start_time, 3)
+        elapsed = round(time.time() - self.start_time, 3)
 
         if success:
             logger.info("CSP solver succeeded in %.3f seconds! Generated %d class entries.", elapsed, len(self.allocated_entries))
@@ -407,6 +444,10 @@ class CSPSchedulingEngine:
 
     def _backtrack(self, tasks: list[TimetableTask], task_idx: int) -> bool:
         """Recursive backtracking engine."""
+        self.backtrack_count += 1
+        if self.backtrack_count > 35000 or (time.time() - self.start_time) > 8.0:
+            return False
+
         if task_idx >= len(tasks):
             return True  # All tasks successfully scheduled without conflict!
 
@@ -479,9 +520,23 @@ class CSPSchedulingEngine:
         )
 
 
-def generate_academic_timetable(section_ids: list[int]) -> dict:
+def generate_academic_timetable(section_ids: list[int], working_days: list[str] = None,
+                                num_periods: int = 9, lunch_slot: int = 5,
+                                max_daily_periods: int = 7, max_consecutive_periods: int = 3,
+                                allowed_room_ids: list[str] = None, allowed_lab_ids: list[str] = None,
+                                is_provisional: bool = False) -> dict:
     """Public high-level API to generate and independently validate a timetable."""
-    engine = CSPSchedulingEngine(section_ids=section_ids)
+    engine = CSPSchedulingEngine(
+        section_ids=section_ids,
+        working_days=working_days,
+        num_periods=num_periods,
+        lunch_slot=lunch_slot,
+        max_daily_periods=max_daily_periods,
+        max_consecutive_periods=max_consecutive_periods,
+        allowed_room_ids=allowed_room_ids,
+        allowed_lab_ids=allowed_lab_ids,
+        is_provisional=is_provisional
+    )
     success, entries, message = engine.solve()
 
     if not success:
@@ -494,7 +549,7 @@ def generate_academic_timetable(section_ids: list[int]) -> dict:
         }
 
     # Run independent validation pass
-    val_report = validate_timetable(entries, engine.sections, engine.subjects, engine.classrooms)
+    val_report = validate_timetable(entries, engine.sections, engine.subjects, engine.classrooms, assignments=engine.assignments)
 
     return {
         "success": val_report["is_valid"],
@@ -504,5 +559,6 @@ def generate_academic_timetable(section_ids: list[int]) -> dict:
         "validation": val_report,
         "sections": engine.sections,
         "subjects": engine.subjects,
-        "total_classes": len(entries)
+        "total_classes": len(entries),
+        "is_provisional": is_provisional
     }
