@@ -608,8 +608,8 @@
                                         </td>
                                         <td>
                                             {% if ev.status == 'pending' %}
-                                                <button class="btn-primary" style="padding: 0.35rem 0.7rem; font-size: 0.78rem;" onclick="reviewAuditoriumEvent({{ ev.id }}, 'approved')">Approve</button>
-                                                <button class="btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.78rem;" onclick="reviewAuditoriumEvent({{ ev.id }}, 'rejected')">Reject</button>
+                                                <button class="btn-primary" style="padding: 0.35rem 0.7rem; font-size: 0.78rem;" onclick="reviewAuditoriumEvent('{{ ev.id }}', 'approved')">Approve</button>
+                                                <button class="btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.78rem;" onclick="reviewAuditoriumEvent('{{ ev.id }}', 'rejected')">Reject</button>
                                             {% else %}
                                                 <span style="font-size: 0.78rem; color: #94a3b8;">Reviewed</span>
                                             {% endif %}
@@ -820,9 +820,9 @@
                                     </td>
                                     <td>
                                         {% if u.locked_until or u.failed_attempts > 0 %}
-                                            <button class="btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="unlockUserAccount({{ u.id }})">Unlock</button>
+                                            <button class="btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="unlockUserAccount('{{ u.id }}')">Unlock</button>
                                         {% endif %}
-                                        <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="promptResetPin({{ u.id }}, '{{ u.username }}')">Reset PIN</button>
+                                        <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="promptResetPin('{{ u.id }}', '{{ u.username }}')">Reset PIN</button>
                                     </td>
                                 </tr>
                             {% endfor %}
