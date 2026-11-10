@@ -880,7 +880,17 @@
 
             const target = document.getElementById('sec-' + secId);
             if (target) target.classList.add('active');
-            if (navElem) navElem.classList.add('active');
+
+            if (navElem && navElem.classList) {
+                navElem.classList.add('active');
+            } else {
+                const matchingNav = Array.from(document.querySelectorAll('.nav-item')).find(el => {
+                    const oc = el.getAttribute('onclick') || '';
+                    return oc.includes(`'${secId}'`) || oc.includes(`"${secId}"`);
+                });
+                if (matchingNav) matchingNav.classList.add('active');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showAlert(msg, isSuccess = true) {
@@ -955,7 +965,7 @@
                     body: JSON.stringify(data)
                 });
                 const res = await response.json();
-                if (res.success) {
+                if (res.success || res.status === 'success') {
                     closeAddClassroomModal();
                     showAlert("Classroom " + data.id + " registered successfully!", true);
                     setTimeout(() => location.reload(), 1200);
@@ -976,8 +986,8 @@
                     body: JSON.stringify({ role: 'admin', pin: '1234' })
                 });
                 const res = await response.json();
-                if (res.success) {
-                    showAlert(res.message, true);
+                if (res.success || res.status === 'success') {
+                    showAlert(res.message || "Timetable imported successfully.", true);
                 } else {
                     showAlert(res.error || "Failed to import timetable.", false);
                 }
@@ -989,18 +999,19 @@
         async function reviewAuditoriumEvent(eventId, decision) {
             if (!confirm(`Are you sure you want to mark this event as ${decision.toUpperCase()}?`)) return;
             try {
-                const response = await fetch('/api/campus/auditoriums/events/review', {
+                const action = (decision === 'approved' ? 'approve' : (decision === 'rejected' ? 'reject' : decision));
+                const response = await fetch(`/api/campus/auditoriums/events/${eventId}/review`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        event_id: eventId,
-                        status: decision,
+                        action: action,
                         reviewed_by: 'Administrator',
-                        review_remarks: `Decision marked as ${decision} by Admin.`
+                        remarks: `Decision marked as ${decision} by Admin.`,
+                        pin: '1234'
                     })
                 });
                 const res = await response.json();
-                if (res.success) {
+                if (res.status === 'success' || res.success) {
                     showAlert(`Auditorium event ${decision} successfully.`, true);
                     setTimeout(() => location.reload(), 1000);
                 } else {
@@ -1013,19 +1024,19 @@
 
         async function triageTicket(ticketNo, status) {
             try {
-                const response = await fetch('/api/campus/facilities/maintenance/triage', {
+                const response = await fetch(`/api/campus/facilities/tickets/${ticketNo}/status`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        ticket_no: ticketNo,
                         status: status,
-                        resolution_notes: 'Resolved by Facilities Admin.',
+                        notes: 'Resolved by Facilities Admin.',
+                        updated_by: 'Administrator',
                         role: 'admin',
                         pin: '1234'
                     })
                 });
                 const res = await response.json();
-                if (res.success) {
+                if (res.status === 'success' || res.success) {
                     showAlert(`Ticket ${ticketNo} marked as resolved!`, true);
                     setTimeout(() => location.reload(), 1000);
                 } else {
@@ -1040,15 +1051,16 @@
             event.preventDefault();
             const form = event.target;
             const data = Object.fromEntries(new FormData(form).entries());
+            data.pin = '1234';
 
             try {
-                const response = await fetch('/api/library/observe', {
+                const response = await fetch('/api/library/occupancy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
                 const res = await response.json();
-                if (res.success) {
+                if (res.success || res.status === 'success') {
                     showAlert("Library verified headcount recorded successfully!", true);
                     setTimeout(() => location.reload(), 1200);
                 } else {

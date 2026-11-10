@@ -100,6 +100,16 @@ def api_add_occupancy():
 
     notes = str(data.get("notes", "")).strip()
 
+    # If total_capacity is provided and exceeds current capacity, update configuration
+    tot_cap = data.get("total_capacity")
+    if tot_cap:
+        try:
+            tot_cap_val = int(tot_cap)
+            if tot_cap_val > 0:
+                occupancy.update_config(capacity=tot_cap_val, pin=pin)
+        except Exception:
+            pass
+
     try:
         rec = occupancy.add_observation(occupied_seats=occupied, pin=pin, notes=notes)
         return jsonify({"success": True, "message": "Occupancy observation recorded successfully!", "record": rec}), 201
